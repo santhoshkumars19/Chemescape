@@ -9,9 +9,41 @@ dotenv.config();
 
 const app = express();
 
-// CORS Configuration (env based)
+// CORS Configuration (robust env based)
+const rawFrontendUrl = process.env.FRONTEND_URL || '';
+const configuredOrigins = rawFrontendUrl
+  .split(',')
+  .map((url) => url.trim().replace(/\/+$/, ''))
+  .filter(Boolean);
+
+const defaultDevOrigins = ['http://localhost:5173', 'http://localhost:5174', 'http://localhost:3000'];
+const allowedOrigins = configuredOrigins.length > 0 ? configuredOrigins : defaultDevOrigins;
+
 const corsOptions = {
-  origin: process.env.FRONTEND_URL || 'http://localhost:5173',
+  origin: (origin, callback) => {
+    // Allow server-to-server or non-browser tools (e.g. Postman, curl, health checks)
+    if (!origin) return callback(null, true);
+
+    const cleanOrigin = origin.replace(/\/+$/, '');
+
+    // 1. Direct match with configured origins
+    if (allowedOrigins.includes(cleanOrigin) || allowedOrigins.includes(origin)) {
+      return callback(null, true);
+    }
+
+    // 2. Allow any Vercel deployment preview / production domain for ChemEscape
+    if (cleanOrigin.endsWith('.vercel.app')) {
+      return callback(null, true);
+    }
+
+    // 3. Allow localhost in non-production environments
+    if (process.env.NODE_ENV !== 'production' && (cleanOrigin.includes('localhost') || cleanOrigin.includes('127.0.0.1'))) {
+      return callback(null, true);
+    }
+
+    console.warn(`[CORS Blocked] Origin: ${origin}. Configured FRONTEND_URL: ${process.env.FRONTEND_URL}`);
+    callback(new Error('CORS policy error: Origin not permitted'));
+  },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
