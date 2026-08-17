@@ -105,7 +105,6 @@ export function NavigationProvider({ children }) {
     }
   });
 
-  const [timeUntilNextLifeSec, setTimeUntilNextLifeSec] = useState(0);
   const [gameOverModalOpen, setGameOverModalOpen] = useState(false);
 
   // Sync lives to localStorage
@@ -122,11 +121,10 @@ export function NavigationProvider({ children }) {
     }
   }, [lives, nextLifeRegenTime]);
 
-  // 1-Second Regeneration Ticker
+  // Timed Life Regeneration Check (runs only when lives < 3, checks every 2s without state mutation if target not reached)
   useEffect(() => {
     if (lives >= 3) {
       if (nextLifeRegenTime !== null) setNextLifeRegenTime(null);
-      setTimeUntilNextLifeSec(0);
       return;
     }
 
@@ -153,11 +151,8 @@ export function NavigationProvider({ children }) {
           }
           return updated;
         });
-      } else {
-        const remainingSec = Math.ceil((targetTime - now) / 1000);
-        setTimeUntilNextLifeSec(remainingSec);
       }
-    }, 1000);
+    }, 2000);
 
     return () => clearInterval(interval);
   }, [lives, nextLifeRegenTime]);
@@ -302,7 +297,7 @@ export function NavigationProvider({ children }) {
         level,    streak,
         lives, setLives,
         deductLife, gainLife,
-        timeUntilNextLifeSec,
+        nextLifeRegenTime,
         gameOverModalOpen, setGameOverModalOpen,
         userBadges,
         userProgressList,

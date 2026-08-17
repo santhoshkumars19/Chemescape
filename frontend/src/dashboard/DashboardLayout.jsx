@@ -4,6 +4,7 @@ import { Menu, Bell, Search, X, CheckCheck, Trash2, Info, Trophy, Zap, Lock, Sta
 import Sidebar from './Sidebar';
 import { useAuth } from '../auth/AuthContext';
 import { useNavigation } from '../context/NavigationContext';
+import LifeTimerDisplay from '../components/LifeTimerDisplay';
 
 // ─── Notification data per role ───────────────────────────────────────────────
 const ROLE_NOTIFICATIONS = {
@@ -156,7 +157,7 @@ function NotificationPanel({ onClose }) {
 function Topbar({ onMenuClick }) {
   const { user } = useAuth();
   const role = user?.role || 'STUDENT';
-  const { lives, timeUntilNextLifeSec } = useNavigation();
+  const { lives, nextLifeRegenTime } = useNavigation();
 
   const [searchOpen, setSearchOpen] = useState(false);
   const [notifOpen, setNotifOpen] = useState(false);
@@ -165,12 +166,6 @@ function Topbar({ onMenuClick }) {
   );
   const bellRef = useRef(null);
   const panelRef = useRef(null);
-
-  const formatRegen = (secs) => {
-    const m = Math.floor(secs / 60);
-    const s = secs % 60;
-    return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
-  };
 
   // Close panel on outside click
   useEffect(() => {
@@ -232,10 +227,7 @@ function Topbar({ onMenuClick }) {
               ))}
             </div>
             {lives < 3 && (
-              <div className="flex items-center gap-1 text-[11px] font-mono text-red-300 font-bold border-l border-red-500/20 pl-2">
-                <Timer size={12} className="text-red-400 animate-spin" />
-                <span>{formatRegen(timeUntilNextLifeSec)}</span>
-              </div>
+              <LifeTimerDisplay nextLifeRegenTime={nextLifeRegenTime} variant="compact" />
             )}
           </div>
         </div>
@@ -325,13 +317,7 @@ function Topbar({ onMenuClick }) {
 export default function DashboardLayout({ children }) {
   const [collapsed, setCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
-  const { gameOverModalOpen, setGameOverModalOpen, timeUntilNextLifeSec, navigateTo } = useNavigation();
-
-  const formatRegen = (secs) => {
-    const m = Math.floor(secs / 60);
-    const s = secs % 60;
-    return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
-  };
+  const { gameOverModalOpen, setGameOverModalOpen, nextLifeRegenTime, navigateTo } = useNavigation();
 
   return (
     <div className="flex h-screen overflow-hidden bg-[#040810] w-full">
@@ -392,10 +378,7 @@ export default function DashboardLayout({ children }) {
                 {/* Timer display box */}
                 <div className="bg-slate-950 border border-red-500/40 rounded-xl p-4 mb-6 font-mono">
                   <p className="text-[10px] text-slate-400 uppercase tracking-widest mb-1">Next Life Regenerates In</p>
-                  <div className="text-3xl font-black text-red-400 flex items-center justify-center gap-2">
-                    <Clock size={24} className="text-red-400 animate-spin" />
-                    <span>{formatRegen(timeUntilNextLifeSec)}</span>
-                  </div>
+                  <LifeTimerDisplay nextLifeRegenTime={nextLifeRegenTime} variant="large" />
                   <p className="text-[10px] text-slate-500 mt-2">1 life restored every 10 mins (Max 3 lives)</p>
                 </div>
 
