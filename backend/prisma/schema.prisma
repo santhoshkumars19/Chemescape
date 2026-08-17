@@ -1,0 +1,318 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  STUDENT
+  TEACHER
+  ADMIN
+}
+
+enum Difficulty {
+  EASY
+  MEDIUM
+  HARD
+  EXPERT
+}
+
+enum QuestionType {
+  MCQ
+  DRAG_DROP
+  MATCHING
+  ORDERING
+  IDENTIFY
+  ELECTRON_CONFIGURATION
+  CALCULATION
+  BOSS
+}
+
+enum RoomType {
+  INTRO
+  PUZZLE
+  CHALLENGE
+  BOSS
+}
+
+enum GameType {
+  CALCULATION_HEIST
+  QUANTUM_ARCHITECT
+  GRID_RECONSTRUCTION
+  HYDROGEN_REACTOR
+  METAL_SORTING
+  GAS_SIMULATOR
+  ENERGY_CORE
+  EQUILIBRIUM_STABILIZER
+  PRECISION_MIXING
+  MOLECULAR_BUILDER
+  CARBON_DETECTIVE
+  REACTION_CIPHER
+  PETROCHEMICAL_PIPELINE
+  STEREOCHEMICAL_VAULT
+  ECOLOGICAL_STRATEGY
+}
+
+enum SessionStatus {
+  ACTIVE
+  COMPLETED
+  FAILED
+  ABANDONED
+}
+
+model User {
+  id        String   @id @default(uuid())
+  name      String
+  email     String   @unique
+  password  String
+  role      Role     @default(STUDENT)
+  avatar    String?  @default("🧪")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  progress  UserGameProgress[]
+  badges    UserBadge[]
+  sessions  GameSession[]
+  stats     UserStats?
+
+  @@map("users")
+}
+
+model Standard {
+  id          String   @id @default(uuid())
+  name        String   @unique // e.g. "11", "12"
+  displayName String   // e.g. "11th Standard"
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  subjects    StandardSubject[]
+  chapters    Chapter[]
+
+  @@map("standards")
+}
+
+model Subject {
+  id          String   @id @default(uuid())
+  name        String   // e.g. "Chemistry"
+  code        String   @unique // e.g. "CHEM"
+  description String?  @db.Text
+  icon        String?  @default("🧪")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  standards   StandardSubject[]
+  chapters    Chapter[]
+
+  @@map("subjects")
+}
+
+model StandardSubject {
+  id         String   @id @default(uuid())
+  standardId String
+  subjectId  String
+  createdAt  DateTime @default(now())
+
+  standard   Standard @relation(fields: [standardId], references: [id], onDelete: Cascade)
+  subject    Subject  @relation(fields: [subjectId], references: [id], onDelete: Cascade)
+
+  @@unique([standardId, subjectId])
+  @@map("standard_subjects")
+}
+
+model Chapter {
+  id               String     @id @default(uuid())
+  standardId       String
+  subjectId        String
+  title            String
+  description      String?    @db.Text
+  chapterNumber    Int
+  difficulty       Difficulty @default(MEDIUM)
+  estimatedMinutes Int        @default(30)
+  xpReward         Int        @default(500)
+  coinReward       Int        @default(100)
+  badgeName        String?
+  isLocked         Boolean    @default(false)
+  createdAt        DateTime   @default(now())
+  updatedAt        DateTime   @updatedAt
+
+  standard         Standard   @relation(fields: [standardId], references: [id], onDelete: Cascade)
+  subject          Subject    @relation(fields: [subjectId], references: [id], onDelete: Cascade)
+
+  topics           Topic[]
+  rooms            Room[]
+  questions        Question[]
+  progress         UserGameProgress[]
+
+  @@unique([standardId, subjectId, chapterNumber])
+  @@map("chapters")
+}
+
+model Topic {
+  id          String   @id @default(uuid())
+  chapterId   String
+  title       String
+  description String?  @db.Text
+  orderNumber Int
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  chapter     Chapter  @relation(fields: [chapterId], references: [id], onDelete: Cascade)
+  questions   Question[]
+
+  @@unique([chapterId, orderNumber])
+  @@map("topics")
+}
+
+model Room {
+  id          String   @id @default(uuid())
+  chapterId   String
+  roomNumber  Int
+  name        String
+  description String?  @db.Text
+  roomType    RoomType @default(PUZZLE)
+  gameType    GameType @default(CALCULATION_HEIST)
+  gameConfig  Json?
+  orderNumber Int
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  chapter     Chapter            @relation(fields: [chapterId], references: [id], onDelete: Cascade)
+  questions   Question[]
+  progress    UserGameProgress[]
+  sessions    GameSession[]
+  reward      GameReward?
+
+  @@unique([chapterId, roomNumber])
+  @@map("rooms")
+}
+
+model Question {
+  id           String       @id @default(uuid())
+  chapterId    String
+  topicId      String?
+  roomId       String?
+  questionText String       @db.Text
+  questionType QuestionType @default(MCQ)
+  difficulty   Difficulty   @default(MEDIUM)
+  points       Int          @default(100)
+  hint         String?      @db.Text
+  explanation  String?      @db.Text
+  timeLimit    Int?         @default(60) // in seconds
+  puzzleData   Json?        // JSON data for DRAG_DROP, MATCHING, ELECTRON_CONFIG, ORDERING, etc.
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+
+  chapter      Chapter      @relation(fields: [chapterId], references: [id], onDelete: Cascade)
+  topic        Topic?       @relation(fields: [topicId], references: [id], onDelete: SetNull)
+  room         Room?        @relation(fields: [roomId], references: [id], onDelete: SetNull)
+  options      QuestionOption[]
+
+  @@map("questions")
+}
+
+model QuestionOption {
+  id          String   @id @default(uuid())
+  questionId  String
+  optionText  String   @db.Text
+  optionValue String?
+  isCorrect   Boolean  @default(false)
+  orderNumber Int
+
+  question    Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+
+  @@map("question_options")
+}
+
+model UserGameProgress {
+  id           String   @id @default(uuid())
+  userId       String
+  chapterId    String
+  roomId       String
+  highScore    Int      @default(0)
+  starsEarned  Int      @default(0) // 0 to 3
+  attempts     Int      @default(0)
+  bestTimeSec  Int?
+  isCompleted  Boolean  @default(false)
+  gameState    Json?    // Resumable state
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  chapter      Chapter  @relation(fields: [chapterId], references: [id], onDelete: Cascade)
+  room         Room     @relation(fields: [roomId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, roomId])
+  @@map("user_game_progress")
+}
+
+model UserBadge {
+  id               String   @id @default(uuid())
+  userId           String
+  badgeName        String
+  badgeDescription String?  @db.Text
+  badgeIcon        String?  @default("🏆")
+  unlockedAt       DateTime @default(now())
+
+  user             User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, badgeName])
+  @@map("user_badges")
+}
+
+model GameSession {
+  id             String        @id @default(uuid())
+  userId         String
+  roomId         String
+  status         SessionStatus @default(ACTIVE)
+  score          Int           @default(0)
+  stars          Int           @default(0)
+  livesRemaining Int           @default(3)
+  startedAt      DateTime      @default(now())
+  completedAt    DateTime?
+  timeSpentSec   Int           @default(0)
+  sessionState   Json?
+
+  user           User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  room           Room          @relation(fields: [roomId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([roomId])
+  @@map("game_sessions")
+}
+
+model GameReward {
+  id               String   @id @default(uuid())
+  roomId           String   @unique
+  xp               Int      @default(500)
+  coins            Int      @default(100)
+  badgeName        String?
+  badgeDescription String?  @db.Text
+  badgeIcon        String?  @default("🏆")
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  room             Room     @relation(fields: [roomId], references: [id], onDelete: Cascade)
+
+  @@map("game_rewards")
+}
+
+model UserStats {
+  id            String   @id @default(uuid())
+  userId        String   @unique
+  totalXP       Int      @default(0)
+  totalCoins    Int      @default(0)
+  currentLevel  Int      @default(1)
+  currentStreak Int      @default(1)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("user_stats")
+}
