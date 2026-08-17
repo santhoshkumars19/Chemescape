@@ -1,8 +1,9 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Menu, Bell, Search, X, CheckCheck, Trash2, Info, Trophy, Zap, Lock, Star, AlertTriangle } from 'lucide-react';
+import { Menu, Bell, Search, X, CheckCheck, Trash2, Info, Trophy, Zap, Lock, Star, AlertTriangle, Heart, Clock, Timer } from 'lucide-react';
 import Sidebar from './Sidebar';
 import { useAuth } from '../auth/AuthContext';
+import { useNavigation } from '../context/NavigationContext';
 
 // ─── Notification data per role ───────────────────────────────────────────────
 const ROLE_NOTIFICATIONS = {
@@ -155,6 +156,7 @@ function NotificationPanel({ onClose }) {
 function Topbar({ onMenuClick }) {
   const { user } = useAuth();
   const role = user?.role || 'STUDENT';
+  const { lives, timeUntilNextLifeSec } = useNavigation();
 
   const [searchOpen, setSearchOpen] = useState(false);
   const [notifOpen, setNotifOpen] = useState(false);
@@ -163,6 +165,12 @@ function Topbar({ onMenuClick }) {
   );
   const bellRef = useRef(null);
   const panelRef = useRef(null);
+
+  const formatRegen = (secs) => {
+    const m = Math.floor(secs / 60);
+    const s = secs % 60;
+    return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+  };
 
   // Close panel on outside click
   useEffect(() => {
@@ -207,10 +215,29 @@ function Topbar({ onMenuClick }) {
         </button>
 
         {/* Page title */}
-        <div className="flex-1">
+        <div className="flex-1 flex items-center gap-4">
           <h2 className="font-orbitron font-bold text-sm tracking-widest text-emerald-400/80 hidden sm:block">
             {pageTitle}
           </h2>
+
+          {/* Lives HUD Widget */}
+          <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-red-950/40 border border-red-500/30 shadow-[0_0_15px_rgba(239,68,68,0.2)]">
+            <div className="flex items-center gap-1">
+              {[1, 2, 3].map((idx) => (
+                <Heart
+                  key={idx}
+                  size={15}
+                  className={idx <= lives ? "text-red-500 fill-red-500 drop-shadow-[0_0_6px_rgba(239,68,68,0.6)]" : "text-slate-600 opacity-40"}
+                />
+              ))}
+            </div>
+            {lives < 3 && (
+              <div className="flex items-center gap-1 text-[11px] font-mono text-red-300 font-bold border-l border-red-500/20 pl-2">
+                <Timer size={12} className="text-red-400 animate-spin" />
+                <span>{formatRegen(timeUntilNextLifeSec)}</span>
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Search overlay */}
@@ -298,6 +325,13 @@ function Topbar({ onMenuClick }) {
 export default function DashboardLayout({ children }) {
   const [collapsed, setCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const { gameOverModalOpen, setGameOverModalOpen, timeUntilNextLifeSec, navigateTo } = useNavigation();
+
+  const formatRegen = (secs) => {
+    const m = Math.floor(secs / 60);
+    const s = secs % 60;
+    return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+  };
 
   return (
     <div className="flex h-screen overflow-hidden bg-[#040810] w-full">
@@ -321,6 +355,71 @@ export default function DashboardLayout({ children }) {
             {children}
           </motion.div>
         </main>
+
+        {/* Game Over / Out of Lives Modal */}
+        <AnimatePresence>
+          {gameOverModalOpen && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md"
+            >
+              <motion.div
+                initial={{ scale: 0.9, y: 20 }}
+                animate={{ scale: 1, y: 0 }}
+                exit={{ scale: 0.9, y: 20 }}
+                className="relative max-w-md w-full bg-[#0b1329] border-2 border-red-500/50 rounded-2xl p-6 text-center shadow-[0_0_50px_rgba(239,68,68,0.3)] font-sans"
+              >
+                <button
+                  onClick={() => setGameOverModalOpen(false)}
+                  className="absolute top-4 right-4 text-slate-400 hover:text-white"
+                >
+                  <X size={20} />
+                </button>
+
+                <div className="w-16 h-16 rounded-full bg-red-950/80 border-2 border-red-500/60 flex items-center justify-center mx-auto mb-4 animate-pulse">
+                  <Heart size={32} className="text-red-500 fill-red-500" />
+                </div>
+
+                <h3 className="text-xl font-orbitron font-extrabold text-white mb-2 tracking-wider">
+                  OUT OF LIVES!
+                </h3>
+                <p className="text-xs text-slate-300 font-space mb-6 leading-relaxed">
+                  You lost all 3 lives during your last mission. 1 life regenerates automatically every 10 minutes!
+                </p>
+
+                {/* Timer display box */}
+                <div className="bg-slate-950 border border-red-500/40 rounded-xl p-4 mb-6 font-mono">
+                  <p className="text-[10px] text-slate-400 uppercase tracking-widest mb-1">Next Life Regenerates In</p>
+                  <div className="text-3xl font-black text-red-400 flex items-center justify-center gap-2">
+                    <Clock size={24} className="text-red-400 animate-spin" />
+                    <span>{formatRegen(timeUntilNextLifeSec)}</span>
+                  </div>
+                  <p className="text-[10px] text-slate-500 mt-2">1 life restored every 10 mins (Max 3 lives)</p>
+                </div>
+
+                <div className="flex gap-3">
+                  <button
+                    onClick={() => {
+                      setGameOverModalOpen(false);
+                      navigateTo('syllabus');
+                    }}
+                    className="flex-1 py-3 rounded-xl bg-slate-900 border border-cyan-500/30 font-orbitron text-xs font-bold text-cyan-300 hover:bg-cyan-950 transition-all"
+                  >
+                    Study Syllabus
+                  </button>
+                  <button
+                    onClick={() => setGameOverModalOpen(false)}
+                    className="flex-1 py-3 rounded-xl bg-gradient-to-r from-red-600 to-amber-600 font-orbitron text-xs font-bold text-white hover:brightness-110 transition-all shadow-[0_0_20px_rgba(239,68,68,0.4)]"
+                  >
+                    Return to Hub
+                  </button>
+                </div>
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
     </div>
   );

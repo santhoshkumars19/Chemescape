@@ -87,7 +87,7 @@ const DEFAULT_GAME_STATE = {
 };
 
 export default function QuantumArchitectPage() {
-  const { navigateTo, addXp, addCoins, markRoomCompleted } = useNavigation();
+  const { navigateTo, addXp, addCoins, markRoomCompleted, lives, deductLife } = useNavigation();
   const { token } = useAuth();
 
   // Session & Game State
@@ -96,7 +96,6 @@ export default function QuantumArchitectPage() {
   const [roomId, setRoomId] = useState(null);
   const [gameState, setGameState] = useState(DEFAULT_GAME_STATE);
   const [currentStage, setCurrentStage] = useState(1);
-  const [lives, setLives] = useState(3);
   const [score, setScore] = useState(0);
   const [timer, setTimer] = useState(360); // 6 minutes
   const [failed, setFailed] = useState(false);
@@ -263,12 +262,12 @@ export default function QuantumArchitectPage() {
             }, 1800);
           }
         } else {
-          setLives(res.livesRemaining !== undefined ? res.livesRemaining : Math.max(0, lives - 1));
+          deductLife(1);
           setFeedback({
             type: 'wrong',
             explanation: res.explanation || 'Orbital instability detected! Life lost.',
           });
-          if (res.failed || (res.livesRemaining !== undefined && res.livesRemaining <= 0)) setFailed(true);
+          if (res.failed || lives <= 1) setFailed(true);
         }
       } else {
         throw new Error(data.message || 'Validation error');

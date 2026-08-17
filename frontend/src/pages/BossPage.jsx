@@ -254,7 +254,7 @@ function GameOverScreen({ onRetry }) {
 // MAIN BOSS BATTLE PAGE
 // ═══════════════════════════════════════════════════════
 export default function BossPage() {
-  const { navigateTo } = useNavigation();
+  const { navigateTo, deductLife } = useNavigation();
 
   const [questions,  setQuestions]   = useState(() => shuffleArray(RAW_QUESTIONS));
   const [qIdx,       setQIdx]        = useState(0);
@@ -350,6 +350,7 @@ export default function BossPage() {
 
       setTimeout(() => {
         setPlayerFlash(true);
+        deductLife(1);
         setPlayerHp(h => {
           const next = Math.max(0, h - 1);
           if (next <= 0) setTimeout(() => setGameOver(true), 600);

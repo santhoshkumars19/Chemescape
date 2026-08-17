@@ -10,7 +10,7 @@ import {
 const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api';
 
 export default function GridReconstructionPage() {
-  const { navigateTo, addXp, addCoins, markRoomCompleted } = useNavigation();
+  const { navigateTo, addXp, addCoins, markRoomCompleted, lives, deductLife } = useNavigation();
   const { token } = useAuth();
 
   // Session & Game State
@@ -19,7 +19,6 @@ export default function GridReconstructionPage() {
   const [roomId, setRoomId] = useState(null);
   const [gameState, setGameState] = useState(null);
   const [currentStage, setCurrentStage] = useState(1);
-  const [lives, setLives] = useState(3);
   const [score, setScore] = useState(0);
   const [timer, setTimer] = useState(420); // 7 minutes
   const [failed, setFailed] = useState(false);
@@ -188,12 +187,12 @@ export default function GridReconstructionPage() {
             }, 2000);
           }
         } else {
-          setLives(res.livesRemaining);
+          deductLife(1);
           setFeedback({
             type: 'wrong',
             explanation: res.explanation || 'Incorrect grid placement or trend selection! Life lost.',
           });
-          if (res.failed) setFailed(true);
+          if (res.failed || lives <= 1) setFailed(true);
         }
       }
     } catch (err) {

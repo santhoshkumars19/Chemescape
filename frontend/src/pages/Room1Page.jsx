@@ -771,12 +771,11 @@ function GameOverScreen({ onRetry }) {
 const fmtTime = (s) => `${String(Math.floor(s / 60)).padStart(2, '0')}:${String(Math.floor(s % 60)).padStart(2, '0')}`;
 
 export default function Room1Page() {
-  const { navigateTo } = useNavigation();
+  const { navigateTo, lives, deductLife } = useNavigation();
 
   const [activePuzzle, setActivePuzzle] = useState(null); // puzzle id
   const [solved, setSolved]             = useState([]);   // array of solved obj ids
   const [clues, setClues]               = useState([]);   // collected clue ids (numbers 0-4)
-  const [lives, setLives]               = useState(3);
   const [timer, setTimer]               = useState(600);  // 10 min
   const [hints, setHints]               = useState(3);
   const [showHint, setShowHint]         = useState(false);
@@ -825,11 +824,7 @@ export default function Room1Page() {
 
   const handleWrong = () => {
     setFeedback('wrong');
-    setLives(prev => {
-      const next = prev - 1;
-      if (next <= 0) setTimeout(() => setGameOver(true), 800);
-      return Math.max(0, next);
-    });
+    deductLife(1);
     setTimeout(() => setFeedback(null), 600);
   };
 

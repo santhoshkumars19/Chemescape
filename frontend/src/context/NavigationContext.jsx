@@ -84,6 +84,109 @@ export function NavigationProvider({ children }) {
   const [userBadges, setUserBadges]             = useState([]);
   const [userProgressList, setUserProgressList] = useState([]);
 
+  // ── 10-Minute Timed Life Regeneration System ──────────────────────────────
+  const REGEN_INTERVAL_MS = 10 * 60 * 1000; // 10 minutes per life
+
+  const [lives, setLives] = useState(() => {
+    try {
+      const saved = localStorage.getItem('chemescape_global_lives');
+      return saved !== null ? parseInt(saved, 10) : 3;
+    } catch {
+      return 3;
+    }
+  });
+
+  const [nextLifeRegenTime, setNextLifeRegenTime] = useState(() => {
+    try {
+      const saved = localStorage.getItem('chemescape_next_life_regen');
+      return saved ? parseInt(saved, 10) : null;
+    } catch {
+      return null;
+    }
+  });
+
+  const [timeUntilNextLifeSec, setTimeUntilNextLifeSec] = useState(0);
+  const [gameOverModalOpen, setGameOverModalOpen] = useState(false);
+
+  // Sync lives to localStorage
+  useEffect(() => {
+    try {
+      localStorage.setItem('chemescape_global_lives', String(lives));
+      if (nextLifeRegenTime) {
+        localStorage.setItem('chemescape_next_life_regen', String(nextLifeRegenTime));
+      } else {
+        localStorage.removeItem('chemescape_next_life_regen');
+      }
+    } catch {
+      /* non-fatal */
+    }
+  }, [lives, nextLifeRegenTime]);
+
+  // 1-Second Regeneration Ticker
+  useEffect(() => {
+    if (lives >= 3) {
+      if (nextLifeRegenTime !== null) setNextLifeRegenTime(null);
+      setTimeUntilNextLifeSec(0);
+      return;
+    }
+
+    let targetTime = nextLifeRegenTime;
+    if (!targetTime) {
+      targetTime = Date.now() + REGEN_INTERVAL_MS;
+      setNextLifeRegenTime(targetTime);
+    }
+
+    const interval = setInterval(() => {
+      const now = Date.now();
+      if (now >= targetTime) {
+        // Calculate how many 10-minute intervals passed while offline/idle
+        const elapsedSinceTarget = now - targetTime;
+        const additionalGained = 1 + Math.floor(elapsedSinceTarget / REGEN_INTERVAL_MS);
+
+        setLives((prev) => {
+          const updated = Math.min(3, prev + additionalGained);
+          if (updated >= 3) {
+            setNextLifeRegenTime(null);
+          } else {
+            const remainder = elapsedSinceTarget % REGEN_INTERVAL_MS;
+            setNextLifeRegenTime(now + (REGEN_INTERVAL_MS - remainder));
+          }
+          return updated;
+        });
+      } else {
+        const remainingSec = Math.ceil((targetTime - now) / 1000);
+        setTimeUntilNextLifeSec(remainingSec);
+      }
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [lives, nextLifeRegenTime]);
+
+  // Deduct Life helper
+  const deductLife = useCallback((amount = 1) => {
+    setLives((prevLives) => {
+      const nextLives = Math.max(0, prevLives - amount);
+      if (nextLives < 3 && !nextLifeRegenTime) {
+        setNextLifeRegenTime(Date.now() + REGEN_INTERVAL_MS);
+      }
+      if (nextLives === 0) {
+        setGameOverModalOpen(true);
+        setCurrentScreen('dashboard');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+      return nextLives;
+    });
+  }, [nextLifeRegenTime]);
+
+  // Gain Life helper
+  const gainLife = useCallback((amount = 1) => {
+    setLives((prevLives) => {
+      const nextLives = Math.min(3, prevLives + amount);
+      if (nextLives === 3) setNextLifeRegenTime(null);
+      return nextLives;
+    });
+  }, []);
+
   // ─────────────────────────────────────────────────────────────────────────
   // clearProgressState — MUST be called on logout and before loading a new user.
   // Wipes every piece of in-memory game progress so User A's data can never
@@ -143,7 +246,21 @@ export function NavigationProvider({ children }) {
   // ─────────────────────────────────────────────────────────────────────────
   // Navigation
   // ─────────────────────────────────────────────────────────────────────────
+  const GAME_SCREENS = [
+    'calculation-heist', 'quantum-architect', 'grid-reconstruction',
+    'hydrogen-reactor', 'metal-sorting', 'gas-simulator',
+    'room1', 'room2', 'room3', 'boss', 'lab-game'
+  ];
+
   const navigateTo = useCallback((screen, params = {}) => {
+    // Block game entry if lives === 0
+    if (GAME_SCREENS.includes(screen) && lives === 0) {
+      setGameOverModalOpen(true);
+      setCurrentScreen('dashboard');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      return;
+    }
+
     if (params.standardId) setSelectedStandardId(params.standardId);
     if (params.standard)   setSelectedStandard(params.standard);
     if (params.subjectId)  setSelectedSubjectId(params.subjectId);
@@ -154,7 +271,7 @@ export function NavigationProvider({ children }) {
     if (params.room)       setCurrentRoom(params.room);
     setCurrentScreen(screen);
     window.scrollTo({ top: 0, behavior: 'smooth' });
-  }, []);
+  }, [lives]);
 
   const addXp    = useCallback((amount) => setXp(prev  => prev + amount), []);
   const addCoins = useCallback((amount) => setCoins(prev => prev + amount), []);
@@ -183,6 +300,10 @@ export function NavigationProvider({ children }) {
         xp,       addXp,
         coins,    addCoins,
         level,    streak,
+        lives, setLives,
+        deductLife, gainLife,
+        timeUntilNextLifeSec,
+        gameOverModalOpen, setGameOverModalOpen,
         userBadges,
         userProgressList,
         refreshUserStats,

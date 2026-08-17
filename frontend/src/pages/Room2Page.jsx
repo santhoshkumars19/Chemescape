@@ -272,13 +272,12 @@ function GameOverScreen({ onRetry }) {
 // MAIN ROOM 2 PAGE
 // ═══════════════════════════════════════════════════════
 export default function Room2Page() {
-  const { navigateTo } = useNavigation();
+  const { navigateTo, lives, deductLife } = useNavigation();
 
   // ── State ──
   const [placed, setPlaced]         = useState({});   // { elementId: groupId }
   const [shakingCard, setShakingCard] = useState(null);
   const [hoveredZone, setHoveredZone] = useState(null);
-  const [lives, setLives]           = useState(3);
   const [timer, setTimer]           = useState(600);
   const [hints, setHints]           = useState(3);
   const [hintInfo, setHintInfo]     = useState(null); // { elementId, groupId }
@@ -365,11 +364,7 @@ export default function Room2Page() {
     } else {
       setShakingCard(cardId);
       setWrongFlash(true);
-      setLives(prev => {
-        const next = Math.max(0, prev - 1);
-        if (next <= 0) setTimeout(() => setGameOver(true), 600);
-        return next;
-      });
+      deductLife(1);
       setTimeout(() => setShakingCard(null), 600);
       setTimeout(() => setWrongFlash(false), 600);
     }

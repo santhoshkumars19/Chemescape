@@ -368,11 +368,10 @@ function GameOverScreen({ onRetry }) {
 // MAIN ROOM 3 PAGE
 // ═══════════════════════════════════════════════════════
 export default function Room3Page() {
-  const { navigateTo } = useNavigation();
+  const { navigateTo, lives, deductLife } = useNavigation();
 
   const [stageIdx,  setStageIdx]  = useState(0);
   const [completed, setCompleted] = useState(0);
-  const [lives,     setLives]     = useState(3);
   const [timer,     setTimer]     = useState(600);
   const [hints,     setHints]     = useState(3);
   const [showHint,  setShowHint]  = useState(false);
@@ -412,11 +411,7 @@ export default function Room3Page() {
   const handleWrong = () => {
     setFeedback('wrong');
     setWrongFlash(true);
-    setLives(prev => {
-      const next = Math.max(0, prev - 1);
-      if (next <= 0) setTimeout(() => setGameOver(true), 700);
-      return next;
-    });
+    deductLife(1);
     setTimeout(() => { setFeedback(null); setWrongFlash(false); }, 700);
   };
 
