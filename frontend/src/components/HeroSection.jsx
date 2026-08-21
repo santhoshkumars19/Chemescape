@@ -160,7 +160,7 @@ export default function HeroSection() {
         >
           {/* Play Now */}
           <motion.button
-            onClick={() => navigateTo('dashboard')}
+            onClick={() => navigateTo('login')}
             className="relative group flex items-center justify-center gap-3 px-8 py-3.5 sm:px-10 sm:py-4 rounded-2xl overflow-hidden font-orbitron font-extrabold text-sm sm:text-base tracking-widest text-[#050807] uppercase cursor-pointer whitespace-nowrap w-full sm:w-auto"
             style={{
               background: 'linear-gradient(135deg, #10B981, #059669)',
