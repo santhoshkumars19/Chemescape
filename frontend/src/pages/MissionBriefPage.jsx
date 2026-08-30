@@ -9,7 +9,7 @@ import {
   getChapterStatus,
   getSubjectsForStandard,
 } from '../config/curriculumConfig';
-import { GAME_REGISTRY, getGameEndpointByGameType } from '../games/gameRegistry';
+import { getMissionAvailability, AVAILABILITY_STATES } from '../config/gameAvailability';
 import {
   ArrowLeft, Zap, Clock, Target, Shield, Star,
   ChevronRight, Rocket, AlertTriangle, CheckCircle,
@@ -349,6 +349,7 @@ export default function MissionBriefPage() {
     selectedStandardId, selectedStandard,
     selectedSubjectId, selectedSubject,
     selectedChapterId, selectedChapter,
+    selectedRoomId, currentRoom,
     completedRooms, userProgressList, lives,
   } = useNavigation();
 
@@ -388,23 +389,29 @@ export default function MissionBriefPage() {
     return getChapterStatus(activeChapter, chapterIndex, chaptersList, completedRooms, userProgressList);
   }, [activeChapter, chapterIndex, chaptersList, completedRooms, userProgressList]);
 
-  // ── 4. Build Mission Configuration (Dynamic or Presets) ─────────────────────
+  // ── 4. Authoritative Game Availability Check ────────────────────────────────
+  const availability = useMemo(() => {
+    return getMissionAvailability({
+      standardId: resolvedStdId,
+      subjectId: resolvedSubjId,
+      chapter: activeChapter,
+      room: typeof currentRoom === 'object' ? currentRoom : null,
+    });
+  }, [resolvedStdId, resolvedSubjId, activeChapter, currentRoom]);
+
+  // ── 5. Build Mission Configuration Presentation ─────────────────────────────
   const isChemistry11 = (resolvedStdId === 'grade-11' || resolvedStdId === 'std-11') && (resolvedSubjId === 'chemistry' || resolvedSubjId === 'subj-chem');
 
-  const { mission, isPlayable, targetScreen } = useMemo(() => {
+  const mission = useMemo(() => {
     const chNum = activeChapter?.chapterNumber || chapterIndex + 1;
 
     // 1. Check if Standard 11 Chemistry preset exists
     if (isChemistry11 && CHEMISTRY_MISSIONS[chNum]) {
       const chemPreset = CHEMISTRY_MISSIONS[chNum];
       return {
-        mission: {
-          ...chemPreset,
-          chapterTitle: activeChapter?.title || chemPreset.missionName,
-          chapterNumber: chNum,
-        },
-        isPlayable: true,
-        targetScreen: chemPreset.gameScreen || 'calculation-heist',
+        ...chemPreset,
+        chapterTitle: activeChapter?.title || chemPreset.missionName,
+        chapterNumber: chNum,
       };
     }
 
@@ -416,84 +423,69 @@ export default function MissionBriefPage() {
     const chTitle = activeChapter?.title || `Chapter ${chNum}`;
     const chDesc = activeChapter?.description || `Master key ${subjDisplayName} concepts in this interactive learning unit.`;
 
-    // Strict game registry lookup — never fallback to Chemistry games
-    let registeredEndpoint = null;
-    if (activeChapter?.gameType) {
-      const endpoint = getGameEndpointByGameType(activeChapter.gameType);
-      if (endpoint && GAME_REGISTRY[endpoint?.toUpperCase()?.replace(/-/g, '_')]?.subject === resolvedSubjId) {
-        registeredEndpoint = endpoint;
-      }
-    }
-
-    const playable = Boolean(registeredEndpoint);
-
     return {
-      mission: {
-        missionCode: activeChapter?.missionCode || `MSN-${chNum.toString().padStart(2, '0')}`,
-        missionName: chTitle,
-        subtitle: `Master ${subjDisplayName} — Chapter ${chNum}`,
-        accentColor: accent,
-        glowColor: `${accent}40`,
-        difficultyLabel: activeChapter?.difficulty || (chNum <= 2 ? 'Beginner' : chNum <= 4 ? 'Intermediate' : 'Advanced'),
-        difficultyLevel: chNum <= 2 ? 1 : chNum <= 4 ? 2 : 3,
-        timeEst: `${3 + chNum * 0.5}h`,
-        xp: activeChapter?.xpReward || (400 + chNum * 50),
-        coins: activeChapter?.coinsReward || (100 + chNum * 15),
-        badgeName: `${subjDisplayName} Specialist`,
-        badgeIcon: '🏅',
-        badgeRarity: chNum <= 2 ? 'Common' : 'Uncommon',
-        rooms: 3,
-        classification: 'ALPHA',
-        gameType: activeChapter?.gameType || `${subjDisplayName} Interactive Quest`,
-        gameScreen: registeredEndpoint,
-        topics: [
-          `${chTitle} Core Concepts`,
-          'Interactive Problem Solving & Analysis',
-          'Practical Applications & Calculation',
-          'Unit Mastery & Assessment',
-        ],
-        story: [
-          `Welcome to ${chTitle}. This mission is designed to build foundational mastery in ${stdDisplayName} ${subjDisplayName}.`,
-          `Complete each interactive problem systematically to unlock progression points and advance along your adventure map.`,
-          `Every correct answer earns XP and contributes toward unlocking your subject mastery certificate.`,
-        ],
-        objectives: [
-          { text: `Understand and apply key concepts of ${chTitle}`, done: false },
-          { text: 'Solve the primary interactive unit challenges', done: false },
-          { text: 'Score minimum 80% accuracy in the assessment stage', done: false },
-          { text: 'Claim your chapter completion rewards and advance', done: false },
-        ],
-        tacticalNotes: `Focus on accuracy and review mistakes to maximize XP gains.`,
-        threatLevel: 'Standard',
-        threatColor: accent,
-        chapterTitle: chTitle,
-        chapterNumber: chNum,
-      },
-      isPlayable: playable,
-      targetScreen: registeredEndpoint,
+      missionCode: activeChapter?.missionCode || `MSN-${chNum.toString().padStart(2, '0')}`,
+      missionName: chTitle,
+      subtitle: `Master ${subjDisplayName} — Chapter ${chNum}`,
+      accentColor: accent,
+      glowColor: `${accent}40`,
+      difficultyLabel: activeChapter?.difficulty || (chNum <= 2 ? 'Beginner' : chNum <= 4 ? 'Intermediate' : 'Advanced'),
+      difficultyLevel: chNum <= 2 ? 1 : chNum <= 4 ? 2 : 3,
+      timeEst: `${3 + chNum * 0.5}h`,
+      xp: activeChapter?.xpReward || (400 + chNum * 50),
+      coins: activeChapter?.coinsReward || (100 + chNum * 15),
+      badgeName: `${subjDisplayName} Specialist`,
+      badgeIcon: '🏅',
+      badgeRarity: chNum <= 2 ? 'Common' : 'Uncommon',
+      rooms: 3,
+      classification: 'ALPHA',
+      gameType: activeChapter?.gameType || `${subjDisplayName} Interactive Quest`,
+      gameScreen: availability.endpoint,
+      topics: [
+        `${chTitle} Core Concepts`,
+        'Interactive Problem Solving & Analysis',
+        'Practical Applications & Calculation',
+        'Unit Mastery & Assessment',
+      ],
+      story: [
+        `Welcome to ${chTitle}. This mission is designed to build foundational mastery in ${stdDisplayName} ${subjDisplayName}.`,
+        `Complete each interactive problem systematically to unlock progression points and advance along your adventure map.`,
+        `Every correct answer earns XP and contributes toward unlocking your subject mastery certificate.`,
+      ],
+      objectives: [
+        { text: `Understand and apply key concepts of ${chTitle}`, done: false },
+        { text: 'Solve the primary interactive unit challenges', done: false },
+        { text: 'Score minimum 80% accuracy in the assessment stage', done: false },
+        { text: 'Claim your chapter completion rewards and advance', done: false },
+      ],
+      tacticalNotes: `Focus on accuracy and review mistakes to maximize XP gains.`,
+      threatLevel: 'Standard',
+      threatColor: accent,
+      chapterTitle: chTitle,
+      chapterNumber: chNum,
     };
-  }, [activeChapter, chapterIndex, isChemistry11, resolvedSubjId, resolvedStdId, subjDisplayName, stdDisplayName]);
+  }, [activeChapter, chapterIndex, isChemistry11, resolvedSubjId, resolvedStdId, subjDisplayName, stdDisplayName, availability.endpoint]);
 
-  // ── 5. Component State ───────────────────────────────────────────────────────
+  // ── 6. Component State ───────────────────────────────────────────────────────
   const [launching, setLaunching] = useState(false);
   const [comingSoonModalOpen, setComingSoonModalOpen] = useState(false);
 
-  // ── 6. Game Launch Handler ──────────────────────────────────────────────────
+  // ── 7. Game Launch Handler ──────────────────────────────────────────────────
   const handleLaunch = useCallback(() => {
     // Block locked chapters
     if (!chapterStatus.isUnlocked) return;
 
-    // If game is not playable / content not configured yet
-    if (!isPlayable || !targetScreen) {
+    // Strict Launch Check: Only proceed if game availability is AVAILABLE
+    if (!availability.canLaunch || !availability.endpoint) {
       setComingSoonModalOpen(true);
       return;
     }
 
     setLaunching(true);
     setTimeout(() => {
-      navigateTo(targetScreen);
+      navigateTo(availability.endpoint);
     }, 1000);
-  }, [chapterStatus.isUnlocked, isPlayable, targetScreen, navigateTo]);
+  }, [chapterStatus.isUnlocked, availability, navigateTo]);
 
   const color = mission.accentColor;
   const glow = mission.glowColor;
@@ -501,11 +493,11 @@ export default function MissionBriefPage() {
   const isCompleted = chapterStatus.isCompleted;
   const isInProgress = chapterStatus.status === 'IN_PROGRESS';
 
-  // ── Button Text & State ──────────────────────────────────────────────────────
+  // ── 8. Button Text & State ──────────────────────────────────────────────────
   const actionButtonText = isLocked
     ? `Chapter Locked (Complete Chapter ${chapterIndex} First)`
-    : !isPlayable
-      ? 'Mission Content Coming Soon'
+    : !availability.canLaunch
+      ? (availability.actionLabel || 'Coming Soon')
       : isCompleted
         ? 'Replay Mission'
         : isInProgress
@@ -516,7 +508,7 @@ export default function MissionBriefPage() {
     <div className="relative min-h-screen bg-[#020609] text-white overflow-x-hidden flex flex-col pb-16">
       <ScanlineOverlay />
 
-      {/* ── Coming Soon / Unconfigured Content Modal ── */}
+      {/* ── Student-Friendly Coming Soon Modal ── */}
       <AnimatePresence>
         {comingSoonModalOpen && (
           <motion.div
@@ -555,15 +547,15 @@ export default function MissionBriefPage() {
                 className="inline-block px-3 py-1 rounded-full text-[10px] font-orbitron font-bold tracking-widest uppercase mb-3"
                 style={{ background: `${color}18`, color }}
               >
-                Mission In Development
+                {availability.badgeText || 'COMING SOON'}
               </span>
 
               <h3 className="font-orbitron font-black text-xl sm:text-2xl text-white mb-2">
-                No Mission Content Available Yet
+                {availability.title || 'Interactive Mission Coming Soon'}
               </h3>
 
               <p className="text-sm font-inter text-white/70 leading-relaxed mb-6">
-                Interactive mission games for <strong style={{ color }}>{stdDisplayName} {subjDisplayName}</strong> — <em>{mission.missionName}</em> are currently being engineered.
+                {availability.description || `This chapter content is ready, but its unique game experience for ${stdDisplayName} ${subjDisplayName} is still being prepared.`}
               </p>
 
               <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
@@ -598,7 +590,7 @@ export default function MissionBriefPage() {
         )}
       </AnimatePresence>
 
-      {/* ── Launch Sequence Overlay ── */}
+      {/* ── Launch Sequence Overlay (Only when launching a real game) ── */}
       <AnimatePresence>
         {launching && (
           <motion.div
@@ -713,35 +705,35 @@ export default function MissionBriefPage() {
               </p>
             </div>
 
-            {/* Content Availability Alert for Unconfigured Subject Chapters */}
-            {!isPlayable && (
+            {/* Student-Friendly Availability Banner */}
+            {!availability.canLaunch && (
               <div
                 className="rounded-2xl p-5 border flex items-start gap-3.5"
                 style={{
-                  background: 'linear-gradient(135deg, rgba(245,158,11,0.08), rgba(12,20,17,0.85))',
-                  borderColor: 'rgba(245,158,11,0.35)',
+                  background: 'linear-gradient(135deg, rgba(251,191,36,0.06), rgba(12,20,17,0.85))',
+                  borderColor: 'rgba(251,191,36,0.25)',
                 }}
               >
-                <AlertTriangle size={18} className="text-amber-400 flex-shrink-0 mt-0.5" />
+                <Sparkles size={18} className="text-amber-400 flex-shrink-0 mt-0.5" />
                 <div>
                   <h4 className="font-orbitron font-bold text-xs sm:text-sm text-amber-400 mb-1">
-                    No Interactive Game Engine Available Yet
+                    {availability.title || 'Interactive Mission Coming Soon'}
                   </h4>
                   <p className="text-xs font-inter text-white/80 leading-relaxed mb-3">
-                    This chapter belongs to <strong>{stdDisplayName} {subjDisplayName}</strong>. Our custom gamified challenge room for this mission is currently in production.
+                    {availability.description || `This chapter content is ready, but its unique game experience for ${stdDisplayName} ${subjDisplayName} is still being prepared.`}
                   </p>
                   <div className="flex items-center gap-2.5 flex-wrap">
                     <button
                       type="button"
                       onClick={() => navigateTo('chapters')}
-                      className="px-3 py-1.5 rounded-lg text-xs font-space font-semibold bg-white/10 hover:bg-white/20 text-white cursor-pointer border-0"
+                      className="px-3 py-1.5 rounded-lg text-xs font-space font-semibold bg-white/10 hover:bg-white/20 text-white cursor-pointer border-0 transition-colors"
                     >
                       ← Back to Chapters
                     </button>
                     <button
                       type="button"
                       onClick={() => navigateTo('select-subject')}
-                      className="px-3 py-1.5 rounded-lg text-xs font-space font-semibold bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-400 cursor-pointer border border-emerald-500/40"
+                      className="px-3 py-1.5 rounded-lg text-xs font-space font-semibold bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-400 cursor-pointer border border-emerald-500/30 transition-colors"
                     >
                       Explore Other Subjects
                     </button>
@@ -929,31 +921,32 @@ export default function MissionBriefPage() {
               <motion.button
                 id="start-mission-btn"
                 onClick={handleLaunch}
-                disabled={isLocked || launching}
+                disabled={isLocked || launching || !availability.canLaunch}
                 className={`w-full py-4.5 rounded-2xl font-orbitron font-black text-base tracking-wider uppercase flex items-center justify-center gap-2.5 transition-all border-0 ${
-                  isLocked ? 'cursor-not-allowed opacity-60' : 'cursor-pointer'
+                  isLocked || !availability.canLaunch ? 'cursor-not-allowed opacity-75' : 'cursor-pointer'
                 }`}
                 style={{
                   background: isLocked
                     ? 'rgba(51,65,85,0.5)'
-                    : !isPlayable
-                      ? 'linear-gradient(135deg, rgba(245,158,11,0.85), rgba(217,119,6,0.9))'
+                    : !availability.canLaunch
+                      ? 'linear-gradient(135deg, rgba(245,158,11,0.25), rgba(217,119,6,0.35))'
                       : `linear-gradient(135deg, ${color}, ${color}BB)`,
-                  color: isLocked ? '#94A3B8' : !isPlayable ? '#FFFFFF' : '#050807',
-                  boxShadow: isLocked ? 'none' : !isPlayable ? '0 0 25px rgba(245,158,11,0.3)' : `0 0 30px ${glow}, 0 4px 20px rgba(0,0,0,0.4)`,
+                  color: isLocked ? '#94A3B8' : !availability.canLaunch ? '#FBBF24' : '#050807',
+                  border: !availability.canLaunch && !isLocked ? '1px solid rgba(245,158,11,0.4)' : 'none',
+                  boxShadow: isLocked || !availability.canLaunch ? 'none' : `0 0 30px ${glow}, 0 4px 20px rgba(0,0,0,0.4)`,
                 }}
-                whileHover={!isLocked ? { scale: 1.02 } : {}}
-                whileTap={!isLocked ? { scale: 0.98 } : {}}
+                whileHover={availability.canLaunch && !isLocked ? { scale: 1.02 } : {}}
+                whileTap={availability.canLaunch && !isLocked ? { scale: 0.98 } : {}}
               >
                 {isLocked ? (
                   <>
                     <Lock size={16} />
                     <span>Mission Locked</span>
                   </>
-                ) : !isPlayable ? (
+                ) : !availability.canLaunch ? (
                   <>
-                    <AlertTriangle size={16} />
-                    <span>Mission Content Coming Soon</span>
+                    <Sparkles size={16} className="text-amber-400" />
+                    <span>{actionButtonText}</span>
                   </>
                 ) : isCompleted ? (
                   <>

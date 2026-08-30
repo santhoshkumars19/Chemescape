@@ -800,6 +800,8 @@ function generateFallbackChapters(standardId, subjectId) {
   return [
     {
       id: `${standardId}-${subjectId}-1`,
+      standardId,
+      subjectId,
       chapterNumber: 1,
       title: `Introduction to ${capitalizedSubj}`,
       description: `Fundamental core principles and core concepts in Grade ${stdNum} ${capitalizedSubj}.`,
@@ -811,6 +813,8 @@ function generateFallbackChapters(standardId, subjectId) {
     },
     {
       id: `${standardId}-${subjectId}-2`,
+      standardId,
+      subjectId,
       chapterNumber: 2,
       title: `${capitalizedSubj} Fundamentals & Practice`,
       description: `Intermediate applications, practical examples, and core analytical problems.`,
@@ -822,6 +826,8 @@ function generateFallbackChapters(standardId, subjectId) {
     },
     {
       id: `${standardId}-${subjectId}-3`,
+      standardId,
+      subjectId,
       chapterNumber: 3,
       title: `Advanced ${capitalizedSubj} Applications`,
       description: `Applied topic analysis, problem solving, and comprehensive unit assessments.`,
@@ -833,6 +839,8 @@ function generateFallbackChapters(standardId, subjectId) {
     },
     {
       id: `${standardId}-${subjectId}-4`,
+      standardId,
+      subjectId,
       chapterNumber: 4,
       title: `${capitalizedSubj} Mastery & Integration`,
       description: `Capstone unit synthesis, complex problem solving, and comprehensive review.`,
@@ -857,12 +865,20 @@ export function getChaptersForStandardAndSubject(standardId, subjectId) {
   const storeKey = `${stdKey}:${subjKey}`;
 
   if (CHAPTERS_STORE[storeKey]) {
-    return CHAPTERS_STORE[storeKey];
+    return CHAPTERS_STORE[storeKey].map(ch => ({
+      ...ch,
+      standardId: ch.standardId || stdKey,
+      subjectId: ch.subjectId || subjKey,
+    }));
   }
 
   // Also check aliases like 11th Chemistry
   if (stdKey === 'grade-11' && (subjKey === 'chemistry' || subjKey === 'chem')) {
-    return CHAPTERS_STORE['grade-11:chemistry'];
+    return CHAPTERS_STORE['grade-11:chemistry'].map(ch => ({
+      ...ch,
+      standardId: ch.standardId || stdKey,
+      subjectId: ch.subjectId || subjKey,
+    }));
   }
 
   return generateFallbackChapters(stdKey, subjKey);
