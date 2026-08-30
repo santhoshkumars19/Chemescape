@@ -179,7 +179,8 @@ async function main() {
   }
   console.log(' ✔ StandardSubject mappings seeded for Standards 4 through 12');
 
-  // ── 5. CHAPTER: PERIODIC TABLE (11th Chemistry) ───────────────────────────
+  // ── 5. CHAPTERS ───────────────────────────────────────────────────────────
+  // A. Standard 11 Chemistry (Existing Chapter)
   const periodicChapter = await prisma.chapter.upsert({
     where: {
       standardId_subjectId_chapterNumber: {
@@ -188,7 +189,10 @@ async function main() {
         chapterNumber: 3,
       },
     },
-    update: {},
+    update: {
+      isActive: true,
+      displayOrder: 3,
+    },
     create: {
       standardId: std11.id,
       subjectId: chemSubject.id,
@@ -201,9 +205,61 @@ async function main() {
       coinReward: 100,
       badgeName: 'Periodic Master',
       isLocked: false,
+      isActive: true,
+      displayOrder: 3,
     },
   });
-  console.log(' ✔ Chapter seeded: Periodic Table (Chapter 3)');
+  console.log(' ✔ Chapter seeded: 11th Chemistry - Periodic Table (Chapter 3)');
+
+  // B. Standard 4 Mathematics (Demonstration Chapters)
+  const std4 = seededStandards['4'];
+  const mathSubject = seededSubjects['MATH'];
+  if (std4 && mathSubject) {
+    const mathChapters = [
+      { chapterNumber: 1, title: 'Numbers & Counting', description: 'Foundational numbers, place values, and operations.', difficulty: 'EASY', estimatedMinutes: 20, xpReward: 100, coinReward: 25, badgeName: 'Number Pioneer', isLocked: false, displayOrder: 1 },
+      { chapterNumber: 2, title: 'Fractions & Decimals', description: 'Parts of a whole, fraction operations, and decimals.', difficulty: 'EASY', estimatedMinutes: 25, xpReward: 150, coinReward: 35, badgeName: 'Fraction Master', isLocked: true, displayOrder: 2 },
+      { chapterNumber: 3, title: 'Basic Shapes & Geometry', description: 'Geometric 2D/3D shapes, perimeters, and angles.', difficulty: 'MEDIUM', estimatedMinutes: 30, xpReward: 200, coinReward: 50, badgeName: 'Shape Explorer', isLocked: true, displayOrder: 3 },
+    ];
+
+    for (const mc of mathChapters) {
+      await prisma.chapter.upsert({
+        where: {
+          standardId_subjectId_chapterNumber: {
+            standardId: std4.id,
+            subjectId: mathSubject.id,
+            chapterNumber: mc.chapterNumber,
+          },
+        },
+        update: {
+          title: mc.title,
+          description: mc.description,
+          difficulty: mc.difficulty,
+          estimatedMinutes: mc.estimatedMinutes,
+          xpReward: mc.xpReward,
+          coinReward: mc.coinReward,
+          badgeName: mc.badgeName,
+          displayOrder: mc.displayOrder,
+          isActive: true,
+        },
+        create: {
+          standardId: std4.id,
+          subjectId: mathSubject.id,
+          chapterNumber: mc.chapterNumber,
+          title: mc.title,
+          description: mc.description,
+          difficulty: mc.difficulty,
+          estimatedMinutes: mc.estimatedMinutes,
+          xpReward: mc.xpReward,
+          coinReward: mc.coinReward,
+          badgeName: mc.badgeName,
+          isLocked: mc.isLocked,
+          isActive: true,
+          displayOrder: mc.displayOrder,
+        },
+      });
+    }
+    console.log(' ✔ Chapters seeded: Standard 4 Mathematics (3 demonstration chapters)');
+  }
 
   // ── 6. TOPICS FOR PERIODIC TABLE CHAPTER ─────────────────────────────────
   const topicsData = [
