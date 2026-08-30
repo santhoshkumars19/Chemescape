@@ -24,7 +24,10 @@ async function runAIAssistantTests() {
   }
 
   // Fetch or mock user for testing
-  let testUser = await prisma.user.findFirst();
+  let testUser = null;
+  try {
+    testUser = await prisma.user.findFirst();
+  } catch {}
   if (!testUser) {
     testUser = { id: 'test-user-id', role: 'STUDENT' };
   }
