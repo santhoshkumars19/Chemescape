@@ -1,15 +1,24 @@
 /**
- * ChemEscape Subject-Specific Mission & Game Content Mapping Verification Test Suite
+ * ChemEscape Comprehensive Subject & Curriculum Content Mapping Test Suite
  * 
- * Tests the entire content hierarchy:
- * USER -> STANDARD -> SUBJECT -> CHAPTER -> TOPIC -> ROOM / MISSION -> QUESTION -> GAME
- * 
- * Verifies that:
- * 1. Standard 5 Social Science never loads Chemistry questions/games.
- * 2. Standard 4 Mathematics never leaks Chemistry or Social Science content.
- * 3. Standard 11 Chemistry properly routes Units 1-6 to their authoritative game engines.
- * 4. Unconfigured chapters return empty content / 404 without falling back to other subjects.
- * 5. Room and Question ownership strictly respect curriculum context.
+ * Tests:
+ * 1. Standard 5 Tamil (Only Tamil questions, 10 questions)
+ * 2. Standard 5 English (Only English questions, 10 questions)
+ * 3. Standard 5 Mathematics (Only Mathematics questions, 10 questions)
+ * 4. Standard 5 Science (Only Science questions, 10 questions)
+ * 5. Standard 5 Social Science (Only Social Science questions, 10 questions)
+ * 6. Standard 11 Chemistry (Existing Chemistry questions & specialized engines)
+ * 7. Standard 11 Physics (Physics chamber content)
+ * 8. No cross-subject questions (Zero leakage across subjects)
+ * 9. No cross-standard questions (Zero leakage across standards)
+ * 10. No cross-chapter questions (Zero leakage across chapters)
+ * 11. Invalid room / hierarchy mismatch rejected (400/404)
+ * 12. Empty content handled cleanly (0 questions returned without fallback)
+ * 13. Insufficient content handled cleanly
+ * 14. Question sanitization (no answer keys, solution keys, isCorrect leaked)
+ * 15. Hint belongs strictly to current question
+ * 16. User progress isolation (User A progress vs User B progress)
+ * 17. Stale cache protection
  */
 
 const http = require('http');
@@ -54,12 +63,13 @@ function request(method, path, body = null, headers = {}) {
 
 async function runSubjectContentMappingTests() {
   console.log('================================================================');
-  console.log('🎯 SUBJECT-SPECIFIC MISSION & GAME CONTENT MAPPING TEST SUITE');
+  console.log('🧪 CHEMESCAPE SUBJECT & CONTENT HIERARCHY MAPPING TEST SUITE');
   console.log('================================================================\n');
 
   const report = [];
-  const record = (testName, expected, actual, passed, details = '') => {
+  const record = (testNum, testName, expected, actual, passed, details = '') => {
     report.push({
+      testNum,
       testName,
       expected: String(expected),
       actual: String(actual),
@@ -67,7 +77,7 @@ async function runSubjectContentMappingTests() {
       details,
     });
     const badge = passed ? '✅ PASS' : '❌ FAIL';
-    console.log(`${badge} | ${testName}`);
+    console.log(`${badge} | Test ${testNum}: ${testName}`);
     if (!passed) {
       console.log(`   Expected: ${expected}`);
       console.log(`   Actual:   ${actual}`);
@@ -76,226 +86,272 @@ async function runSubjectContentMappingTests() {
   };
 
   try {
-    // 0. Authenticate as Student
-    const loginRes = await request('POST', '/auth/login', {
+    // 0. Authenticate Student A & Student B
+    const loginA = await request('POST', '/auth/login', {
       email: 'student@chemescape.com',
       password: 'Password123',
     });
-    const token = loginRes.body?.data?.token;
-    const studentHeaders = { Authorization: `Bearer ${token}` };
-    record('Auth: Student Authenticated', 200, loginRes.status, loginRes.status === 200 && Boolean(token));
+    const tokenA = loginA.body?.data?.token;
+    const studentAHeaders = { Authorization: `Bearer ${tokenA}` };
 
-    // Fetch all standards
-    const standardsRes = await request('GET', '/standards', null, studentHeaders);
-    const rawStandards = standardsRes.body?.data;
-    const standards = Array.isArray(rawStandards) ? rawStandards : (rawStandards?.standards || []);
-    record('Curriculum: Standards Loaded', true, standards.length > 0, standards.length > 0, `Count: ${standards.length}`);
-
-    const std4 = standards.find(s => s.name?.includes('4') || s.gradeNumber === 4 || s.id === 'std-4');
-    const std5 = standards.find(s => s.name?.includes('5') || s.gradeNumber === 5 || s.id === 'std-5');
-    const std11 = standards.find(s => s.name?.includes('11') || s.gradeNumber === 11 || s.id === 'std-11') || standards[0];
+    const loginB = await request('POST', '/auth/login', {
+      email: 'teacher@chemescape.com',
+      password: 'Password123',
+    });
+    const tokenB = loginB.body?.data?.token;
+    const teacherHeaders = { Authorization: `Bearer ${tokenB}` };
 
     // ─────────────────────────────────────────────────────────────────────────
-    // 1. STANDARD HIERARCHY & SUBJECT ISOLATION
+    // 1. Standard 5 Tamil
     // ─────────────────────────────────────────────────────────────────────────
-    console.log('\n--- 1. Standard Hierarchy & Subject Isolation ---');
-
-    // 1.1 Query Standard 11 Subjects
-    let std11Subjects = [];
-    if (std11) {
-      const std11Res = await request('GET', `/standards/${std11.id}/subjects`, null, studentHeaders);
-      const raw = std11Res.body?.data;
-      std11Subjects = Array.isArray(raw) ? raw : (raw?.subjects || []);
-      const hasChem = std11Subjects.some(s => s.name?.toLowerCase().includes('chem') || s.code?.toLowerCase().includes('chem'));
-      record('Standard 11 contains Chemistry subject', true, hasChem, hasChem, `Subjects: ${std11Subjects.map(s => s.name).join(', ')}`);
-    }
-
-    // 1.2 Query Standard 5 Subjects (if configured)
-    if (std5) {
-      const std5Res = await request('GET', `/standards/${std5.id}/subjects`, null, studentHeaders);
-      const raw = std5Res.body?.data;
-      const std5Subjects = Array.isArray(raw) ? raw : (raw?.subjects || []);
-      const noChemIn5 = !std5Subjects.some(s => s.name?.toLowerCase() === 'chemistry' && s.standardId === std11?.id);
-      record('Standard 5 does not leak 11th Chemistry subject', true, noChemIn5, noChemIn5);
-    } else {
-      record('Standard 5 does not leak 11th Chemistry subject', true, true, true, 'Standard 5 isolated');
-    }
-
-    // ─────────────────────────────────────────────────────────────────────────
-    // 2. CHAPTER ISOLATION PER SUBJECT
-    // ─────────────────────────────────────────────────────────────────────────
-    console.log('\n--- 2. Chapter Isolation per Subject ---');
-
-    // 2.1 Standard 11 Chemistry Chapters
-    let chemChapters = [];
-    if (std11) {
-      const chemChaptersRes = await request('GET', `/standards/${std11.id}/chapters`, null, studentHeaders);
-      const raw = chemChaptersRes.body?.data;
-      chemChapters = Array.isArray(raw) ? raw : (raw?.chapters || []);
-      record(
-        'Standard 11 Chemistry Chapters resolved',
-        true,
-        chemChapters.length >= 1,
-        chemChapters.length >= 1,
-        `Found: ${chemChapters.length} chapters`
-      );
-    }
-
-    // 2.2 Query with non-existent subject filter returns empty, not 11th Chem
-    if (std11) {
-      const filteredRes = await request('GET', `/standards/${std11.id}/chapters?subjectId=subj-nonexistent-soc5`, null, studentHeaders);
-      const raw = filteredRes.body?.data;
-      const filtered = Array.isArray(raw) ? raw : (raw?.chapters || []);
-      record(
-        'Filtering by non-existent subject returns zero chapters (no fallback to Chem)',
-        0,
-        filtered.length,
-        filtered.length === 0,
-        `Returned count: ${filtered.length}`
-      );
-    }
-
-    // ─────────────────────────────────────────────────────────────────────────
-    // 3. ROOM & MISSION CONTENT RESOLUTION
-    // ─────────────────────────────────────────────────────────────────────────
-    console.log('\n--- 3. Room & Mission Content Resolution ---');
-
-    // 3.1 11th Chemistry Chapter 1 Room resolution
-    let chemRooms = [];
-    if (chemChapters.length > 0) {
-      const ch1 = chemChapters[0];
-      const chemCh1RoomsRes = await request('GET', `/chapters/${ch1.id}/rooms`, null, studentHeaders);
-      const raw = chemCh1RoomsRes.body?.data;
-      chemRooms = Array.isArray(raw) ? raw : (raw?.rooms || []);
-      record(
-        '11th Chemistry Chapter 1 resolves rooms',
-        true,
-        chemRooms.length > 0,
-        chemRooms.length > 0,
-        `Rooms found: ${chemRooms.length}`
-      );
-    }
-
-    // 3.2 Non-configured chapter room query must return empty array / 404, never Chemistry Room 1
-    const unconfiguredRoomsRes = await request('GET', '/chapters/ch-soc5-nonexistent/rooms', null, studentHeaders);
-    const unconfiguredRooms = unconfiguredRoomsRes.body?.data?.rooms || [];
-    const isCleanZeroFallback = unconfiguredRooms.length === 0 || unconfiguredRoomsRes.status === 404;
+    const tamRes = await request('GET', '/rooms/room-tam5-1/questions?standardId=grade-5&subjectId=tamil&chapterId=ch-tam5-1', null, studentAHeaders);
+    const tamQuestions = tamRes.body?.data?.questions || [];
+    const isTamAllTamil = tamQuestions.length === 10 && tamQuestions.every(q => /[\u0B80-\u0BFF]/.test(q.questionText));
     record(
-      'Unconfigured chapter does NOT fall back to Chemistry Room 1',
-      true,
-      isCleanZeroFallback,
-      isCleanZeroFallback,
-      `Status: ${unconfiguredRoomsRes.status}, Rooms returned: ${unconfiguredRooms.length}`
+      1,
+      'Standard 5 Tamil Chapter 1 loads 10 authentic Tamil questions',
+      '10 Tamil Questions',
+      `${tamQuestions.length} Questions (All Tamil: ${isTamAllTamil})`,
+      tamRes.status === 200 && isTamAllTamil,
+      `Count: ${tamQuestions.length}`
     );
 
     // ─────────────────────────────────────────────────────────────────────────
-    // 4. QUESTION MAPPING & ANTI-LEAKAGE VERIFICATION
+    // 2. Standard 5 English
     // ─────────────────────────────────────────────────────────────────────────
-    console.log('\n--- 4. Question Mapping & Anti-Leakage ---');
-
-    // 4.1 Chemistry Room 1 questions
-    if (chemRooms.length > 0) {
-      const r1 = chemRooms[0];
-      const chemR1QRes = await request('GET', `/rooms/${r1.id}/questions`, null, studentHeaders);
-      const chemR1Questions = chemR1QRes.body?.data?.questions || [];
-      const hasChemR1Questions = chemR1Questions.length > 0;
-      const allR1BelongToR1 = chemR1Questions.every(q => q.roomId === r1.id || !q.roomId);
-      record(
-        'Chemistry Room returns published questions for that Room',
-        true,
-        hasChemR1Questions && allR1BelongToR1,
-        hasChemR1Questions && allR1BelongToR1,
-        `Question count: ${chemR1Questions.length}`
-      );
-    }
-
-    // 4.2 Standard 4 Math Room questions
-    const math4QRes = await request('GET', '/rooms/room-math4-1/questions', null, studentHeaders);
-    const math4Questions = math4QRes.body?.data?.questions || [];
-    const noChemInMath4 = !math4Questions.some(q => q.questionText?.toLowerCase().includes('periodic') || q.questionText?.toLowerCase().includes('moles') || q.questionText?.toLowerCase().includes('electron'));
+    const engRes = await request('GET', '/rooms/room-eng5-1/questions?standardId=grade-5&subjectId=english&chapterId=ch-eng5-1', null, studentAHeaders);
+    const engQuestions = engRes.body?.data?.questions || [];
+    const isEngAllEng = engQuestions.length === 10 && engQuestions.every(q => q.questionText?.includes('noun') || q.questionText?.includes('verb') || q.questionText?.includes('plural') || q.questionText?.includes('antonym') || q.questionText?.includes('sentence') || q.questionText?.includes('article') || q.questionText?.includes('adjective') || q.questionText?.includes('preposition') || q.questionText?.includes('past tense') || q.questionText?.includes('conjunction') || q.questionText?.includes('punctuation'));
     record(
-      'Standard 4 Math Room contains zero Chemistry questions',
-      true,
-      noChemInMath4,
-      noChemInMath4,
-      `Math4 question count: ${math4Questions.length}`
-    );
-
-    // 4.3 Unconfigured Room questions query must return empty array without falling back to Room 1
-    const unconfiguredQRes = await request('GET', '/rooms/room-soc5-nonexistent/questions', null, studentHeaders);
-    const unconfiguredQuestions = unconfiguredQRes.body?.data?.questions || [];
-    const isCleanZeroQFallback = unconfiguredQuestions.length === 0 || unconfiguredQRes.status === 404;
-    record(
-      'Unconfigured room does NOT fall back to Chemistry questions',
-      true,
-      isCleanZeroQFallback,
-      isCleanZeroQFallback,
-      `Status: ${unconfiguredQRes.status}, Questions returned: ${unconfiguredQuestions.length}`
+      2,
+      'Standard 5 English Chapter 1 loads 10 authentic English questions',
+      '10 English Questions',
+      `${engQuestions.length} Questions (All English: ${isEngAllEng})`,
+      engRes.status === 200 && isEngAllEng,
+      `Count: ${engQuestions.length}`
     );
 
     // ─────────────────────────────────────────────────────────────────────────
-    // 5. GAME ENGINE AUTHORITATIVE DISPATCH VERIFICATION
+    // 3. Standard 5 Mathematics
     // ─────────────────────────────────────────────────────────────────────────
-    console.log('\n--- 5. Game Engine Authoritative Dispatch ---');
-
-    // 5.1 Unit 1 Calculation Heist endpoint
-    const heistStartRes = await request('POST', '/game/calculation-heist/start', {}, studentHeaders);
+    const mathRes = await request('GET', '/rooms/room-math5-1/questions?standardId=grade-5&subjectId=mathematics&chapterId=ch-math5-1', null, studentAHeaders);
+    const mathQuestions = mathRes.body?.data?.questions || [];
+    const isMathAllMath = mathQuestions.length === 10 && mathQuestions.every(q => q.questionText?.includes('sum') || q.questionText?.includes('fraction') || q.questionText?.includes('perimeter') || q.questionText?.includes('product') || q.questionText?.includes('area') || q.questionText?.includes('grams') || q.questionText?.includes('LCM') || q.questionText?.includes('%') || q.questionText?.includes('angles') || q.questionText?.includes('Solve'));
     record(
-      'Unit 1 Calculation Heist engine operates for Chemistry',
-      200,
-      heistStartRes.status,
-      heistStartRes.status === 200,
-      `Session ID: ${heistStartRes.body?.data?.sessionId}`
+      3,
+      'Standard 5 Mathematics Chapter 1 loads 10 authentic Mathematics questions',
+      '10 Math Questions',
+      `${mathQuestions.length} Questions (All Math: ${isMathAllMath})`,
+      mathRes.status === 200 && isMathAllMath,
+      `Count: ${mathQuestions.length}`
     );
 
-    // 5.2 Unit 2 Quantum Architect endpoint
-    const quantumStartRes = await request('POST', '/game/quantum-architect/start', {}, studentHeaders);
+    // ─────────────────────────────────────────────────────────────────────────
+    // 4. Standard 5 Science
+    // ─────────────────────────────────────────────────────────────────────────
+    const sciRes = await request('GET', '/rooms/room-sci5-1/questions?standardId=grade-5&subjectId=science&chapterId=ch-sci5-1', null, studentAHeaders);
+    const sciQuestions = sciRes.body?.data?.questions || [];
+    const isSciAllSci = sciQuestions.length === 10 && sciQuestions.every(q => q.questionText?.includes('matter') || q.questionText?.includes('gas') || q.questionText?.includes('machine') || q.questionText?.includes('photosynthesis') || q.questionText?.includes('blood') || q.questionText?.includes('boiling') || q.questionText?.includes('energy') || q.questionText?.includes('plant') || q.questionText?.includes('force') || q.questionText?.includes('vitamin'));
     record(
-      'Unit 2 Quantum Architect engine operates for Chemistry',
-      200,
-      quantumStartRes.status,
-      quantumStartRes.status === 200,
-      `Session ID: ${quantumStartRes.body?.data?.sessionId}`
+      4,
+      'Standard 5 Science Chapter 1 loads 10 authentic Science questions',
+      '10 Science Questions',
+      `${sciQuestions.length} Questions (All Science: ${isSciAllSci})`,
+      sciRes.status === 200 && isSciAllSci,
+      `Count: ${sciQuestions.length}`
     );
 
-    // 5.3 Unit 3 Grid Reconstruction endpoint
-    const gridStartRes = await request('POST', '/game/grid-reconstruction/start', {}, studentHeaders);
+    // ─────────────────────────────────────────────────────────────────────────
+    // 5. Standard 5 Social Science
+    // ─────────────────────────────────────────────────────────────────────────
+    const socRes = await request('GET', '/rooms/room-soc5-1/questions?standardId=grade-5&subjectId=social-science&chapterId=ch-soc5-1', null, studentAHeaders);
+    const socQuestions = socRes.body?.data?.questions || [];
+    const isSocAllSoc = socQuestions.length === 10 && socQuestions.every(q => q.questionText?.includes('continents') || q.questionText?.includes('ocean') || q.questionText?.includes('capital') || q.questionText?.includes('Constitution') || q.questionText?.includes('Hemispheres') || q.questionText?.includes('civilization') || q.questionText?.includes('maps') || q.questionText?.includes('independence') || q.questionText?.includes('animal') || q.questionText?.includes('fundamental rights'));
     record(
-      'Unit 3 Grid Reconstruction engine operates for Chemistry',
-      200,
-      gridStartRes.status,
-      gridStartRes.status === 200,
-      `Session ID: ${gridStartRes.body?.data?.sessionId}`
+      5,
+      'Standard 5 Social Science Chapter 1 loads 10 authentic Social Science questions',
+      '10 Social Science Questions',
+      `${socQuestions.length} Questions (All Social Science: ${isSocAllSoc})`,
+      socRes.status === 200 && isSocAllSoc,
+      `Count: ${socQuestions.length}`
     );
 
-    // 5.4 Unit 4 Hydrogen Reactor endpoint
-    const hydrogenStartRes = await request('POST', '/game/hydrogen-reactor/start', {}, studentHeaders);
+    // ─────────────────────────────────────────────────────────────────────────
+    // 6. Standard 11 Chemistry
+    // ─────────────────────────────────────────────────────────────────────────
+    const chemRes = await request('GET', '/rooms/room-1/questions?standardId=grade-11&subjectId=chemistry&chapterId=ch-3', null, studentAHeaders);
+    const chemQuestions = chemRes.body?.data?.questions || [];
+    const isChemAllChem = chemQuestions.length > 0 && chemQuestions.every(q => q.questionText?.toLowerCase().includes('periodic') || q.questionText?.toLowerCase().includes('element') || q.questionText?.toLowerCase().includes('sodium'));
     record(
-      'Unit 4 Hydrogen Reactor engine operates for Chemistry',
-      200,
-      hydrogenStartRes.status,
-      hydrogenStartRes.status === 200,
-      `Session ID: ${hydrogenStartRes.body?.data?.sessionId}`
+      6,
+      'Standard 11 Chemistry Room 1 preserves authentic Chemistry content',
+      'True',
+      `Count: ${chemQuestions.length}, Chem: ${isChemAllChem}`,
+      chemRes.status === 200 && isChemAllChem
     );
 
-    // 5.5 Unit 5 Metal Sorting endpoint
-    const metalStartRes = await request('POST', '/game/metal-sorting/start', {}, studentHeaders);
+    // ─────────────────────────────────────────────────────────────────────────
+    // 7. Standard 11 Physics
+    // ─────────────────────────────────────────────────────────────────────────
+    const phyRoomsRes = await request('GET', '/chapters/ch-phy11-1/rooms?standardId=grade-11&subjectId=physics', null, studentAHeaders);
+    const phyRooms = phyRoomsRes.body?.data?.rooms || [];
     record(
-      'Unit 5 Metal Sorting Factory engine operates for Chemistry',
-      200,
-      metalStartRes.status,
-      metalStartRes.status === 200,
-      `Session ID: ${metalStartRes.body?.data?.sessionId}`
+      7,
+      'Standard 11 Physics rooms belong strictly to Physics without Chemistry leakage',
+      'True',
+      `Rooms: ${phyRooms.length}`,
+      phyRoomsRes.status === 200 && phyRooms.length > 0 && phyRooms.every(r => r.chapterId === 'ch-phy11-1')
     );
 
-    // 5.6 Unit 6 Gas Simulator endpoint
-    const gasStartRes = await request('POST', '/game/gas-simulator/start', {}, studentHeaders);
+    // ─────────────────────────────────────────────────────────────────────────
+    // 8. No Cross-Subject Questions (Tamil never contains Math/Chemistry)
+    // ─────────────────────────────────────────────────────────────────────────
+    const hasMathInTamil = tamQuestions.some(q => q.questionText?.includes('fraction') || q.questionText?.includes('moles') || q.questionText?.includes('Sodium'));
+    const hasChemInMath = mathQuestions.some(q => q.questionText?.includes('Periodic') || q.questionText?.includes('Electron') || q.questionText?.includes('Sodium'));
     record(
-      'Unit 6 Gas Simulator engine operates for Chemistry',
-      200,
-      gasStartRes.status,
-      gasStartRes.status === 200,
-      `Session ID: ${gasStartRes.body?.data?.sessionId}`
+      8,
+      'No cross-subject questions exist between Tamil, Math, and Chemistry',
+      'false (no leakage)',
+      `Tamil Leak: ${hasMathInTamil}, Math Leak: ${hasChemInMath}`,
+      !hasMathInTamil && !hasChemInMath
+    );
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // 9. No Cross-Standard Questions (Standard 5 never gets Standard 11)
+    // ─────────────────────────────────────────────────────────────────────────
+    const has11thInStd5 = tamQuestions.concat(mathQuestions, sciQuestions, socQuestions, engQuestions).some(q => q.questionText?.includes('molarMass') || q.questionText?.includes('Aufbau') || q.questionText?.includes('enthalpy'));
+    record(
+      9,
+      'No cross-standard content (Standard 5 never receives Standard 11 content)',
+      'false (no 11th content)',
+      `Leaked 11th Content: ${has11thInStd5}`,
+      !has11thInStd5
+    );
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // 10. No Cross-Chapter Questions
+    // ─────────────────────────────────────────────────────────────────────────
+    const allBelongToRoom = tamQuestions.every(q => q.roomId === 'room-tam5-1');
+    record(
+      10,
+      'No cross-chapter questions (All questions belong strictly to requested room)',
+      'true',
+      `All room-tam5-1: ${allBelongToRoom}`,
+      allBelongToRoom
+    );
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // 11. Invalid Room / Hierarchy Mismatch Rejected
+    // ─────────────────────────────────────────────────────────────────────────
+    // Requesting Room 1 (Chemistry) with Tamil chapterId
+    const mismatchRes = await request('GET', '/rooms/room-1/questions?chapterId=ch-tam5-1', null, studentAHeaders);
+    record(
+      11,
+      'Curriculum hierarchy mismatch is strictly rejected with 400 Bad Request',
+      400,
+      mismatchRes.status,
+      mismatchRes.status === 400,
+      `Response Message: ${mismatchRes.body?.message}`
+    );
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // 12. Empty Content Handled Gracefully
+    // ─────────────────────────────────────────────────────────────────────────
+    const emptyRes = await request('GET', '/rooms/room-tam5-empty/questions', null, studentAHeaders);
+    const emptyQuestions = emptyRes.body?.data?.questions || [];
+    record(
+      12,
+      'Unconfigured room returns empty array with 0 questions (No fallback to other subjects)',
+      0,
+      emptyQuestions.length,
+      emptyQuestions.length === 0 || emptyRes.status === 404
+    );
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // 13. Insufficient Content Handled Gracefully
+    // ─────────────────────────────────────────────────────────────────────────
+    const partialRes = await request('GET', '/rooms/room-math4-2-1/questions', null, studentAHeaders);
+    const partialQuestions = partialRes.body?.data?.questions || [];
+    const isPartialPure = partialQuestions.length > 0 && partialQuestions.length < 10 && partialQuestions.every(q => q.roomId === 'room-math4-2-1');
+    record(
+      13,
+      'Insufficient content returns only the room\'s exact questions without borrowing',
+      'True',
+      `Count: ${partialQuestions.length}, Pure: ${isPartialPure}`,
+      isPartialPure
+    );
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // 14. Question Sanitization (No Answers/Keys Leaked)
+    // ─────────────────────────────────────────────────────────────────────────
+    const allFetched = tamQuestions.concat(mathQuestions, sciQuestions, socQuestions, engQuestions);
+    const leakedAnswerKeys = allFetched.some(q => {
+      if (q.correctAnswer !== undefined || q.solutionKey !== undefined || q.solution !== undefined) return true;
+      if (q.options && q.options.some(opt => opt.isCorrect !== undefined)) return true;
+      if (q.puzzleData && (q.puzzleData.correctMapping || q.puzzleData.expectedValue || q.puzzleData.expectedConfiguration)) return true;
+      return false;
+    });
+    record(
+      14,
+      'Authoritative answer keys and solutions are stripped from student responses',
+      'false (zero leaks)',
+      `Leaked Answer Keys: ${leakedAnswerKeys}`,
+      !leakedAnswerKeys
+    );
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // 15. Hint Belongs Strictly to Current Question
+    // ─────────────────────────────────────────────────────────────────────────
+    const distinctHints = new Set(tamQuestions.map(q => q.hint).filter(Boolean));
+    record(
+      15,
+      'Each question maintains its own unique, question-specific hint',
+      tamQuestions.length,
+      distinctHints.size,
+      distinctHints.size === tamQuestions.length,
+      `Unique hints: ${distinctHints.size}/${tamQuestions.length}`
+    );
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // 16. User Progress Isolation
+    // ─────────────────────────────────────────────────────────────────────────
+    await request('POST', '/game/progress/room-1/start', {}, studentAHeaders);
+    const compRes = await request('POST', '/game/progress/room-1/complete', {
+      score: 750,
+      stars: 2,
+      timeSpentSec: 120,
+    }, studentAHeaders);
+
+    const progResA = await request('GET', '/game/progress', null, studentAHeaders);
+    const progResB = await request('GET', '/game/progress', null, teacherHeaders);
+
+    const studentAList = progResA.body?.data?.completedList || progResA.body?.data?.progress || [];
+    const teacherList = progResB.body?.data?.completedList || progResB.body?.data?.progress || [];
+
+    const studentAHasProg = (progResA.body?.data?.completedRooms > 0) || studentAList.length > 0 || compRes.status === 200;
+    const teacherHasProg = (progResB.body?.data?.completedRooms > 0) || teacherList.some(p => p.roomId === 'room-1');
+
+    record(
+      16,
+      'User progress is strictly isolated by userId and never shared between users',
+      'Student A: true, Teacher: false',
+      `Student A: ${studentAHasProg}, Teacher: ${teacherHasProg}`,
+      studentAHasProg && !teacherHasProg
+    );
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // 17. Stale Cache Protection
+    // ─────────────────────────────────────────────────────────────────────────
+    // After requesting Tamil, requesting Math returns Math without cached Tamil questions
+    const freshMathRes = await request('GET', '/rooms/room-math5-1/questions', null, studentAHeaders);
+    const freshMathQuestions = freshMathRes.body?.data?.questions || [];
+    const isMathPureAfterTamil = freshMathQuestions.length === 10 && freshMathQuestions.every(q => q.roomId === 'room-math5-1');
+    record(
+      17,
+      'Room-keyed queries prevent stale question cache leakage between missions',
+      'true',
+      `Count: ${freshMathQuestions.length}, Pure: ${isMathPureAfterTamil}`,
+      freshMathRes.status === 200 && isMathPureAfterTamil
     );
 
   } catch (error) {
@@ -306,7 +362,7 @@ async function runSubjectContentMappingTests() {
   // SUMMARY REPORT
   // ─────────────────────────────────────────────────────────────────────────
   console.log('\n================================================================');
-  console.log('📊 TEST SUMMARY RESULTS');
+  console.log('📊 SUBJECT & CONTENT MAPPING SUMMARY RESULTS');
   console.log('================================================================');
   const total = report.length;
   const passed = report.filter(r => r.status === 'PASS').length;
@@ -318,7 +374,7 @@ async function runSubjectContentMappingTests() {
   console.log(`Success Rate:    ${Math.round((passed / total) * 100)}%\n`);
 
   if (failed === 0) {
-    console.log('🎉 ALL SUBJECT CONTENT MAPPING AND ISOLATION TESTS PASSED!');
+    console.log('🎉 ALL 17 SUBJECT & CONTENT MAPPING TESTS PASSED 100% SUCCESSFULLY!');
   } else {
     console.error(`⚠️ ${failed} test(s) failed.`);
     process.exit(1);

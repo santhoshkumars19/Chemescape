@@ -9,8 +9,9 @@ class QuestionController {
   async getQuestionsByRoom(req, res, next) {
     try {
       const { roomId } = req.params;
+      const { standardId, subjectId, chapterId } = req.query;
       const isStudentView = !req.user || req.user.role === 'STUDENT';
-      const questions = await questionService.getQuestionsByRoom(roomId, isStudentView);
+      const questions = await questionService.getQuestionsByRoom(roomId, isStudentView, { standardId, subjectId, chapterId });
       return res.status(200).json({
         success: true,
         message: 'Questions retrieved successfully',

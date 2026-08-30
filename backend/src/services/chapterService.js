@@ -115,6 +115,115 @@ const DEFAULT_CHAPTERS = [
     subject: { id: 'subj-sci', name: 'Science', code: 'SCI', icon: '🔬' },
     standard: { id: 'grade-4', name: '4', displayName: '4th Standard' },
   },
+  // Standard 5 Subject Chapters
+  {
+    id: 'ch-tam5-1',
+    standardId: 'grade-5',
+    subjectId: 'subj-tamil',
+    title: 'Introduction to Tamil',
+    description: 'Classical Tamil literature, poetry, and foundational grammar concepts',
+    chapterNumber: 1,
+    difficulty: 'EASY',
+    estimatedMinutes: 20,
+    xpReward: 400,
+    coinReward: 100,
+    badgeName: 'Tamil Scholar',
+    isLocked: false,
+    isActive: true,
+    displayOrder: 1,
+    subject: { id: 'subj-tamil', name: 'Tamil', code: 'TAMIL', icon: '📚' },
+    standard: { id: 'grade-5', name: '5', displayName: '5th Standard' },
+  },
+  {
+    id: 'ch-math5-1',
+    standardId: 'grade-5',
+    subjectId: 'subj-math',
+    title: 'Fractions & Geometry',
+    description: 'Master fractions, 2D shapes, perimeter, and area calculations',
+    chapterNumber: 1,
+    difficulty: 'EASY',
+    estimatedMinutes: 20,
+    xpReward: 400,
+    coinReward: 100,
+    badgeName: 'Math Pioneer',
+    isLocked: false,
+    isActive: true,
+    displayOrder: 1,
+    subject: { id: 'subj-math', name: 'Mathematics', code: 'MATH', icon: '📐' },
+    standard: { id: 'grade-5', name: '5', displayName: '5th Standard' },
+  },
+  {
+    id: 'ch-sci5-1',
+    standardId: 'grade-5',
+    subjectId: 'subj-sci',
+    title: 'States of Matter & Simple Machines',
+    description: 'Learn solids, liquids, gases, levers, pulleys, and basic mechanics',
+    chapterNumber: 1,
+    difficulty: 'EASY',
+    estimatedMinutes: 20,
+    xpReward: 400,
+    coinReward: 100,
+    badgeName: 'Science Explorer',
+    isLocked: false,
+    isActive: true,
+    displayOrder: 1,
+    subject: { id: 'subj-sci', name: 'Science', code: 'SCI', icon: '🔬' },
+    standard: { id: 'grade-5', name: '5', displayName: '5th Standard' },
+  },
+  {
+    id: 'ch-soc5-1',
+    standardId: 'grade-5',
+    subjectId: 'subj-social',
+    title: 'Introduction to Social science',
+    description: 'Civics, Indian heritage, continents, and geographical maps',
+    chapterNumber: 1,
+    difficulty: 'EASY',
+    estimatedMinutes: 20,
+    xpReward: 400,
+    coinReward: 100,
+    badgeName: 'Heritage Master',
+    isLocked: false,
+    isActive: true,
+    displayOrder: 1,
+    subject: { id: 'subj-social', name: 'Social Science', code: 'SOCIAL', icon: '🌍' },
+    standard: { id: 'grade-5', name: '5', displayName: '5th Standard' },
+  },
+  {
+    id: 'ch-eng5-1',
+    standardId: 'grade-5',
+    subjectId: 'subj-eng',
+    title: 'Introduction to English',
+    description: 'Parts of speech, sentence formation, reading comprehension, and vocabulary',
+    chapterNumber: 1,
+    difficulty: 'EASY',
+    estimatedMinutes: 20,
+    xpReward: 400,
+    coinReward: 100,
+    badgeName: 'English Pro',
+    isLocked: false,
+    isActive: true,
+    displayOrder: 1,
+    subject: { id: 'subj-eng', name: 'English', code: 'ENG', icon: '📖' },
+    standard: { id: 'grade-5', name: '5', displayName: '5th Standard' },
+  },
+  {
+    id: 'ch-phy11-1',
+    standardId: 'grade-11',
+    subjectId: 'subj-phy',
+    title: 'Units & Measurements',
+    description: 'SI units, dimensional analysis, and error estimation',
+    chapterNumber: 1,
+    difficulty: 'MEDIUM',
+    estimatedMinutes: 25,
+    xpReward: 500,
+    coinReward: 100,
+    badgeName: 'Physics Pioneer',
+    isLocked: false,
+    isActive: true,
+    displayOrder: 1,
+    subject: { id: 'subj-phy', name: 'Physics', code: 'PHY', icon: '⚡' },
+    standard: { id: 'grade-11', name: '11', displayName: '11th Standard' },
+  },
 ];
 
 // Fallback allowed subject codes per standard grade
@@ -309,11 +418,12 @@ class ChapterService {
 
     // Validate ownership context if supplied
     if (options.standardId) {
+      const normStd = String(options.standardId).replace(/[^0-9]/g, '');
+      const chStd = String(chapter.standardId || chapter.standard?.name || chapter.standard?.grade || '').replace(/[^0-9]/g, '');
       const stdMatch =
         chapter.standardId === options.standardId ||
         chapter.standard?.id === options.standardId ||
-        chapter.standard?.name === options.standardId ||
-        String(chapter.standard?.grade) === options.standardId;
+        (normStd && chStd && normStd === chStd);
 
       if (!stdMatch) {
         const error = new Error('Chapter does not belong to the specified standard');
@@ -323,10 +433,23 @@ class ChapterService {
     }
 
     if (options.subjectId) {
+      const normSubj = String(options.subjectId).toLowerCase().replace(/^subj-/, '');
+      const chSubjCode = String(chapter.subject?.code || '').toLowerCase();
+      const chSubjName = String(chapter.subject?.name || '').toLowerCase();
+      const chSubjId = String(chapter.subjectId || '').toLowerCase().replace(/^subj-/, '');
+
       const subjMatch =
         chapter.subjectId === options.subjectId ||
-        chapter.subject?.id === options.subjectId ||
-        chapter.subject?.code === options.subjectId.toUpperCase();
+        chSubjId === normSubj ||
+        chSubjCode === normSubj ||
+        chSubjName === normSubj ||
+        (normSubj === 'physics' && (chSubjCode === 'phy' || chSubjId === 'phy')) ||
+        (normSubj === 'chemistry' && (chSubjCode === 'chem' || chSubjId === 'chem')) ||
+        (normSubj === 'mathematics' && (chSubjCode === 'math' || chSubjId === 'math')) ||
+        (normSubj === 'science' && (chSubjCode === 'sci' || chSubjId === 'sci')) ||
+        (normSubj === 'social-science' && (chSubjCode === 'social' || chSubjCode === 'soc' || chSubjId === 'social')) ||
+        (normSubj === 'tamil' && (chSubjCode === 'tamil' || chSubjId === 'tamil')) ||
+        (normSubj === 'english' && (chSubjCode === 'eng' || chSubjId === 'eng'));
 
       if (!subjMatch) {
         const error = new Error('Chapter does not belong to the specified subject');

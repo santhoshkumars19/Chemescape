@@ -1,16 +1,16 @@
 import apiClient from './apiClient';
 
 export const roomService = {
-  getRoomsByChapter: async (chapterId) => {
-    const res = await apiClient.get(`/chapters/${chapterId}/rooms`);
+  getRoomsByChapter: async (chapterId, params = {}) => {
+    const res = await apiClient.get(`/chapters/${chapterId}/rooms`, { params });
     return res.data || res;
   },
-  getRoomById: async (roomId) => {
-    const res = await apiClient.get(`/rooms/${roomId}`);
+  getRoomById: async (roomId, params = {}) => {
+    const res = await apiClient.get(`/rooms/${roomId}`, { params });
     return res.data || res;
   },
-  getQuestionsByRoom: async (roomId) => {
-    const res = await apiClient.get(`/rooms/${roomId}/questions`);
+  getQuestionsByRoom: async (roomId, params = {}) => {
+    const res = await apiClient.get(`/rooms/${roomId}/questions`, { params });
     return res.data || res;
   },
 };

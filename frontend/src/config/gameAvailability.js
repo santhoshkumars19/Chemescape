@@ -71,10 +71,10 @@ export function getMissionAvailability({ standardId, subjectId, chapter, room = 
       gameType: null,
       endpoint: null,
       component: null,
-      title: 'No Mission Selected',
+      title: 'Mission configuration is incomplete.',
       description: 'Select a standard, subject, and chapter to view the mission brief.',
       actionLabel: 'Select Chapter',
-      badgeText: 'NOT CONFIGURED',
+      badgeText: 'INCOMPLETE CONFIG',
     };
   }
 

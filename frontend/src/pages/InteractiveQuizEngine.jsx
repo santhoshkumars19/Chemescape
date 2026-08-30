@@ -72,6 +72,7 @@ export default function InteractiveQuizEngine() {
 
   // ── 2. Local State Management ───────────────────────────────────────────────
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [questions, setQuestions] = useState([]);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [selectedOptionId, setSelectedOptionId] = useState(null);
@@ -91,19 +92,23 @@ export default function InteractiveQuizEngine() {
 
     async function loadMissionQuestions() {
       setLoading(true);
+      setError(null);
       try {
         let targetRoomId = selectedRoomId || (typeof currentRoom === 'object' ? currentRoom?.id : currentRoom);
 
-        // If no direct roomId is stored, query rooms for the active chapter
+        // If no direct roomId is stored, query rooms for the active chapter with hierarchy validation
         if (!targetRoomId && activeChapter?.id) {
           try {
-            const roomRes = await roomService.getRoomsByChapter(activeChapter.id);
+            const roomRes = await roomService.getRoomsByChapter(activeChapter.id, {
+              standardId: resolvedStdId,
+              subjectId: resolvedSubjId,
+            });
             const rooms = roomRes?.data?.rooms || roomRes?.data || (Array.isArray(roomRes) ? roomRes : []);
             if (rooms.length > 0) {
               targetRoomId = rooms[0].id;
             }
           } catch (e) {
-            // No rooms configured
+            // No rooms configured or context mismatch
           }
         }
 
@@ -115,7 +120,12 @@ export default function InteractiveQuizEngine() {
           return;
         }
 
-        const qRes = await roomService.getQuestionsByRoom(targetRoomId);
+        // Query questions strictly belonging to this room with hierarchy context validation
+        const qRes = await roomService.getQuestionsByRoom(targetRoomId, {
+          standardId: resolvedStdId,
+          subjectId: resolvedSubjId,
+          chapterId: activeChapter?.id,
+        });
         const rawList = qRes?.data?.questions || qRes?.questions || (Array.isArray(qRes) ? qRes : []);
 
         if (isMounted) {
@@ -130,6 +140,8 @@ export default function InteractiveQuizEngine() {
         }
       } catch (err) {
         if (isMounted) {
+          const errMsg = err.response?.data?.message || err.message || 'Unable to load questions';
+          setError(errMsg);
           setQuestions([]);
           setLoading(false);
         }
