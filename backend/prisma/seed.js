@@ -280,15 +280,52 @@ async function main() {
           orderNumber: t.orderNumber,
         },
       },
-      update: { title: t.title, description: t.description },
+      update: { title: t.title, description: t.description, isActive: true },
       create: {
         chapterId: periodicChapter.id,
         title: t.title,
         description: t.description,
         orderNumber: t.orderNumber,
+        isActive: true,
       },
     });
     topicsMap[t.orderNumber] = topic;
+  }
+  console.log(' ✔ Topics seeded: 11th Chemistry Chapter 3 (6 core topics)');
+
+  // B. Topics for Standard 4 Math Chapter 2 (Fractions)
+  if (std4 && mathSubject) {
+    const ch2Fractions = await prisma.chapter.findFirst({
+      where: { standardId: std4.id, subjectId: mathSubject.id, chapterNumber: 2 },
+    });
+
+    if (ch2Fractions) {
+      const mathTopics = [
+        { orderNumber: 1, title: 'Basic Fractions', description: 'Introduction to numerators and denominators.' },
+        { orderNumber: 2, title: 'Equivalent Fractions', description: 'Finding equivalent fractions by multiplying or dividing.' },
+        { orderNumber: 3, title: 'Comparing Fractions', description: 'Comparing like and unlike fractions using visual models.' },
+      ];
+
+      for (const mt of mathTopics) {
+        await prisma.topic.upsert({
+          where: {
+            chapterId_orderNumber: {
+              chapterId: ch2Fractions.id,
+              orderNumber: mt.orderNumber,
+            },
+          },
+          update: { title: mt.title, description: mt.description, isActive: true },
+          create: {
+            chapterId: ch2Fractions.id,
+            title: mt.title,
+            description: mt.description,
+            orderNumber: mt.orderNumber,
+            isActive: true,
+          },
+        });
+      }
+      console.log(' ✔ Topics seeded: Standard 4 Math Chapter 2 (3 demonstration topics)');
+    }
   }
 
   // ── 7. ROOMS & GAME ENGINE CONFIGURATIONS ────────────────────────────────

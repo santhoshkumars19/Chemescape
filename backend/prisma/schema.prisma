@@ -168,6 +168,7 @@ model Topic {
   title       String
   description String?  @db.Text
   orderNumber Int
+  isActive    Boolean  @default(true)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
