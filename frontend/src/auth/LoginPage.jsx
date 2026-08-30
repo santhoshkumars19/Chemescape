@@ -52,8 +52,14 @@ export default function LoginPage() {
     setLoading(true);
     setToast(null);
     try {
-      await login(form.email, form.password);
-      navigateTo('dashboard');
+      const loggedInUser = await login(form.email, form.password);
+      // STUDENT → standard selection; Teacher/Admin → dashboard directly
+      const role = loggedInUser?.role || 'STUDENT';
+      if (role === 'STUDENT') {
+        navigateTo('select-standard');
+      } else {
+        navigateTo('dashboard');
+      }
     } catch (err) {
       setToast({ message: err.message, type: 'error' });
     } finally {
@@ -65,7 +71,7 @@ export default function LoginPage() {
     setGuestLoading(true);
     await new Promise(r => setTimeout(r, 800));
     continueAsGuest();
-    navigateTo('dashboard');
+    navigateTo('dashboard'); // guests skip standard selection
   };
 
   return (

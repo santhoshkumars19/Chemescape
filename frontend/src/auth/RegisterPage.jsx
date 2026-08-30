@@ -67,8 +67,14 @@ export default function RegisterPage() {
     setLoading(true);
     setToast(null);
     try {
-      await register(form.name, form.email, form.password);
-      navigateTo('dashboard');
+      const registeredUser = await register(form.name, form.email, form.password);
+      // New STUDENT → standard selection first; other roles → dashboard
+      const role = registeredUser?.role || 'STUDENT';
+      if (role === 'STUDENT') {
+        navigateTo('select-standard');
+      } else {
+        navigateTo('dashboard');
+      }
     } catch (err) {
       setToast({ message: err.message, type: 'error' });
     } finally {

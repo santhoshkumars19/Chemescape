@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
   LayoutDashboard, Swords, Trophy, Star, UserCircle,
   Settings, LogOut, FlaskConical, ChevronLeft, ChevronRight,
-  Zap, Menu, X, Users, Shield, BookOpen, Terminal, FileText
+  Zap, Menu, X, Users, Shield, BookOpen, Terminal, FileText, GraduationCap
 } from 'lucide-react';
 import { useAuth } from '../auth/AuthContext';
 import { useNavigation } from '../context/NavigationContext';
@@ -17,12 +17,13 @@ export default function Sidebar({ collapsed, setCollapsed, mobileOpen, setMobile
 
   // Dynamic Navigation Items per Role
   let navItems = [
-    { label: 'Dashboard',     icon: LayoutDashboard, screen: 'dashboard' },
-    { label: 'Play Missions', icon: Swords,          screen: 'standards' },
-    { label: 'AI Assistant',  icon: Zap,             screen: 'ai-assistant' },
-    { label: 'Leaderboard',   icon: Trophy,          screen: 'leaderboard' },
-    { label: 'Profile',       icon: UserCircle,      screen: 'profile' },
-    { label: 'Settings',      icon: Settings,        screen: 'settings' },
+    { label: 'Dashboard',     icon: LayoutDashboard,  screen: 'dashboard' },
+    { label: 'My Standard',   icon: GraduationCap,    screen: 'select-standard' },
+    { label: 'Play Missions', icon: Swords,            screen: 'standards' },
+    { label: 'AI Assistant',  icon: Zap,               screen: 'ai-assistant' },
+    { label: 'Leaderboard',   icon: Trophy,            screen: 'leaderboard' },
+    { label: 'Profile',       icon: UserCircle,        screen: 'profile' },
+    { label: 'Settings',      icon: Settings,          screen: 'settings' },
   ];
 
   if (role === 'TEACHER') {
