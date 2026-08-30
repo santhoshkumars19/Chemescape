@@ -11,7 +11,7 @@ import {
 import {
   ArrowLeft, Lightbulb, CheckCircle2, XCircle, Clock,
   Sparkles, Zap, ChevronRight, RotateCcw, Trophy,
-  Shield, Heart, Award, AlertTriangle, Check, BookOpen,
+  Shield, Heart, Award, AlertTriangle, Check, X, BookOpen,
   Send, HelpCircle, AlertCircle, Play, Loader2,
 } from 'lucide-react';
 
@@ -216,14 +216,27 @@ export default function InteractiveQuizEngine() {
 
     const qType = currentQuestion.questionType || 'MCQ';
     let isCorrect = true;
+    let correctId = null;
 
     if (qType === 'MCQ') {
       if (!selectedOptionId) return;
-      const chosenOpt = (currentQuestion.options || []).find(o => o.id === selectedOptionId || o.optionKey === selectedOptionId);
-      if (chosenOpt && typeof chosenOpt.isCorrect === 'boolean') {
-        isCorrect = chosenOpt.isCorrect;
+
+      // Decode the encoded check key from the backend (_ck = base64 of correct option id)
+      if (currentQuestion._ck) {
+        try {
+          correctId = atob(currentQuestion._ck);
+          isCorrect = selectedOptionId === correctId;
+        } catch {
+          // Fallback: check isCorrect on option if somehow available
+          const chosenOpt = (currentQuestion.options || []).find(o => o.id === selectedOptionId || o.optionKey === selectedOptionId);
+          isCorrect = chosenOpt?.isCorrect !== false;
+          correctId = null;
+        }
       } else {
-        isCorrect = true;
+        // No _ck: fallback to isCorrect if present, else treat as correct
+        const chosenOpt = (currentQuestion.options || []).find(o => o.id === selectedOptionId || o.optionKey === selectedOptionId);
+        isCorrect = chosenOpt?.isCorrect !== false;
+        correctId = null;
       }
     } else if (qType === 'CALCULATION') {
       if (!calculationInput.trim()) return;
@@ -242,6 +255,7 @@ export default function InteractiveQuizEngine() {
     setIsSubmitted(true);
     setFeedback({
       isCorrect,
+      correctId,
       message: isCorrect
         ? '✓ Correct! Excellent solution.'
         : '✕ Incorrect. Review the hint and try again on the next mission.',
@@ -690,21 +704,49 @@ export default function InteractiveQuizEngine() {
               {(currentQuestion.options || []).map((opt, i) => {
                 const optId = opt.id || opt.optionKey || String(i);
                 const isSelected = selectedOptionId === optId;
+                const isCorrectOpt = isSubmitted && feedback?.correctId
+                  ? optId === feedback.correctId
+                  : false;
                 const optLetter = opt.optionKey || String.fromCharCode(65 + i);
 
-                let optBorder = isSelected ? `2px solid ${accentColor}` : '1px solid rgba(255,255,255,0.08)';
-                let optBg = isSelected ? `${accentColor}18` : 'rgba(255,255,255,0.03)';
+                // Determine border + background after submission
+                let optBorder, optBg, letterBg, letterColor, showCheck = false, showX = false;
 
                 if (isSubmitted) {
-                  if (isSelected) {
-                    if (feedback?.isCorrect) {
-                      optBorder = '2px solid #10B981';
-                      optBg = 'rgba(16,185,129,0.2)';
-                    } else {
-                      optBorder = '2px solid #F43F5E';
-                      optBg = 'rgba(244,63,94,0.2)';
-                    }
+                  if (isSelected && feedback?.isCorrect) {
+                    // ✅ User picked correct answer
+                    optBorder = '2px solid #10B981';
+                    optBg = 'rgba(16,185,129,0.18)';
+                    letterBg = '#10B981';
+                    letterColor = '#020609';
+                    showCheck = true;
+                  } else if (isSelected && !feedback?.isCorrect) {
+                    // ❌ User picked wrong answer
+                    optBorder = '2px solid #F43F5E';
+                    optBg = 'rgba(244,63,94,0.18)';
+                    letterBg = '#F43F5E';
+                    letterColor = '#fff';
+                    showX = true;
+                  } else if (isCorrectOpt) {
+                    // 🟢 Reveal the correct answer when user was wrong
+                    optBorder = '2px solid #10B981';
+                    optBg = 'rgba(16,185,129,0.10)';
+                    letterBg = 'rgba(16,185,129,0.3)';
+                    letterColor = '#10B981';
+                    showCheck = true;
+                  } else {
+                    // Neutral non-selected after submission
+                    optBorder = '1px solid rgba(255,255,255,0.06)';
+                    optBg = 'rgba(255,255,255,0.02)';
+                    letterBg = 'rgba(255,255,255,0.05)';
+                    letterColor = 'rgba(255,255,255,0.3)';
                   }
+                } else {
+                  // Before submission
+                  optBorder = isSelected ? `2px solid ${accentColor}` : '1px solid rgba(255,255,255,0.08)';
+                  optBg = isSelected ? `${accentColor}18` : 'rgba(255,255,255,0.03)';
+                  letterBg = isSelected ? accentColor : 'rgba(255,255,255,0.06)';
+                  letterColor = isSelected ? '#020609' : '#fff';
                 }
 
                 return (
@@ -713,37 +755,60 @@ export default function InteractiveQuizEngine() {
                     type="button"
                     disabled={isSubmitted}
                     onClick={() => setSelectedOptionId(optId)}
-                    className="w-full p-4 rounded-2xl flex items-center justify-between gap-4 text-left cursor-pointer transition-all border-0"
-                    style={{ background: optBg, border: optBorder }}
+                    className="w-full p-4 rounded-2xl flex items-center justify-between gap-4 text-left transition-all border-0"
+                    style={{
+                      background: optBg,
+                      border: optBorder,
+                      cursor: isSubmitted ? 'default' : 'pointer',
+                    }}
                     whileHover={!isSubmitted ? { scale: 1.01 } : {}}
                     whileTap={!isSubmitted ? { scale: 0.99 } : {}}
                   >
                     <div className="flex items-center gap-3.5">
                       <div
-                        className="w-8 h-8 rounded-xl flex items-center justify-center font-orbitron font-black text-xs flex-shrink-0"
-                        style={{
-                          background: isSelected ? accentColor : 'rgba(255,255,255,0.06)',
-                          color: isSelected ? '#020609' : '#fff',
-                        }}
+                        className="w-8 h-8 rounded-xl flex items-center justify-center font-orbitron font-black text-xs flex-shrink-0 transition-all"
+                        style={{ background: letterBg, color: letterColor }}
                       >
                         {optLetter}
                       </div>
-                      <span className="font-inter text-sm sm:text-base text-white/90">
+                      <span
+                        className="font-inter text-sm sm:text-base transition-all"
+                        style={{
+                          color: isSubmitted && !isSelected && !isCorrectOpt
+                            ? 'rgba(255,255,255,0.4)'
+                            : 'rgba(255,255,255,0.92)',
+                        }}
+                      >
                         {opt.optionText}
                       </span>
                     </div>
 
                     <div
-                      className="w-5 h-5 rounded-full border flex items-center justify-center flex-shrink-0"
+                      className="w-5 h-5 rounded-full border flex items-center justify-center flex-shrink-0 transition-all"
                       style={{
-                        borderColor: isSelected ? accentColor : 'rgba(255,255,255,0.2)',
-                        background: isSelected ? accentColor : 'transparent',
+                        borderColor: showCheck
+                          ? '#10B981'
+                          : showX
+                          ? '#F43F5E'
+                          : isSelected
+                          ? accentColor
+                          : 'rgba(255,255,255,0.2)',
+                        background: showCheck
+                          ? '#10B981'
+                          : showX
+                          ? '#F43F5E'
+                          : isSelected
+                          ? accentColor
+                          : 'transparent',
                       }}
                     >
-                      {isSelected && <Check size={12} className="text-slate-950 stroke-[3]" />}
+                      {showCheck && <Check size={12} className="text-white stroke-[3]" />}
+                      {showX && <X size={12} className="text-white stroke-[3]" />}
+                      {!showCheck && !showX && isSelected && <Check size={12} className="text-slate-950 stroke-[3]" />}
                     </div>
                   </motion.button>
                 );
+
               })}
             </div>
           )}

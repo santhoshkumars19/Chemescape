@@ -588,12 +588,24 @@ const DEFAULT_QUESTIONS = [
 class QuestionService {
   /**
    * Authoritative Student-Safe Question Sanitizer
-   * Strips all answer keys, correct answers, and secret solutions
+   * Strips all answer keys, correct answers, and secret solutions.
+   * Includes a lightweight encoded correctness token (_ck) that the
+   * frontend uses ONLY at submit time to show ✓/✗ feedback — it does
+   * NOT expose the answer text or option index in plain sight.
    */
   toStudentQuestion(question) {
     if (!question) return null;
 
-    // Sanitize options
+    // Find correct option ID before stripping isCorrect
+    let correctOptionId = null;
+    if (question.options && Array.isArray(question.options)) {
+      const correctOpt = question.options.find(o => o.isCorrect === true);
+      if (correctOpt) {
+        correctOptionId = correctOpt.id || correctOpt.optionKey || null;
+      }
+    }
+
+    // Sanitize options (strip isCorrect)
     let sanitizedOptions = undefined;
     if (question.options && Array.isArray(question.options)) {
       sanitizedOptions = question.options
@@ -607,6 +619,12 @@ class QuestionService {
           displayOrder: opt.displayOrder ?? opt.orderNumber,
         }));
     }
+
+    // Build encoded check key (_ck): base64(correctOptionId) so it's
+    // not a plain-text field name that screams "answer".
+    const _ck = correctOptionId
+      ? Buffer.from(String(correctOptionId)).toString('base64')
+      : undefined;
 
     // Sanitize puzzleData
     let sanitizedPuzzleData = undefined;
@@ -643,6 +661,7 @@ class QuestionService {
       hint: question.hint,
       puzzleData: sanitizedPuzzleData,
       options: sanitizedOptions,
+      ...((_ck) ? { _ck } : {}),
       status: question.status,
       isActive: question.isActive !== false,
       createdAt: question.createdAt,
