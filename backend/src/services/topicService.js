@@ -168,6 +168,39 @@ const DEFAULT_TOPICS = [
     orderNumber: 4,
     isActive: true,
   },
+  // Standard 4 Science Chapter 1 Topics (My Body & Internal Organs)
+  {
+    id: 'topic-sci4-1-1',
+    chapterId: 'ch-sci4-1',
+    title: 'Internal Organs: Brain & Heart',
+    description: 'Functions of the human brain as command center and heart as blood pump.',
+    orderNumber: 1,
+    isActive: true,
+  },
+  {
+    id: 'topic-sci4-1-2',
+    chapterId: 'ch-sci4-1',
+    title: 'Lungs, Stomach & Kidneys',
+    description: 'Respiratory gas exchange, stomach digestion, and kidney blood filtration.',
+    orderNumber: 2,
+    isActive: true,
+  },
+  {
+    id: 'topic-sci4-1-3',
+    chapterId: 'ch-sci4-1',
+    title: 'Bones, Muscles & Movement',
+    description: 'Skeletal framework, muscular contractions, and joint locomotion.',
+    orderNumber: 3,
+    isActive: true,
+  },
+  {
+    id: 'topic-sci4-1-4',
+    chapterId: 'ch-sci4-1',
+    title: 'Dental Hygiene & Personal Health',
+    description: 'Tooth structure, oral hygiene routines, and balanced daily habits.',
+    orderNumber: 4,
+    isActive: true,
+  },
 ];
 
 class TopicService {

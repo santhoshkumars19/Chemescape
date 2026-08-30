@@ -579,14 +579,14 @@ export const CHAPTERS_STORE = {
   // ── Standard 4 Science ──────────────────────────────────────────────────────
   'grade-4:science': [
     {
-      id: 'g4-sci-1',
+      id: 'ch-sci4-1',
       chapterNumber: 1,
-      title: 'Plants: The Green World',
-      description: 'Parts of a plant, photosynthesis basics, root systems, and seed germination stages.',
+      title: 'My Body & Internal Organs',
+      description: 'Human brain, heart, lungs, stomach, kidneys, bones, and muscles.',
       difficulty: 'Beginner',
       xpReward: 400,
       coinsReward: 100,
-      gameType: 'Botanical Lab Quest',
+      gameType: 'Interactive Quiz Engine',
       missionCode: 'SCI-0401',
     },
     {

@@ -243,6 +243,44 @@ const DEFAULT_QUESTIONS = [
   })),
 
   // ───────────────────────────────────────────────────────────────────────────
+  // Standard 4 Science Room 1 (10 Questions - room-sci4-1: My Body & Internal Organs)
+  // ───────────────────────────────────────────────────────────────────────────
+  ...[
+    { qn: 1, text: 'Which organ acts as the control center of the human body, processing thoughts and directing actions?', hint: 'This organ is protected inside the skull and sends signals through nerves.', opts: ['Brain', 'Stomach', 'Kidney', 'Liver'], ans: 0 },
+    { qn: 2, text: 'What is the primary function of the human heart?', hint: 'The heart beats rhythmically in the chest to circulate blood.', opts: ['Pumping oxygenated blood throughout the body', 'Filtering toxic liquids from blood', 'Digesting complex solid food', 'Storing memories'], ans: 0 },
+    { qn: 3, text: 'Which pair of spongy organs expands when we breathe in air to absorb oxygen?', hint: 'Located inside the ribcage, these organs take in oxygen and exhale carbon dioxide.', opts: ['Lungs', 'Kidneys', 'Eyes', 'Intestines'], ans: 0 },
+    { qn: 4, text: 'Which J-shaped organ breaks down food using digestive juices and acids?', hint: 'Food from the esophagus enters this muscular sac where digestion occurs.', opts: ['Stomach', 'Brain', 'Lungs', 'Heart'], ans: 0 },
+    { qn: 5, text: 'What do the bean-shaped kidneys filter from our blood to form urine?', hint: 'Humans possess two kidneys on either side of the spine that remove liquid wastes.', opts: ['Excess water and waste products', 'Oxygen and carbon dioxide', 'Saliva and bile', 'Calcium and minerals'], ans: 0 },
+    { qn: 6, text: 'How many bones make up the adult human skeleton?', hint: 'Babies are born with around 300 bones that fuse together to form 206 in adults.', opts: ['206 bones', '150 bones', '300 bones', '100 bones'], ans: 0 },
+    { qn: 7, text: 'How do muscles produce movement in our bones and joints?', hint: 'Muscles can only pull when they contract; they work in pairs like biceps and triceps.', opts: ['By contracting and pulling on bones', 'By pushing against the skin', 'By generating electricity', 'By melting and cooling'], ans: 0 },
+    { qn: 8, text: 'How many times a day should a person brush their teeth to maintain good dental health?', hint: 'Dentists recommend brushing in the morning and before going to sleep at night.', opts: ['At least twice a day', 'Once every three days', 'Only on weekends', 'Five times an hour'], ans: 0 },
+    { qn: 9, text: 'Which sharp, flat front teeth are specifically designed for biting and cutting food?', hint: 'The four front teeth on top and bottom used to take bites of an apple.', opts: ['Incisors', 'Molars', 'Premolars', 'Wisdom teeth'], ans: 0 },
+    { qn: 10, text: 'Which organ is the largest sensory organ in the human body, protecting us from germs and regulating temperature?', hint: 'It covers the entire exterior of our body and gives us the sense of touch.', opts: ['Skin', 'Liver', 'Tongue', 'Nose'], ans: 0 },
+  ].map((item) => ({
+    id: `q-sci4-r1-${item.qn}`,
+    chapterId: 'ch-sci4-1',
+    roomId: 'room-sci4-1',
+    questionNumber: item.qn,
+    displayOrder: item.qn,
+    questionType: 'MCQ',
+    questionText: item.text,
+    description: `Standard 4 Science Ch 1 Question ${item.qn}`,
+    difficulty: item.qn <= 3 ? 'EASY' : item.qn <= 7 ? 'MEDIUM' : 'HARD',
+    points: 100,
+    timeLimit: 60,
+    hint: item.hint,
+    status: 'PUBLISHED',
+    isActive: true,
+    options: item.opts.map((opt, idx) => ({
+      id: `opt-sci4-${item.qn}-${idx + 1}`,
+      optionKey: String.fromCharCode(65 + idx),
+      optionText: opt,
+      isCorrect: idx === item.ans,
+      orderNumber: idx + 1,
+    })),
+  })),
+
+  // ───────────────────────────────────────────────────────────────────────────
   // Standard 5 Tamil Room 1 (10 Questions - room-tam5-1)
   // ───────────────────────────────────────────────────────────────────────────
   ...[
