@@ -195,6 +195,11 @@ export function NavigationProvider({ children }) {
     setStreak(1);
     setUserBadges([]);
     setUserProgressList([]);
+    // Clear subject/standard selection so they don't leak between users
+    setSelectedSubjectId(null);
+    setSelectedSubject('');
+    setSelectedStandardId(null);
+    setSelectedStandard('');
     // Also blow away the old non-scoped legacy keys
     removeGlobalLegacyKeys();
   }, []);

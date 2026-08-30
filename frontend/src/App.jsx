@@ -66,6 +66,7 @@ import ProfilePage from './pages/ProfilePage';
 import TeacherProfilePage from './pages/TeacherProfilePage';
 import AiAssistantPage from './pages/AiAssistantPage';
 import StandardSelectionPage from './pages/StandardSelectionPage';
+import SubjectSelectionPage  from './pages/SubjectSelectionPage';
 
 // ── Dashboard Layout Wrapper ──────────────────────────────────────────────────
 function DashboardScreen() {
@@ -89,7 +90,7 @@ function DashboardScreen() {
 // Protected screens that require a logged-in user
 const PROTECTED_SCREENS = [
   'dashboard', 'teacher-questions', 'question-bank', 'questions',
-  'select-standard', 'standards', 'syllabus', 'chapters', 'mission', 'lab',
+  'select-standard', 'select-subject', 'standards', 'syllabus', 'chapters', 'mission', 'lab',
   'calculation-heist', 'heist', 'quantum-architect', 'quantum',
   'grid-reconstruction', 'grid', 'periodic-grid',
   'hydrogen-reactor', 'hydrogen', 'reactor',
@@ -133,6 +134,8 @@ function SingleUrlUnifiedApp() {
         );
       case 'select-standard':
         return <StandardSelectionPage />;
+      case 'select-subject':
+        return <SubjectSelectionPage />;
       case 'standards':
       case 'syllabus':
         return <SyllabusPage />;

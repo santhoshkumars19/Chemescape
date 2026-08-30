@@ -19,6 +19,7 @@ export default function Sidebar({ collapsed, setCollapsed, mobileOpen, setMobile
   let navItems = [
     { label: 'Dashboard',     icon: LayoutDashboard,  screen: 'dashboard' },
     { label: 'My Standard',   icon: GraduationCap,    screen: 'select-standard' },
+    { label: 'My Subject',    icon: BookOpen,          screen: 'select-subject' },
     { label: 'Play Missions', icon: Swords,            screen: 'standards' },
     { label: 'AI Assistant',  icon: Zap,               screen: 'ai-assistant' },
     { label: 'Leaderboard',   icon: Trophy,            screen: 'leaderboard' },

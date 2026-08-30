@@ -175,8 +175,8 @@ export default function StandardSelectionPage() {
     setSelectedStandardId(selectedStd.id);
     setSelectedStandard(selectedStd.name);
 
-    // 3. Navigate to dashboard (subject selection will come later)
-    setTimeout(() => navigateTo('dashboard'), 320);
+    // 3. Navigate to subject selection
+    setTimeout(() => navigateTo('select-subject'), 320);
   }, [selectedStd, user, setSelectedStandardId, setSelectedStandard, navigateTo]);
 
   // ── Theme tokens ─────────────────────────────────────────────────────────────
