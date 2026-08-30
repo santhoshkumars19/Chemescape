@@ -9,6 +9,22 @@ export const gameService = {
     const res = await apiClient.get(`/game/progress/${roomId}`);
     return res.data || res;
   },
+  getUnlockedChapters: async (standardId, subjectId) => {
+    const res = await apiClient.get('/game/unlocked', { params: { standardId, subjectId } });
+    return res.data || res;
+  },
+  startRoomProgress: async (roomId) => {
+    const res = await apiClient.post(`/game/progress/${roomId}/start`);
+    return res.data || res;
+  },
+  saveRoomProgress: async (roomId, data) => {
+    const res = await apiClient.post(`/game/progress/${roomId}/save`, data);
+    return res.data || res;
+  },
+  completeRoom: async (roomId, data) => {
+    const res = await apiClient.post(`/game/progress/${roomId}/complete`, data);
+    return res.data || res;
+  },
   startGameSession: async (gameTypeEndpoint, roomId) => {
     const res = await apiClient.post(`/game/${gameTypeEndpoint}/start`, { roomId });
     return res.data || res;

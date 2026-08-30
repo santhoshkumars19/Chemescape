@@ -778,6 +778,158 @@ export const CHAPTERS_STORE = {
       missionCode: 'SOC-0404',
     },
   ],
+
+  // ── Standard 5 Tamil ────────────────────────────────────────────────────────
+  'grade-5:tamil': [
+    {
+      id: 'ch-tam5-1',
+      chapterNumber: 1,
+      title: 'Introduction to Tamil',
+      description: 'Classical Tamil literature, poetry, and foundational grammar concepts.',
+      difficulty: 'Beginner',
+      xpReward: 400,
+      coinsReward: 100,
+      gameType: 'Interactive Quiz Engine',
+      missionCode: 'TAM-0501',
+    },
+    {
+      id: 'ch-tam5-2',
+      chapterNumber: 2,
+      title: 'Tamil Poetry & Prose',
+      description: 'Explore Sangam poetry, rhyming meters, and proverbs.',
+      difficulty: 'Intermediate',
+      xpReward: 500,
+      coinsReward: 120,
+      gameType: 'Interactive Quiz Engine',
+      missionCode: 'TAM-0502',
+    },
+    {
+      id: 'ch-tam5-3',
+      chapterNumber: 3,
+      title: 'Ancient Sangam Epics',
+      description: 'Study legendary Tamil epics and classical drama.',
+      difficulty: 'Advanced',
+      xpReward: 600,
+      coinsReward: 150,
+      gameType: 'Interactive Quiz Engine',
+      missionCode: 'TAM-0503',
+    },
+  ],
+
+  // ── Standard 5 Mathematics ──────────────────────────────────────────────────
+  'grade-5:mathematics': [
+    {
+      id: 'ch-math5-1',
+      chapterNumber: 1,
+      title: 'Fractions & Geometry',
+      description: 'Master fractions, 2D shapes, perimeter, and area calculations.',
+      difficulty: 'Beginner',
+      xpReward: 400,
+      coinsReward: 100,
+      gameType: 'Interactive Quiz Engine',
+      missionCode: 'MTH-0501',
+    },
+    {
+      id: 'ch-math5-2',
+      chapterNumber: 2,
+      title: 'Decimals, Percentages & Data',
+      description: 'Explore decimal arithmetic, percentages, bar graphs, and averages.',
+      difficulty: 'Intermediate',
+      xpReward: 500,
+      coinsReward: 120,
+      gameType: 'Interactive Quiz Engine',
+      missionCode: 'MTH-0502',
+    },
+    {
+      id: 'ch-math5-3',
+      chapterNumber: 3,
+      title: 'Algebraic Patterns & Angles',
+      description: 'Understand linear sequences, missing terms, and angular measurements.',
+      difficulty: 'Advanced',
+      xpReward: 600,
+      coinsReward: 150,
+      gameType: 'Interactive Quiz Engine',
+      missionCode: 'MTH-0503',
+    },
+  ],
+
+  // ── Standard 5 Science ──────────────────────────────────────────────────────
+  'grade-5:science': [
+    {
+      id: 'ch-sci5-1',
+      chapterNumber: 1,
+      title: 'States of Matter & Simple Machines',
+      description: 'Learn solids, liquids, gases, levers, pulleys, and basic mechanics.',
+      difficulty: 'Beginner',
+      xpReward: 400,
+      coinsReward: 100,
+      gameType: 'Interactive Quiz Engine',
+      missionCode: 'SCI-0501',
+    },
+    {
+      id: 'ch-sci5-2',
+      chapterNumber: 2,
+      title: 'Human Body Systems & Health',
+      description: 'Circulatory, respiratory, and digestive organ systems of the human body.',
+      difficulty: 'Intermediate',
+      xpReward: 500,
+      coinsReward: 120,
+      gameType: 'Interactive Quiz Engine',
+      missionCode: 'SCI-0502',
+    },
+  ],
+
+  // ── Standard 5 Social Science ───────────────────────────────────────────────
+  'grade-5:social-science': [
+    {
+      id: 'ch-soc5-1',
+      chapterNumber: 1,
+      title: 'Introduction to Social science',
+      description: 'Civics, Indian heritage, continents, and geographical maps.',
+      difficulty: 'Beginner',
+      xpReward: 400,
+      coinsReward: 100,
+      gameType: 'Interactive Quiz Engine',
+      missionCode: 'SOC-0501',
+    },
+    {
+      id: 'ch-soc5-2',
+      chapterNumber: 2,
+      title: 'Ancient Civilizations & Geography',
+      description: 'Indus Valley, Mesopotamia, climate zones, and natural resources.',
+      difficulty: 'Intermediate',
+      xpReward: 500,
+      coinsReward: 120,
+      gameType: 'Interactive Quiz Engine',
+      missionCode: 'SOC-0502',
+    },
+  ],
+
+  // ── Standard 5 English ──────────────────────────────────────────────────────
+  'grade-5:english': [
+    {
+      id: 'ch-eng5-1',
+      chapterNumber: 1,
+      title: 'Introduction to English',
+      description: 'Parts of speech, sentence formation, reading comprehension, and vocabulary.',
+      difficulty: 'Beginner',
+      xpReward: 400,
+      coinsReward: 100,
+      gameType: 'Interactive Quiz Engine',
+      missionCode: 'ENG-0501',
+    },
+    {
+      id: 'ch-eng5-2',
+      chapterNumber: 2,
+      title: 'Storytelling & Composition',
+      description: 'Essay writing, narrative voice, metaphors, and advanced vocabulary.',
+      difficulty: 'Intermediate',
+      xpReward: 500,
+      coinsReward: 120,
+      gameType: 'Interactive Quiz Engine',
+      missionCode: 'ENG-0502',
+    },
+  ],
 };
 
 /**

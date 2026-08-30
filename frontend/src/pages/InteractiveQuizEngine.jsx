@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigation } from '../context/NavigationContext';
 import { useTheme } from '../context/ThemeContext';
 import { roomService } from '../services/roomService';
+import { gameService } from '../services/gameService';
 import {
   getSubjectsForStandard,
   getChaptersForStandardAndSubject,
@@ -11,7 +12,7 @@ import {
   ArrowLeft, Lightbulb, CheckCircle2, XCircle, Clock,
   Sparkles, Zap, ChevronRight, RotateCcw, Trophy,
   Shield, Heart, Award, AlertTriangle, Check, BookOpen,
-  Send, HelpCircle, AlertCircle, Play,
+  Send, HelpCircle, AlertCircle, Play, Loader2,
 } from 'lucide-react';
 
 // ─── HUD Corner Accents ───────────────────────────────────────────────────────
@@ -38,6 +39,8 @@ export default function InteractiveQuizEngine() {
     selectedChapterId, selectedChapter,
     selectedRoomId, currentRoom,
     lives,
+    markRoomCompleted,
+    refreshUserStats,
   } = useNavigation();
 
   const { isDark } = useTheme();
@@ -78,12 +81,16 @@ export default function InteractiveQuizEngine() {
   const [selectedOptionId, setSelectedOptionId] = useState(null);
   const [calculationInput, setCalculationInput] = useState('');
   const [hintVisible, setHintVisible] = useState(false);
+  const [hintsUsed, setHintsUsed] = useState(0);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [feedback, setFeedback] = useState(null);
   const [score, setScore] = useState(0);
   const [correctCount, setCorrectCount] = useState(0);
   const [wrongCount, setWrongCount] = useState(0);
   const [quizComplete, setQuizComplete] = useState(false);
+  const [submittingCompletion, setSubmittingCompletion] = useState(false);
+  const [completionData, setCompletionData] = useState(null);
+  const [completionError, setCompletionError] = useState(null);
   const [timeSpentSeconds, setTimeSpentSeconds] = useState(0);
 
   // ── 3. Fetch Questions Strictly Belonging to Current Room/Mission ───────────
@@ -96,7 +103,6 @@ export default function InteractiveQuizEngine() {
       try {
         let targetRoomId = selectedRoomId || (typeof currentRoom === 'object' ? currentRoom?.id : currentRoom);
 
-        // If no direct roomId is stored, query rooms for the active chapter with hierarchy validation
         if (!targetRoomId && activeChapter?.id) {
           try {
             const roomRes = await roomService.getRoomsByChapter(activeChapter.id, {
@@ -120,7 +126,6 @@ export default function InteractiveQuizEngine() {
           return;
         }
 
-        // Query questions strictly belonging to this room with hierarchy context validation
         const qRes = await roomService.getQuestionsByRoom(targetRoomId, {
           standardId: resolvedStdId,
           subjectId: resolvedSubjId,
@@ -130,7 +135,6 @@ export default function InteractiveQuizEngine() {
 
         if (isMounted) {
           if (Array.isArray(rawList) && rawList.length > 0) {
-            // Strictly cap to first 10 questions of current room
             const capped = rawList.slice(0, 10);
             setQuestions(capped);
           } else {
@@ -153,7 +157,7 @@ export default function InteractiveQuizEngine() {
     return () => {
       isMounted = false;
     };
-  }, [selectedRoomId, currentRoom, activeChapter?.id]);
+  }, [selectedRoomId, currentRoom, activeChapter?.id, resolvedStdId, resolvedSubjId]);
 
   // ── 4. Timer Tick ───────────────────────────────────────────────────────────
   useEffect(() => {
@@ -183,26 +187,20 @@ export default function InteractiveQuizEngine() {
     if (qType === 'MCQ') {
       if (!selectedOptionId) return;
       const chosenOpt = (currentQuestion.options || []).find(o => o.id === selectedOptionId || o.optionKey === selectedOptionId);
-      // Check if backend provided isCorrect property on option
       if (chosenOpt && typeof chosenOpt.isCorrect === 'boolean') {
         isCorrect = chosenOpt.isCorrect;
       } else {
-        // Option was recorded
         isCorrect = true;
       }
     } else if (qType === 'CALCULATION') {
       if (!calculationInput.trim()) return;
-      if (currentQuestion.puzzleData?.expectedCalculation !== undefined) {
-        const expected = String(currentQuestion.puzzleData.expectedCalculation).trim();
-        isCorrect = calculationInput.trim().toLowerCase() === expected.toLowerCase();
-      } else if (currentQuestion.puzzleData?.expectedValue !== undefined) {
-        const expected = String(currentQuestion.puzzleData.expectedValue).trim();
+      const expected = String(currentQuestion.puzzleData?.expectedCalculation || currentQuestion.puzzleData?.expectedValue || '');
+      if (expected) {
         isCorrect = calculationInput.trim().toLowerCase() === expected.toLowerCase();
       } else {
         isCorrect = true;
       }
     } else {
-      // Unsupported type skipped
       isCorrect = true;
     }
 
@@ -225,7 +223,64 @@ export default function InteractiveQuizEngine() {
     }
   }, [currentQuestion, isSubmitted, selectedOptionId, calculationInput]);
 
-  // ── 7. Handle Advancing to Next Question ────────────────────────────────────
+  // ── 7. Handle Hint Toggle & Usage Tracking ─────────────────────────────────
+  const handleToggleHint = useCallback(() => {
+    if (!hintVisible) {
+      setHintsUsed(prev => prev + 1);
+    }
+    setHintVisible(prev => !prev);
+  }, [hintVisible]);
+
+  // ── 8. Server-Authoritative Mission & Chapter Completion ───────────────────
+  const handleCompleteMission = useCallback(async () => {
+    if (submittingCompletion) return;
+    setSubmittingCompletion(true);
+    setCompletionError(null);
+
+    const accuracy = totalQuestions > 0 ? Math.round((correctCount / totalQuestions) * 100) : 100;
+    const calculatedStars = accuracy >= 80 ? 3 : accuracy >= 50 ? 2 : accuracy >= 30 ? 1 : 0;
+
+    let targetRoomId = selectedRoomId || (typeof currentRoom === 'object' ? currentRoom?.id : currentRoom);
+    if (!targetRoomId && activeChapter?.id) {
+      targetRoomId = activeChapter.id;
+    }
+
+    try {
+      const payload = {
+        score,
+        stars: calculatedStars,
+        timeSpentSec: timeSpentSeconds,
+        gameState: {
+          answeredQuestions: totalQuestions,
+          correctAnswers: correctCount,
+          wrongAnswers: wrongCount,
+          hintsUsed,
+        },
+      };
+
+      const res = await gameService.completeRoom(targetRoomId, payload);
+      const data = res?.data || res;
+      setCompletionData(data);
+
+      markRoomCompleted(targetRoomId, activeChapter?.id);
+      refreshUserStats();
+
+      setQuizComplete(true);
+      setSubmittingCompletion(false);
+    } catch (err) {
+      console.warn('[QuizEngine] Completion API call returned:', err.message);
+      markRoomCompleted(targetRoomId, activeChapter?.id);
+      refreshUserStats();
+      setQuizComplete(true);
+      setSubmittingCompletion(false);
+    }
+  }, [
+    submittingCompletion, totalQuestions, correctCount, wrongCount, hintsUsed,
+    score, timeSpentSeconds, selectedRoomId, currentRoom, activeChapter?.id,
+    markRoomCompleted, refreshUserStats
+  ]);
+
+  // ── 9. Handle Advancing to Next Question / Final Completion ────────────────
   const handleNextQuestion = useCallback(() => {
     if (currentQuestionIndex < totalQuestions - 1) {
       setCurrentQuestionIndex(prev => prev + 1);
@@ -235,11 +290,11 @@ export default function InteractiveQuizEngine() {
       setIsSubmitted(false);
       setFeedback(null);
     } else {
-      setQuizComplete(true);
+      handleCompleteMission();
     }
-  }, [currentQuestionIndex, totalQuestions]);
+  }, [currentQuestionIndex, totalQuestions, handleCompleteMission]);
 
-  // ── 8. Format Time ──────────────────────────────────────────────────────────
+  // ── 10. Format Time ─────────────────────────────────────────────────────────
   const formatTime = (secs) => {
     const m = Math.floor(secs / 60);
     const s = secs % 60;
@@ -335,10 +390,12 @@ export default function InteractiveQuizEngine() {
   }
 
   // ───────────────────────────────────────────────────────────────────────────
-  // RENDER: Temporary Mission Complete Screen
+  // RENDER: Mission Complete Celebration Screen
   // ─────────────────────────────────────────────────────────────────────────
   if (quizComplete) {
     const accuracy = totalQuestions > 0 ? Math.round((correctCount / totalQuestions) * 100) : 100;
+    const finalEarnedXP = completionData?.awardedXP ?? score;
+    const finalEarnedCoins = completionData?.awardedCoins ?? (accuracy >= 80 ? 100 : 50);
 
     return (
       <div className="relative min-h-screen bg-[#020609] text-white flex flex-col items-center justify-center p-6">
@@ -372,11 +429,11 @@ export default function InteractiveQuizEngine() {
           </span>
 
           <h2 className="font-orbitron font-black text-2xl sm:text-3xl text-white mb-2">
-            Quiz Completed!
+            Chapter Completed!
           </h2>
 
           <p className="text-sm font-inter text-white/70 mb-8">
-            You successfully completed the interactive quiz for <strong>{chapterTitle}</strong> ({stdDisplayName} {subjDisplayName}).
+            You successfully completed the mission for <strong>{chapterTitle}</strong> ({stdDisplayName} {subjDisplayName}). Next chapter is now unlocked!
           </p>
 
           {/* Stats Grid */}
@@ -389,14 +446,14 @@ export default function InteractiveQuizEngine() {
 
             <div className="p-3.5 rounded-2xl" style={{ background: 'rgba(251,191,36,0.08)', border: '1px solid rgba(251,191,36,0.2)' }}>
               <Zap size={16} className="text-amber-400 mb-1" />
-              <p className="font-orbitron font-black text-lg text-amber-400">+{score}</p>
+              <p className="font-orbitron font-black text-lg text-amber-400">+{finalEarnedXP}</p>
               <p className="text-[10px] font-space text-white/40 uppercase">XP Earned</p>
             </div>
 
             <div className="p-3.5 rounded-2xl" style={{ background: 'rgba(59,130,246,0.08)', border: '1px solid rgba(59,130,246,0.2)' }}>
               <Award size={16} className="text-blue-400 mb-1" />
-              <p className="font-orbitron font-black text-lg text-blue-400">{accuracy}%</p>
-              <p className="text-[10px] font-space text-white/40 uppercase">Accuracy</p>
+              <p className="font-orbitron font-black text-lg text-blue-400">+{finalEarnedCoins}</p>
+              <p className="text-[10px] font-space text-white/40 uppercase">Coins</p>
             </div>
 
             <div className="p-3.5 rounded-2xl" style={{ background: 'rgba(168,85,247,0.08)', border: '1px solid rgba(168,85,247,0.2)' }}>
@@ -427,7 +484,7 @@ export default function InteractiveQuizEngine() {
               style={{ background: 'rgba(255,255,255,0.08)', color: '#fff' }}
             >
               <RotateCcw size={14} />
-              <span>Retake Quiz</span>
+              <span>Replay</span>
             </button>
 
             <button
@@ -551,7 +608,7 @@ export default function InteractiveQuizEngine() {
             {/* Hint Button */}
             <button
               type="button"
-              onClick={() => setHintVisible(prev => !prev)}
+              onClick={handleToggleHint}
               className="flex items-center gap-1.5 px-3 py-1 rounded-xl text-xs font-space font-medium cursor-pointer border transition-all"
               style={{
                 background: hintVisible ? 'rgba(251,191,36,0.15)' : 'rgba(255,255,255,0.05)',

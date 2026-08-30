@@ -71,7 +71,7 @@ class AuthService {
           updatedAt: new Date(),
         };
       } else if (normalizedEmail === 'teacher@chemescape.com') {
-        if (password !== 'Password123!' && password !== 'TeacherPass123!') {
+        if (password !== 'Password123' && password !== 'Password123!' && password !== 'TeacherPass123!') {
           const error = new Error('Invalid email or password');
           error.statusCode = 401;
           throw error;

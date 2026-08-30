@@ -317,6 +317,82 @@ const DEFAULT_QUESTIONS = [
       orderNumber: idx + 1,
     })),
   })),
+
+  // ───────────────────────────────────────────────────────────────────────────
+  // Standard 5 Tamil Room 2 (10 Questions - room-tam5-2)
+  // ───────────────────────────────────────────────────────────────────────────
+  ...[
+    { qn: 1, text: 'முத்தமிழின் மூன்று பிரிவுகள் யாவை?', hint: 'இயல், இசை, ...', opts: ['இயல், இசை, நாடகம்', 'உயிர், மெய், ஆய்தம்', 'அகம், புறம், நீதி', 'குறிஞ்சி, முல்லை, மருதம்'], ans: 0 },
+    { qn: 2, text: 'சிலப்பதிகாரத்தை இயற்றியவர் யார்?', hint: 'சேர மன்னன் மரபில் வந்த இளவரசர்.', opts: ['இளங்கோவடிகள்', 'சீத்தலைச் சாத்தனார்', 'கபிலர்', 'கம்பர்'], ans: 0 },
+    { qn: 3, text: 'மணிமேகலை காப்பியத்தின் ஆசிரியர் யார்?', hint: 'மதுரைக் கூலவாணிகன்...', opts: ['சீத்தலைச் சாத்தனார்', 'இளங்கோவடிகள்', 'ஔவையார்', 'புகழேந்தி'], ans: 0 },
+    { qn: 4, text: 'ஐம்பெருங்காப்பியங்களில் முதன்மையானது எது?', hint: 'கண்ணகியின் கதை கூறும் காப்பியம்.', opts: ['சிலப்பதிகாரம்', 'மணிமேகலை', 'சீவக சிந்தாமணி', 'குண்டலகேசி'], ans: 0 },
+    { qn: 5, text: '"யாதும் ஊரே யாவரும் கேளிர்" என்ற பாடல் வரியைக் கூறியவர் யார்?', hint: 'புறநானூற்றுப் புலவர்.', opts: ['கணியன் பூங்குன்றனார்', 'பாரதியார்', 'திருவள்ளுவர்', 'ஔவையார்'], ans: 0 },
+    { qn: 6, text: 'நாலடியாரை இயற்றியவர்கள் யார்?', hint: 'சமண சமயத்தைச் சேர்ந்த முனிவர்கள்.', opts: ['சமண முனிவர்கள்', 'கபிலர்', 'நக்கீரர்', 'ஒட்டக்கூத்தர்'], ans: 0 },
+    { qn: 7, text: 'திருக்குறளில் உள்ள அதிகாரங்களின் எண்ணிக்கை எத்தனை?', hint: '133 அதிகாரங்கள், ஒவ்வொன்றிலும் 10 குறள்கள்.', opts: ['100', '133', '150', '200'], ans: 1 },
+    { qn: 8, text: 'திருக்குறளில் உள்ள மொத்தப் பாக்களின் எண்ணிக்கை எத்தனை?', hint: '133 அதிகாரங்கள் * 10 = ?', opts: ['1000', '1200', '1330', '1400'], ans: 2 },
+    { qn: 9, text: 'ஐந்திணைகளில் குறிஞ்சிக்குரிய நிலம் எது?', hint: 'மலையும் மலை சார்ந்த இடமும்.', opts: ['மலையும் மலை சார்ந்த பகுதியும்', 'காடும் காடு சார்ந்த பகுதியும்', 'வயலும் வயல் சார்ந்த பகுதியும்', 'கடலும் கடல் சார்ந்த பகுதியும்'], ans: 0 },
+    { qn: 10, text: 'முல்லைத் திணைக்குரிய நிலம் எது?', hint: 'காடும் காடு சார்ந்த இடமும்.', opts: ['காடும் காடு சார்ந்த பகுதியும்', 'மலையும் மலை சார்ந்த பகுதியும்', 'வயலும் வயல் சார்ந்த பகுதியும்', 'மணலும் மணல் சார்ந்த பகுதியும்'], ans: 0 },
+  ].map((item) => ({
+    id: `q-tam5-r2-${item.qn}`,
+    chapterId: 'ch-tam5-2',
+    roomId: 'room-tam5-2',
+    questionNumber: item.qn,
+    displayOrder: item.qn,
+    questionType: 'MCQ',
+    questionText: item.text,
+    description: `Standard 5 Tamil Ch 2 Question ${item.qn}`,
+    difficulty: item.qn <= 3 ? 'EASY' : item.qn <= 7 ? 'MEDIUM' : 'HARD',
+    points: 100,
+    timeLimit: 60,
+    hint: item.hint,
+    status: 'PUBLISHED',
+    isActive: true,
+    options: item.opts.map((opt, idx) => ({
+      id: `opt-tam5-c2-${item.qn}-${idx + 1}`,
+      optionKey: String.fromCharCode(65 + idx),
+      optionText: opt,
+      isCorrect: idx === item.ans,
+      orderNumber: idx + 1,
+    })),
+  })),
+
+  // ───────────────────────────────────────────────────────────────────────────
+  // Standard 5 Mathematics Room 2 (10 Questions - room-math5-2)
+  // ───────────────────────────────────────────────────────────────────────────
+  ...[
+    { qn: 1, text: 'Convert 0.75 into a fraction in its simplest form.', hint: '0.75 is 75/100. Divide numerator and denominator by 25.', opts: ['1/2', '3/4', '2/3', '4/5'], ans: 1 },
+    { qn: 2, text: 'What is 25% of 400?', hint: '25% is one-fourth (1/4) of 400.', opts: ['50', '75', '100', '125'], ans: 2 },
+    { qn: 3, text: 'Calculate the average of 10, 20, 30, 40, and 50.', hint: 'Sum the numbers (= 150) and divide by 5.', opts: ['25', '30', '35', '40'], ans: 1 },
+    { qn: 4, text: 'Solve: 4.5 + 3.25', hint: 'Align decimals: 4.50 + 3.25.', opts: ['7.25', '7.75', '8.00', '7.50'], ans: 1 },
+    { qn: 5, text: 'What is 1/2 + 1/4?', hint: 'Convert 1/2 to 2/4 and add 1/4.', opts: ['2/6', '3/4', '2/4', '1/8'], ans: 1 },
+    { qn: 6, text: 'Find the perimeter of an equilateral triangle with side 6 cm.', hint: 'Perimeter of equilateral triangle = 3 * side.', opts: ['12 cm', '18 cm', '24 cm', '36 cm'], ans: 1 },
+    { qn: 7, text: 'How many minutes are in 2.5 hours?', hint: 'Multiply 2.5 by 60.', opts: ['120 min', '150 min', '180 min', '90 min'], ans: 1 },
+    { qn: 8, text: 'Convert 1500 milliliters to liters.', hint: '1 Liter = 1000 mL. Divide 1500 by 1000.', opts: ['1.0 L', '1.5 L', '15 L', '0.15 L'], ans: 1 },
+    { qn: 9, text: 'If a car travels 60 km in 1 hour, how far will it travel in 3 hours?', hint: 'Distance = Speed * Time = 60 * 3.', opts: ['120 km', '150 km', '180 km', '200 km'], ans: 2 },
+    { qn: 10, text: 'What is the value of 5 squared plus 3 squared (5^2 + 3^2)?', hint: '25 + 9 = ?', opts: ['30', '34', '36', '64'], ans: 1 },
+  ].map((item) => ({
+    id: `q-math5-r2-${item.qn}`,
+    chapterId: 'ch-math5-2',
+    roomId: 'room-math5-2',
+    questionNumber: item.qn,
+    displayOrder: item.qn,
+    questionType: 'MCQ',
+    questionText: item.text,
+    description: `Standard 5 Math Ch 2 Question ${item.qn}`,
+    difficulty: item.qn <= 3 ? 'EASY' : item.qn <= 7 ? 'MEDIUM' : 'HARD',
+    points: 100,
+    timeLimit: 60,
+    hint: item.hint,
+    status: 'PUBLISHED',
+    isActive: true,
+    options: item.opts.map((opt, idx) => ({
+      id: `opt-math5-c2-${item.qn}-${idx + 1}`,
+      optionKey: String.fromCharCode(65 + idx),
+      optionText: opt,
+      isCorrect: idx === item.ans,
+      orderNumber: idx + 1,
+    })),
+  })),
 ];
 
 class QuestionService {
