@@ -3,21 +3,22 @@ const router = express.Router();
 const questionController = require('../controllers/questionController');
 const authMiddleware = require('../middleware/authMiddleware');
 const requireRole = require('../middleware/roleMiddleware');
-const { createQuestionSchema, validate } = require('../validators/contentValidator');
 
-// GET /api/questions (All authenticated users / teachers)
-router.get('/', authMiddleware, questionController.getAllQuestions);
+// ── Question Management & Lookup (Authenticated) ───────────────────────────
+// GET /api/questions (Teacher / Admin management search & listing)
+router.get('/', authMiddleware, requireRole('TEACHER', 'ADMIN'), questionController.getAllQuestions);
 
-// GET /api/questions/:id
+// GET /api/questions/:id (Context validation & role-based sanitization)
 router.get('/:id', authMiddleware, questionController.getQuestionById);
 
-// POST /api/questions (TEACHER, ADMIN only)
-router.post('/', authMiddleware, requireRole('TEACHER', 'ADMIN'), validate(createQuestionSchema), questionController.createQuestion);
+// ── Question Mutation Endpoints (Teachers & Admins only) ────────────────────
+// POST /api/questions
+router.post('/', authMiddleware, requireRole('TEACHER', 'ADMIN'), questionController.createQuestion);
 
-// PUT /api/questions/:id (TEACHER, ADMIN only)
+// PUT /api/questions/:id
 router.put('/:id', authMiddleware, requireRole('TEACHER', 'ADMIN'), questionController.updateQuestion);
 
-// DELETE /api/questions/:id (TEACHER, ADMIN only)
+// DELETE /api/questions/:id
 router.delete('/:id', authMiddleware, requireRole('TEACHER', 'ADMIN'), questionController.deleteQuestion);
 
 module.exports = router;

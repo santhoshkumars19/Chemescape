@@ -32,6 +32,13 @@ enum QuestionType {
   ELECTRON_CONFIGURATION
   CALCULATION
   BOSS
+  SIMULATION
+}
+
+enum QuestionStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
 }
 
 enum RoomType {
@@ -209,38 +216,46 @@ model Room {
 }
 
 model Question {
-  id           String       @id @default(uuid())
-  chapterId    String
-  topicId      String?
-  roomId       String?
-  questionText String       @db.Text
-  questionType QuestionType @default(MCQ)
-  difficulty   Difficulty   @default(MEDIUM)
-  points       Int          @default(100)
-  hint         String?      @db.Text
-  explanation  String?      @db.Text
-  timeLimit    Int?         @default(60) // in seconds
-  puzzleData   Json?        // JSON data for DRAG_DROP, MATCHING, ELECTRON_CONFIG, ORDERING, etc.
-  createdAt    DateTime     @default(now())
-  updatedAt    DateTime     @updatedAt
+  id             String         @id @default(uuid())
+  chapterId      String
+  topicId        String?
+  roomId         String?
+  questionNumber Int            @default(1)
+  displayOrder   Int            @default(0)
+  questionText   String         @db.Text
+  description    String?        @db.Text
+  questionType   QuestionType   @default(MCQ)
+  difficulty     Difficulty     @default(MEDIUM)
+  points         Int            @default(100)
+  timeLimit      Int?           @default(60) // in seconds
+  hint           String?        @db.Text
+  explanation    String?        @db.Text
+  puzzleData     Json?          // JSON data for DRAG_DROP, MATCHING, ELECTRON_CONFIG, ORDERING, CALCULATION, SIMULATION, etc.
+  status         QuestionStatus @default(PUBLISHED)
+  isActive       Boolean        @default(true)
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
 
-  chapter      Chapter      @relation(fields: [chapterId], references: [id], onDelete: Cascade)
-  topic        Topic?       @relation(fields: [topicId], references: [id], onDelete: SetNull)
-  room         Room?        @relation(fields: [roomId], references: [id], onDelete: SetNull)
-  options      QuestionOption[]
+  chapter        Chapter        @relation(fields: [chapterId], references: [id], onDelete: Cascade)
+  topic          Topic?         @relation(fields: [topicId], references: [id], onDelete: SetNull)
+  room           Room?          @relation(fields: [roomId], references: [id], onDelete: SetNull)
+  options        QuestionOption[]
 
   @@map("questions")
 }
 
 model QuestionOption {
-  id          String   @id @default(uuid())
-  questionId  String
-  optionText  String   @db.Text
-  optionValue String?
-  isCorrect   Boolean  @default(false)
-  orderNumber Int
+  id           String   @id @default(uuid())
+  questionId   String
+  optionKey    String?
+  optionText   String   @db.Text
+  optionValue  String?
+  isCorrect    Boolean  @default(false)
+  orderNumber  Int      @default(0)
+  displayOrder Int      @default(0)
+  isActive     Boolean  @default(true)
 
-  question    Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  question     Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
 
   @@map("question_options")
 }

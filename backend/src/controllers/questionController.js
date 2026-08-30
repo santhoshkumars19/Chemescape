@@ -1,10 +1,14 @@
 const questionService = require('../services/questionService');
+const { createQuestionSchema, updateQuestionSchema } = require('../validators/questionValidator');
 
 class QuestionController {
+  /**
+   * GET /api/rooms/:roomId/questions
+   * Available to Students (sanitized) and Teachers/Admins (full solution details)
+   */
   async getQuestionsByRoom(req, res, next) {
     try {
       const { roomId } = req.params;
-      // If request is from TEACHER or ADMIN, return full solution details, otherwise sanitize for STUDENT
       const isStudentView = !req.user || req.user.role === 'STUDENT';
       const questions = await questionService.getQuestionsByRoom(roomId, isStudentView);
       return res.status(200).json({
@@ -17,11 +21,16 @@ class QuestionController {
     }
   }
 
+  /**
+   * GET /api/questions (Teacher / Admin management search & listing)
+   */
   async getAllQuestions(req, res, next) {
     try {
-      const questions = await questionService.getAllQuestions(req.query);
+      const isStudentView = !req.user || req.user.role === 'STUDENT';
+      const questions = await questionService.getAllQuestions(req.query, isStudentView);
       return res.status(200).json({
         success: true,
+        message: 'Questions retrieved successfully',
         data: { questions },
       });
     } catch (error) {
@@ -29,12 +38,18 @@ class QuestionController {
     }
   }
 
+  /**
+   * GET /api/questions/:id
+   */
   async getQuestionById(req, res, next) {
     try {
       const { id } = req.params;
-      const question = await questionService.getQuestionById(id);
+      const { roomId, chapterId } = req.query;
+      const isStudentView = !req.user || req.user.role === 'STUDENT';
+      const question = await questionService.getQuestionById(id, { roomId, chapterId, isStudentView });
       return res.status(200).json({
         success: true,
+        message: 'Question retrieved successfully',
         data: { question },
       });
     } catch (error) {
@@ -42,40 +57,65 @@ class QuestionController {
     }
   }
 
+  /**
+   * POST /api/questions (Teacher / Admin only)
+   */
   async createQuestion(req, res, next) {
     try {
-      const question = await questionService.createQuestion(req.body);
+      const validatedData = createQuestionSchema.parse(req.body);
+      const question = await questionService.createQuestion(validatedData);
       return res.status(201).json({
         success: true,
         message: 'Question created successfully',
         data: { question },
       });
     } catch (error) {
+      if (error.name === 'ZodError') {
+        return res.status(400).json({
+          success: false,
+          message: error.errors[0]?.message || 'Validation error',
+          errors: error.errors,
+        });
+      }
       next(error);
     }
   }
 
+  /**
+   * PUT /api/questions/:id (Teacher / Admin only)
+   */
   async updateQuestion(req, res, next) {
     try {
       const { id } = req.params;
-      const question = await questionService.updateQuestion(id, req.body);
+      const validatedData = updateQuestionSchema.parse(req.body);
+      const question = await questionService.updateQuestion(id, validatedData);
       return res.status(200).json({
         success: true,
         message: 'Question updated successfully',
         data: { question },
       });
     } catch (error) {
+      if (error.name === 'ZodError') {
+        return res.status(400).json({
+          success: false,
+          message: error.errors[0]?.message || 'Validation error',
+          errors: error.errors,
+        });
+      }
       next(error);
     }
   }
 
+  /**
+   * DELETE /api/questions/:id (Teacher / Admin only)
+   */
   async deleteQuestion(req, res, next) {
     try {
       const { id } = req.params;
-      await questionService.deleteQuestion(id);
+      const result = await questionService.deleteQuestion(id);
       return res.status(200).json({
         success: true,
-        message: 'Question deleted successfully',
+        message: result.message || 'Question archived successfully',
       });
     } catch (error) {
       next(error);

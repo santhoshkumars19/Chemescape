@@ -597,6 +597,42 @@ async function main() {
     }
   }
 
+  // ── 8. QUESTIONS FOR 11TH CHEMISTRY & STANDARD 4 MATH ───────────────────
+  const qChem1 = await prisma.question.findFirst({
+    where: { roomId: room1.id, questionNumber: 1 },
+  });
+
+  if (!qChem1) {
+    await prisma.question.create({
+      data: {
+        chapterId: periodicChapter.id,
+        topicId: topicsMap[1]?.id || null,
+        roomId: room1.id,
+        questionNumber: 1,
+        displayOrder: 1,
+        questionType: 'MCQ',
+        questionText: 'Which element is located in Group 1, Period 3 of the Periodic Table?',
+        description: 'Identify the alkali metal in the third period.',
+        difficulty: 'EASY',
+        points: 100,
+        timeLimit: 60,
+        hint: 'Its atomic number is 11 and it reacts vigorously with water.',
+        explanation: 'Sodium (Na) is an alkali metal with atomic number 11 located in Group 1, Period 3.',
+        status: 'PUBLISHED',
+        isActive: true,
+        options: {
+          create: [
+            { optionKey: 'A', optionText: 'Lithium (Li)', isCorrect: false, orderNumber: 1 },
+            { optionKey: 'B', optionText: 'Sodium (Na)', isCorrect: true, orderNumber: 2 },
+            { optionKey: 'C', optionText: 'Potassium (K)', isCorrect: false, orderNumber: 3 },
+            { optionKey: 'D', optionText: 'Magnesium (Mg)', isCorrect: false, orderNumber: 4 },
+          ],
+        },
+      },
+    });
+    console.log(' ✔ Questions seeded: 11th Chemistry Room 1');
+  }
+
   console.log(' ✔ Game Engine & Reward configurations seeded for Rooms 1-4 & Gas Simulator');
 
   console.log('\n[SEED] Game Engine Infrastructure Seeding Complete!');
