@@ -1,5 +1,6 @@
 const gameProgressService = require('../services/gameProgressService');
 const chapterUnlockService = require('../services/chapterUnlockService');
+const questionService = require('../services/questionService');
 
 class GameController {
   async getUnlockedChapters(req, res, next) {
@@ -101,6 +102,44 @@ class GameController {
         success: true,
         message: result.message,
         data: result,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  /**
+   * POST /api/game/questions/:questionId/answer
+   *
+   * Server-authoritative per-question answer validation for the generic
+   * interactive quiz engine. The frontend submits the student's selected
+   * optionId (or numeric value) and receives back:
+   *   { correct: Boolean, points: Number, feedback: String }
+   *
+   * The correct answer never leaves the server — only the result does.
+   */
+  async submitAnswer(req, res, next) {
+    try {
+      const { questionId } = req.params;
+      const { answer, roomId } = req.body;
+
+      if (!answer || !roomId) {
+        return res.status(400).json({
+          success: false,
+          message: 'answer and roomId are required',
+        });
+      }
+
+      const result = await questionService.validateAnswer(questionId, roomId, answer);
+
+      return res.status(200).json({
+        success: true,
+        message: result.correct ? 'Correct answer!' : 'Incorrect answer.',
+        data: {
+          correct: result.correct,
+          points: result.points,
+          feedback: result.feedback,
+        },
       });
     } catch (error) {
       next(error);

@@ -83,7 +83,9 @@ export default function InteractiveQuizEngine() {
   const [hintVisible, setHintVisible] = useState(false);
   const [hintsUsed, setHintsUsed] = useState(0);
   const [isSubmitted, setIsSubmitted] = useState(false);
-  const [feedback, setFeedback] = useState(null);
+  const [isChecking, setIsChecking] = useState(false);   // true while backend is validating
+  const [feedback, setFeedback] = useState(null);        // null | { isCorrect, message, earnedPoints }
+  const [answerError, setAnswerError] = useState(null);  // API failure message
   const [score, setScore] = useState(0);
   const [correctCount, setCorrectCount] = useState(0);
   const [wrongCount, setWrongCount] = useState(0);
@@ -107,7 +109,9 @@ export default function InteractiveQuizEngine() {
       setCalculationInput('');
       setHintVisible(false);
       setIsSubmitted(false);
+      setIsChecking(false);
       setFeedback(null);
+      setAnswerError(null);
       setScore(0);
       setCorrectCount(0);
       setWrongCount(0);
@@ -210,65 +214,82 @@ export default function InteractiveQuizEngine() {
   const totalQuestions = questions.length;
   const progressPercent = totalQuestions > 0 ? ((currentQuestionIndex + 1) / totalQuestions) * 100 : 0;
 
-  // ── 6. Handle Answer Submission ─────────────────────────────────────────────
-  const handleSubmitAnswer = useCallback(() => {
-    if (!currentQuestion || isSubmitted) return;
+  // ── 6. Handle Answer Submission — Server-Authoritative ─────────────────────
+  //
+  // Flow:
+  //   1. Guard: no double-submit, no submit while already checking
+  //   2. Determine the answer to submit (optionId or calculation string)
+  //   3. Set isChecking = true (show "Checking answer…" state)
+  //   4. POST to /api/game/questions/:id/answer with { answer, roomId }
+  //   5. Read result.correct from backend response (HTTP 200 ≠ correct)
+  //   6. Set feedback based on result.correct — never infer from "submitted"
+  //   7. Update score/counts
+  //   8. On API failure: show error, allow retry
+  const handleSubmitAnswer = useCallback(async () => {
+    if (!currentQuestion || isSubmitted || isChecking) return;
 
     const qType = currentQuestion.questionType || 'MCQ';
-    let isCorrect = true;
-    let correctId = null;
 
+    // Determine the answer string to submit
+    let answerToSubmit = null;
     if (qType === 'MCQ') {
       if (!selectedOptionId) return;
-
-      // Decode the encoded check key from the backend (_ck = base64 of correct option id)
-      if (currentQuestion._ck) {
-        try {
-          correctId = atob(currentQuestion._ck);
-          isCorrect = selectedOptionId === correctId;
-        } catch {
-          // Fallback: check isCorrect on option if somehow available
-          const chosenOpt = (currentQuestion.options || []).find(o => o.id === selectedOptionId || o.optionKey === selectedOptionId);
-          isCorrect = chosenOpt?.isCorrect !== false;
-          correctId = null;
-        }
-      } else {
-        // No _ck: fallback to isCorrect if present, else treat as correct
-        const chosenOpt = (currentQuestion.options || []).find(o => o.id === selectedOptionId || o.optionKey === selectedOptionId);
-        isCorrect = chosenOpt?.isCorrect !== false;
-        correctId = null;
-      }
+      answerToSubmit = selectedOptionId;
     } else if (qType === 'CALCULATION') {
       if (!calculationInput.trim()) return;
-      const expected = String(currentQuestion.puzzleData?.expectedCalculation || currentQuestion.puzzleData?.expectedValue || '');
-      if (expected) {
-        isCorrect = calculationInput.trim().toLowerCase() === expected.toLowerCase();
+      answerToSubmit = calculationInput.trim();
+    } else {
+      // Unsupported type: skip
+      answerToSubmit = '__SKIP__';
+    }
+
+    const questionId = currentQuestion.id;
+    const roomId = loadedRoomId;
+
+    // Guard: must have a valid roomId to submit against
+    if (!roomId || !questionId) {
+      setAnswerError('Cannot validate answer: room context is missing. Please reload.');
+      return;
+    }
+
+    // ── Transition to CHECKING state ──────────────────────────────────────────
+    setIsChecking(true);
+    setAnswerError(null);
+
+    try {
+      // Call the server-authoritative answer validation endpoint
+      // Backend returns: { success, data: { correct: Boolean, points: Number, feedback: String } }
+      const result = await gameService.submitAnswer(questionId, roomId, answerToSubmit);
+
+      // result is { correct, points, feedback } (gameService extracts .data)
+      const isCorrect = result?.correct === true;
+      const earnedPoints = result?.points ?? (isCorrect ? (currentQuestion.points || 100) : 0);
+      const serverFeedback = result?.feedback || (isCorrect ? 'Correct! Well done.' : 'Incorrect. Try again.');
+
+      // ── Transition to SUBMITTED state with authoritative result ────────────
+      setIsChecking(false);
+      setIsSubmitted(true);
+      setFeedback({
+        isCorrect,
+        message: isCorrect
+          ? `✓ Correct! ${serverFeedback}`
+          : `✕ Incorrect. ${serverFeedback}`,
+        earnedPoints,
+      });
+
+      if (isCorrect) {
+        setScore(prev => prev + earnedPoints);
+        setCorrectCount(prev => prev + 1);
       } else {
-        isCorrect = true;
+        setWrongCount(prev => prev + 1);
       }
-    } else {
-      isCorrect = true;
+    } catch (err) {
+      // ── API error state — do NOT infer correct/incorrect ──────────────────
+      setIsChecking(false);
+      setAnswerError('Unable to check your answer. Please try again.');
+      // isSubmitted remains false so the student can retry
     }
-
-    const earnedPoints = isCorrect ? (currentQuestion.points || 100) : 0;
-
-    setIsSubmitted(true);
-    setFeedback({
-      isCorrect,
-      correctId,
-      message: isCorrect
-        ? '✓ Correct! Excellent solution.'
-        : '✕ Incorrect. Review the hint and try again on the next mission.',
-      earnedPoints,
-    });
-
-    if (isCorrect) {
-      setScore(prev => prev + earnedPoints);
-      setCorrectCount(prev => prev + 1);
-    } else {
-      setWrongCount(prev => prev + 1);
-    }
-  }, [currentQuestion, isSubmitted, selectedOptionId, calculationInput]);
+  }, [currentQuestion, isSubmitted, isChecking, selectedOptionId, calculationInput, loadedRoomId]);
 
   // ── 7. Handle Hint Toggle & Usage Tracking ─────────────────────────────────
   const handleToggleHint = useCallback(() => {
@@ -332,7 +353,9 @@ export default function InteractiveQuizEngine() {
       setCalculationInput('');
       setHintVisible(false);
       setIsSubmitted(false);
+      setIsChecking(false);
       setFeedback(null);
+      setAnswerError(null);
     } else {
       handleCompleteMission();
     }
@@ -704,36 +727,26 @@ export default function InteractiveQuizEngine() {
               {(currentQuestion.options || []).map((opt, i) => {
                 const optId = opt.id || opt.optionKey || String(i);
                 const isSelected = selectedOptionId === optId;
-                const isCorrectOpt = isSubmitted && feedback?.correctId
-                  ? optId === feedback.correctId
-                  : false;
                 const optLetter = opt.optionKey || String.fromCharCode(65 + i);
 
-                // Determine border + background after submission
+                // Determine border + background
                 let optBorder, optBg, letterBg, letterColor, showCheck = false, showX = false;
 
                 if (isSubmitted) {
                   if (isSelected && feedback?.isCorrect) {
-                    // ✅ User picked correct answer
+                    // ✅ Selected + backend says CORRECT → green
                     optBorder = '2px solid #10B981';
                     optBg = 'rgba(16,185,129,0.18)';
                     letterBg = '#10B981';
                     letterColor = '#020609';
                     showCheck = true;
                   } else if (isSelected && !feedback?.isCorrect) {
-                    // ❌ User picked wrong answer
+                    // ❌ Selected + backend says WRONG → red
                     optBorder = '2px solid #F43F5E';
                     optBg = 'rgba(244,63,94,0.18)';
                     letterBg = '#F43F5E';
                     letterColor = '#fff';
                     showX = true;
-                  } else if (isCorrectOpt) {
-                    // 🟢 Reveal the correct answer when user was wrong
-                    optBorder = '2px solid #10B981';
-                    optBg = 'rgba(16,185,129,0.10)';
-                    letterBg = 'rgba(16,185,129,0.3)';
-                    letterColor = '#10B981';
-                    showCheck = true;
                   } else {
                     // Neutral non-selected after submission
                     optBorder = '1px solid rgba(255,255,255,0.06)';
@@ -742,27 +755,29 @@ export default function InteractiveQuizEngine() {
                     letterColor = 'rgba(255,255,255,0.3)';
                   }
                 } else {
-                  // Before submission
+                  // Before / during submission
                   optBorder = isSelected ? `2px solid ${accentColor}` : '1px solid rgba(255,255,255,0.08)';
                   optBg = isSelected ? `${accentColor}18` : 'rgba(255,255,255,0.03)';
                   letterBg = isSelected ? accentColor : 'rgba(255,255,255,0.06)';
                   letterColor = isSelected ? '#020609' : '#fff';
                 }
 
+                const isInteractive = !isSubmitted && !isChecking;
+
                 return (
                   <motion.button
                     key={optId}
                     type="button"
-                    disabled={isSubmitted}
-                    onClick={() => setSelectedOptionId(optId)}
+                    disabled={!isInteractive}
+                    onClick={() => isInteractive && setSelectedOptionId(optId)}
                     className="w-full p-4 rounded-2xl flex items-center justify-between gap-4 text-left transition-all border-0"
                     style={{
                       background: optBg,
                       border: optBorder,
-                      cursor: isSubmitted ? 'default' : 'pointer',
+                      cursor: isInteractive ? 'pointer' : 'default',
                     }}
-                    whileHover={!isSubmitted ? { scale: 1.01 } : {}}
-                    whileTap={!isSubmitted ? { scale: 0.99 } : {}}
+                    whileHover={isInteractive ? { scale: 1.01 } : {}}
+                    whileTap={isInteractive ? { scale: 0.99 } : {}}
                   >
                     <div className="flex items-center gap-3.5">
                       <div
@@ -774,7 +789,7 @@ export default function InteractiveQuizEngine() {
                       <span
                         className="font-inter text-sm sm:text-base transition-all"
                         style={{
-                          color: isSubmitted && !isSelected && !isCorrectOpt
+                          color: isSubmitted && !isSelected
                             ? 'rgba(255,255,255,0.4)'
                             : 'rgba(255,255,255,0.92)',
                         }}
@@ -865,9 +880,45 @@ export default function InteractiveQuizEngine() {
             </div>
           )}
 
-          {/* ── Feedback Banner After Submit ── */}
+          {/* ── Checking State Banner (while awaiting backend response) ── */}
           <AnimatePresence>
-            {feedback && (
+            {isChecking && (
+              <motion.div
+                className="rounded-2xl p-4 mb-6 flex items-center gap-3"
+                style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.15)' }}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0 }}
+                role="status"
+                aria-live="polite"
+              >
+                <Loader2 size={18} className="text-white/60 animate-spin flex-shrink-0" />
+                <p className="font-orbitron font-bold text-sm text-white/70">Checking answer…</p>
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          {/* ── API Error Banner (validation request failed) ── */}
+          <AnimatePresence>
+            {answerError && !isChecking && (
+              <motion.div
+                className="rounded-2xl p-4 mb-6 flex items-center gap-3"
+                style={{ background: 'rgba(251,191,36,0.10)', border: '1px solid rgba(251,191,36,0.35)' }}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0 }}
+                role="alert"
+                aria-live="polite"
+              >
+                <AlertCircle size={18} className="text-amber-400 flex-shrink-0" />
+                <p className="font-orbitron font-bold text-sm text-amber-400">{answerError}</p>
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          {/* ── Feedback Banner After Submit (authoritative result from backend) ── */}
+          <AnimatePresence>
+            {feedback && !isChecking && (
               <motion.div
                 className="rounded-2xl p-4 mb-6 flex items-center justify-between gap-4"
                 style={{
@@ -877,6 +928,8 @@ export default function InteractiveQuizEngine() {
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0 }}
+                role="alert"
+                aria-live="polite"
               >
                 <div className="flex items-center gap-3">
                   {feedback.isCorrect ? (
@@ -905,24 +958,42 @@ export default function InteractiveQuizEngine() {
               <motion.button
                 type="button"
                 onClick={handleSubmitAnswer}
-                disabled={isMCQ ? !selectedOptionId : isCalculation ? !calculationInput.trim() : false}
-                className="w-full sm:w-auto px-8 py-4 rounded-2xl font-orbitron font-black text-sm tracking-wider uppercase flex items-center justify-center gap-2 cursor-pointer border-0 transition-all shadow-lg"
+                disabled={
+                  isChecking ||
+                  (isMCQ ? !selectedOptionId : isCalculation ? !calculationInput.trim() : false)
+                }
+                aria-busy={isChecking}
+                className="w-full sm:w-auto px-8 py-4 rounded-2xl font-orbitron font-black text-sm tracking-wider uppercase flex items-center justify-center gap-2 border-0 transition-all shadow-lg"
                 style={{
-                  background: (isMCQ && selectedOptionId) || (isCalculation && calculationInput.trim()) || isUnsupported
+                  cursor: isChecking ? 'wait' : ((isMCQ && selectedOptionId) || (isCalculation && calculationInput.trim()) || isUnsupported) ? 'pointer' : 'default',
+                  background: isChecking
+                    ? 'rgba(255,255,255,0.08)'
+                    : (isMCQ && selectedOptionId) || (isCalculation && calculationInput.trim()) || isUnsupported
                     ? `linear-gradient(135deg, ${accentColor}, ${accentColor}CC)`
                     : 'rgba(255,255,255,0.08)',
-                  color: (isMCQ && selectedOptionId) || (isCalculation && calculationInput.trim()) || isUnsupported
+                  color: isChecking
+                    ? '#94A3B8'
+                    : (isMCQ && selectedOptionId) || (isCalculation && calculationInput.trim()) || isUnsupported
                     ? '#020609'
                     : '#94A3B8',
-                  boxShadow: (isMCQ && selectedOptionId) || (isCalculation && calculationInput.trim())
+                  boxShadow: !isChecking && ((isMCQ && selectedOptionId) || (isCalculation && calculationInput.trim()))
                     ? `0 0 25px ${glowColor}`
                     : 'none',
                 }}
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
+                whileHover={!isChecking ? { scale: 1.02 } : {}}
+                whileTap={!isChecking ? { scale: 0.98 } : {}}
               >
-                <Send size={16} />
-                <span>{isUnsupported ? 'Skip Question' : 'Submit Answer'}</span>
+                {isChecking ? (
+                  <>
+                    <Loader2 size={16} className="animate-spin" />
+                    <span>Checking…</span>
+                  </>
+                ) : (
+                  <>
+                    <Send size={16} />
+                    <span>{isUnsupported ? 'Skip Question' : 'Submit Answer'}</span>
+                  </>
+                )}
               </motion.button>
             ) : (
               <motion.button

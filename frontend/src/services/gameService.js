@@ -25,6 +25,25 @@ export const gameService = {
     const res = await apiClient.post(`/game/progress/${roomId}/complete`, data);
     return res.data || res;
   },
+
+  /**
+   * Server-authoritative per-question answer validation.
+   * POST /api/game/questions/:questionId/answer
+   *
+   * @param {string} questionId   - The question's ID
+   * @param {string} roomId       - The room this question belongs to
+   * @param {string} answer       - The student's submitted optionId / value
+   * @returns {{ correct: boolean, points: number, feedback: string }}
+   */
+  submitAnswer: async (questionId, roomId, answer) => {
+    const res = await apiClient.post(`/game/questions/${questionId}/answer`, {
+      answer,
+      roomId,
+    });
+    // API shape: { success, data: { correct, points, feedback } }
+    return res.data || res;
+  },
+
   startGameSession: async (gameTypeEndpoint, roomId) => {
     const res = await apiClient.post(`/game/${gameTypeEndpoint}/start`, { roomId });
     return res.data || res;

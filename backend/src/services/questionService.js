@@ -106,7 +106,7 @@ const DEFAULT_QUESTIONS = [
   // Standard 4 Math Room 1 (Fraction Bakery)
   // ───────────────────────────────────────────────────────────────────────────
   {
-    id: 'q-math4-r1-1',
+    id: 'q-math4-r2-1',
     chapterId: 'ch-math4-2',
     topicId: 'topic-math4-2-1',
     roomId: 'room-math4-2-1',
@@ -661,7 +661,6 @@ class QuestionService {
       hint: question.hint,
       puzzleData: sanitizedPuzzleData,
       options: sanitizedOptions,
-      ...((_ck) ? { _ck } : {}),
       status: question.status,
       isActive: question.isActive !== false,
       createdAt: question.createdAt,
@@ -669,6 +668,135 @@ class QuestionService {
       ...(question.topic ? { topic: question.topic } : {}),
       ...(question.room ? { room: question.room } : {}),
       ...(question.chapter ? { chapter: question.chapter } : {}),
+    };
+  }
+
+  /**
+   * Server-Authoritative Answer Validation
+   *
+   * Called ONLY by the answer-submit endpoint.
+   * Loads the FULL (unstripped) question from the data layer,
+   * validates the student's submitted answer, and returns:
+   *   { correct: Boolean, points: Number, feedback: String }
+   *
+   * The correct answer is NEVER sent to the frontend — it only
+   * lives server-side during this call.
+   *
+   * @param {string} questionId   - The ID of the question being answered
+   * @param {string} roomId       - The room the question belongs to (anti-tamper)
+   * @param {*}      studentAnswer - The student's submitted answer
+   *   For MCQ:         the option ID or optionKey submitted
+   *   For CALCULATION: the numeric string submitted
+   * @returns {{ correct: boolean, points: number, feedback: string }}
+   */
+  async validateAnswer(questionId, roomId, studentAnswer) {
+    if (!questionId || !roomId) {
+      const err = new Error('questionId and roomId are required');
+      err.statusCode = 400;
+      throw err;
+    }
+
+    // 1. Load the FULL question (with isCorrect visible server-side only)
+    let question = null;
+
+    try {
+      question = await prisma.question.findUnique({
+        where: { id: questionId },
+        include: {
+          options: { orderBy: { orderNumber: 'asc' } },
+        },
+      });
+    } catch (dbErr) {
+      // Fallback to DEFAULT_QUESTIONS when DB is unreachable
+    }
+
+    if (!question) {
+      // Try DEFAULT_QUESTIONS fallback
+      question = DEFAULT_QUESTIONS.find(q => q.id === questionId) || null;
+    }
+
+    if (!question) {
+      const err = new Error('Question not found');
+      err.statusCode = 404;
+      throw err;
+    }
+
+    // 2. Anti-tamper: verify the question actually belongs to the stated room
+    if (question.roomId !== roomId) {
+      const err = new Error('Question does not belong to specified room');
+      err.statusCode = 400;
+      throw err;
+    }
+
+    // 3. Ensure the question is published and active
+    if (question.status && question.status !== 'PUBLISHED') {
+      const err = new Error('Question is not available');
+      err.statusCode = 400;
+      throw err;
+    }
+
+    if (question.isActive === false) {
+      const err = new Error('Question is not available');
+      err.statusCode = 400;
+      throw err;
+    }
+
+    // 4. Validate — strategy depends on questionType
+    const qType = question.questionType || 'MCQ';
+    let correct = false;
+
+    if (qType === 'MCQ') {
+      // studentAnswer must be a non-empty string representing option id or key
+      if (!studentAnswer || typeof studentAnswer !== 'string' || !studentAnswer.trim()) {
+        const err = new Error('A valid answer option must be submitted');
+        err.statusCode = 400;
+        throw err;
+      }
+
+      const submitted = studentAnswer.trim();
+
+      // Find the correct option from the FULL (unstripped) question data
+      const correctOption = (question.options || []).find(o => o.isCorrect === true);
+
+      if (!correctOption) {
+        // Question data is incomplete — cannot validate; treat as correct to not penalize student
+        correct = true;
+      } else {
+        // Compare by option ID first, then by optionKey as fallback
+        const matchById = submitted === correctOption.id;
+        const matchByKey = submitted === correctOption.optionKey;
+        correct = matchById || matchByKey;
+      }
+    } else if (qType === 'CALCULATION') {
+      if (studentAnswer === undefined || studentAnswer === null || String(studentAnswer).trim() === '') {
+        const err = new Error('A numeric answer must be submitted');
+        err.statusCode = 400;
+        throw err;
+      }
+
+      const submitted = String(studentAnswer).trim().toLowerCase();
+      const puzzleData = question.puzzleData || {};
+
+      // Support both numeric and string expected values
+      const expectedRaw = puzzleData.expectedCalculation ?? puzzleData.expectedValue ?? null;
+      if (expectedRaw === null) {
+        // No expected value configured — cannot validate
+        correct = true;
+      } else {
+        const expected = String(expectedRaw).trim().toLowerCase();
+        correct = submitted === expected;
+      }
+    } else {
+      // Unsupported question type in generic quiz — skip, award points
+      correct = true;
+    }
+
+    const earnedPoints = correct ? (question.points || 100) : 0;
+
+    return {
+      correct,
+      points: earnedPoints,
+      feedback: correct ? 'Correct! Well done.' : 'Incorrect. Review the hint and try again.',
     };
   }
 

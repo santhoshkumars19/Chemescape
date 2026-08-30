@@ -27,6 +27,12 @@ router.post('/progress/:roomId/save', validate(saveGameSchema), gameController.s
 router.post('/progress/:roomId/complete', validate(completeGameSchema), gameController.completeGame);
 router.post('/progress/:roomId/fail', validate(failGameSchema), gameController.failGame);
 
+// --- 1b. Per-Question Answer Validation (Generic Quiz Engine) ---
+// POST /api/game/questions/:questionId/answer
+// Body: { answer: string, roomId: string }
+// Returns: { success, data: { correct: boolean, points: number, feedback: string } }
+router.post('/questions/:questionId/answer', gameController.submitAnswer);
+
 // --- 2. Unit 1: Calculation Heist Game Engine APIs ---
 router.post('/calculation-heist/start', calculationHeistController.startSession);
 router.post('/calculation-heist/stage/:stageNumber/submit', calculationHeistController.submitStage);
