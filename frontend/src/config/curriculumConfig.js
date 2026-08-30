@@ -1,25 +1,13 @@
 /**
  * curriculumConfig.js
  * ─────────────────────────────────────────────────────────────────────────────
- * SINGLE SOURCE OF TRUTH for all standard-to-subject mappings.
+ * SINGLE SOURCE OF TRUTH for all standard-to-subject and subject-to-chapter mappings.
  *
- * Structure is intentionally API-ready:
- *   { gradeId: string, subjects: SubjectConfig[] }
- *
- * When the backend expands to serve GET /standards/:id/subjects for all
- * grades, replace the static arrays below with the API response — no
- * other component needs to change.
- *
- * Subject shape:
- *   id          — unique key (used in localStorage + NavigationContext)
- *   name        — display label
- *   description — one-liner shown on the card
- *   icon        — lucide icon name string (resolved in SubjectCard)
- *   color       — primary accent hex
- *   borderColor — card border rgba
- *   glowColor   — selection glow rgba
- *   gradientFrom/gradientTo — card background gradient stops
- *   chapterCount — optional hint (undefined = hidden)
+ * API-ready architecture:
+ *   - getSubjectsForStandard(standardId)
+ *   - getChaptersForStandardAndSubject(standardId, subjectId)
+ *   - curriculumService.getSubjects(standardId)
+ *   - curriculumService.getChapters(standardId, subjectId)
  */
 
 export const CURRICULUM = {
@@ -30,6 +18,7 @@ export const CURRICULUM = {
       icon: 'BookText',
       color: '#F87171', borderColor: 'rgba(248,113,113,0.28)',
       glowColor: 'rgba(248,113,113,0.32)', gradientFrom: 'rgba(248,113,113,0.10)', gradientTo: 'rgba(248,113,113,0.02)',
+      chapterCount: 5,
     },
     {
       id: 'english', name: 'English',
@@ -37,6 +26,7 @@ export const CURRICULUM = {
       icon: 'Languages',
       color: '#FBBF24', borderColor: 'rgba(251,191,36,0.28)',
       glowColor: 'rgba(251,191,36,0.32)', gradientFrom: 'rgba(251,191,36,0.10)', gradientTo: 'rgba(251,191,36,0.02)',
+      chapterCount: 5,
     },
     {
       id: 'mathematics', name: 'Mathematics',
@@ -44,6 +34,7 @@ export const CURRICULUM = {
       icon: 'Calculator',
       color: '#10B981', borderColor: 'rgba(16,185,129,0.28)',
       glowColor: 'rgba(16,185,129,0.32)', gradientFrom: 'rgba(16,185,129,0.10)', gradientTo: 'rgba(16,185,129,0.02)',
+      chapterCount: 6,
     },
     {
       id: 'science', name: 'Science',
@@ -51,6 +42,7 @@ export const CURRICULUM = {
       icon: 'FlaskConical',
       color: '#22D3EE', borderColor: 'rgba(34,211,238,0.28)',
       glowColor: 'rgba(34,211,238,0.32)', gradientFrom: 'rgba(34,211,238,0.10)', gradientTo: 'rgba(34,211,238,0.02)',
+      chapterCount: 5,
     },
     {
       id: 'social-science', name: 'Social Science',
@@ -58,6 +50,7 @@ export const CURRICULUM = {
       icon: 'Globe',
       color: '#34D399', borderColor: 'rgba(52,211,153,0.28)',
       glowColor: 'rgba(52,211,153,0.32)', gradientFrom: 'rgba(52,211,153,0.10)', gradientTo: 'rgba(52,211,153,0.02)',
+      chapterCount: 5,
     },
   ],
 
@@ -68,6 +61,7 @@ export const CURRICULUM = {
       icon: 'BookText',
       color: '#F87171', borderColor: 'rgba(248,113,113,0.28)',
       glowColor: 'rgba(248,113,113,0.32)', gradientFrom: 'rgba(248,113,113,0.10)', gradientTo: 'rgba(248,113,113,0.02)',
+      chapterCount: 5,
     },
     {
       id: 'english', name: 'English',
@@ -75,6 +69,7 @@ export const CURRICULUM = {
       icon: 'Languages',
       color: '#FBBF24', borderColor: 'rgba(251,191,36,0.28)',
       glowColor: 'rgba(251,191,36,0.32)', gradientFrom: 'rgba(251,191,36,0.10)', gradientTo: 'rgba(251,191,36,0.02)',
+      chapterCount: 5,
     },
     {
       id: 'mathematics', name: 'Mathematics',
@@ -82,6 +77,7 @@ export const CURRICULUM = {
       icon: 'Calculator',
       color: '#10B981', borderColor: 'rgba(16,185,129,0.28)',
       glowColor: 'rgba(16,185,129,0.32)', gradientFrom: 'rgba(16,185,129,0.10)', gradientTo: 'rgba(16,185,129,0.02)',
+      chapterCount: 6,
     },
     {
       id: 'science', name: 'Science',
@@ -89,6 +85,7 @@ export const CURRICULUM = {
       icon: 'FlaskConical',
       color: '#22D3EE', borderColor: 'rgba(34,211,238,0.28)',
       glowColor: 'rgba(34,211,238,0.32)', gradientFrom: 'rgba(34,211,238,0.10)', gradientTo: 'rgba(34,211,238,0.02)',
+      chapterCount: 5,
     },
     {
       id: 'social-science', name: 'Social Science',
@@ -96,6 +93,7 @@ export const CURRICULUM = {
       icon: 'Globe',
       color: '#34D399', borderColor: 'rgba(52,211,153,0.28)',
       glowColor: 'rgba(52,211,153,0.32)', gradientFrom: 'rgba(52,211,153,0.10)', gradientTo: 'rgba(52,211,153,0.02)',
+      chapterCount: 5,
     },
   ],
 
@@ -106,6 +104,7 @@ export const CURRICULUM = {
       icon: 'BookText',
       color: '#F87171', borderColor: 'rgba(248,113,113,0.28)',
       glowColor: 'rgba(248,113,113,0.32)', gradientFrom: 'rgba(248,113,113,0.10)', gradientTo: 'rgba(248,113,113,0.02)',
+      chapterCount: 5,
     },
     {
       id: 'english', name: 'English',
@@ -113,6 +112,7 @@ export const CURRICULUM = {
       icon: 'Languages',
       color: '#FBBF24', borderColor: 'rgba(251,191,36,0.28)',
       glowColor: 'rgba(251,191,36,0.32)', gradientFrom: 'rgba(251,191,36,0.10)', gradientTo: 'rgba(251,191,36,0.02)',
+      chapterCount: 5,
     },
     {
       id: 'mathematics', name: 'Mathematics',
@@ -120,6 +120,7 @@ export const CURRICULUM = {
       icon: 'Calculator',
       color: '#10B981', borderColor: 'rgba(16,185,129,0.28)',
       glowColor: 'rgba(16,185,129,0.32)', gradientFrom: 'rgba(16,185,129,0.10)', gradientTo: 'rgba(16,185,129,0.02)',
+      chapterCount: 6,
     },
     {
       id: 'science', name: 'Science',
@@ -127,6 +128,7 @@ export const CURRICULUM = {
       icon: 'FlaskConical',
       color: '#22D3EE', borderColor: 'rgba(34,211,238,0.28)',
       glowColor: 'rgba(34,211,238,0.32)', gradientFrom: 'rgba(34,211,238,0.10)', gradientTo: 'rgba(34,211,238,0.02)',
+      chapterCount: 5,
     },
     {
       id: 'social-science', name: 'Social Science',
@@ -134,6 +136,7 @@ export const CURRICULUM = {
       icon: 'Globe',
       color: '#34D399', borderColor: 'rgba(52,211,153,0.28)',
       glowColor: 'rgba(52,211,153,0.32)', gradientFrom: 'rgba(52,211,153,0.10)', gradientTo: 'rgba(52,211,153,0.02)',
+      chapterCount: 5,
     },
   ],
 
@@ -144,6 +147,7 @@ export const CURRICULUM = {
       icon: 'BookText',
       color: '#F87171', borderColor: 'rgba(248,113,113,0.28)',
       glowColor: 'rgba(248,113,113,0.32)', gradientFrom: 'rgba(248,113,113,0.10)', gradientTo: 'rgba(248,113,113,0.02)',
+      chapterCount: 5,
     },
     {
       id: 'english', name: 'English',
@@ -151,6 +155,7 @@ export const CURRICULUM = {
       icon: 'Languages',
       color: '#FBBF24', borderColor: 'rgba(251,191,36,0.28)',
       glowColor: 'rgba(251,191,36,0.32)', gradientFrom: 'rgba(251,191,36,0.10)', gradientTo: 'rgba(251,191,36,0.02)',
+      chapterCount: 5,
     },
     {
       id: 'mathematics', name: 'Mathematics',
@@ -158,6 +163,7 @@ export const CURRICULUM = {
       icon: 'Calculator',
       color: '#10B981', borderColor: 'rgba(16,185,129,0.28)',
       glowColor: 'rgba(16,185,129,0.32)', gradientFrom: 'rgba(16,185,129,0.10)', gradientTo: 'rgba(16,185,129,0.02)',
+      chapterCount: 6,
     },
     {
       id: 'science', name: 'Science',
@@ -165,6 +171,7 @@ export const CURRICULUM = {
       icon: 'FlaskConical',
       color: '#22D3EE', borderColor: 'rgba(34,211,238,0.28)',
       glowColor: 'rgba(34,211,238,0.32)', gradientFrom: 'rgba(34,211,238,0.10)', gradientTo: 'rgba(34,211,238,0.02)',
+      chapterCount: 5,
     },
     {
       id: 'social-science', name: 'Social Science',
@@ -172,6 +179,7 @@ export const CURRICULUM = {
       icon: 'Globe',
       color: '#34D399', borderColor: 'rgba(52,211,153,0.28)',
       glowColor: 'rgba(52,211,153,0.32)', gradientFrom: 'rgba(52,211,153,0.10)', gradientTo: 'rgba(52,211,153,0.02)',
+      chapterCount: 5,
     },
   ],
 
@@ -182,6 +190,7 @@ export const CURRICULUM = {
       icon: 'BookText',
       color: '#F87171', borderColor: 'rgba(248,113,113,0.28)',
       glowColor: 'rgba(248,113,113,0.32)', gradientFrom: 'rgba(248,113,113,0.10)', gradientTo: 'rgba(248,113,113,0.02)',
+      chapterCount: 5,
     },
     {
       id: 'english', name: 'English',
@@ -189,6 +198,7 @@ export const CURRICULUM = {
       icon: 'Languages',
       color: '#FBBF24', borderColor: 'rgba(251,191,36,0.28)',
       glowColor: 'rgba(251,191,36,0.32)', gradientFrom: 'rgba(251,191,36,0.10)', gradientTo: 'rgba(251,191,36,0.02)',
+      chapterCount: 5,
     },
     {
       id: 'mathematics', name: 'Mathematics',
@@ -196,6 +206,7 @@ export const CURRICULUM = {
       icon: 'Calculator',
       color: '#10B981', borderColor: 'rgba(16,185,129,0.28)',
       glowColor: 'rgba(16,185,129,0.32)', gradientFrom: 'rgba(16,185,129,0.10)', gradientTo: 'rgba(16,185,129,0.02)',
+      chapterCount: 6,
     },
     {
       id: 'science', name: 'Science',
@@ -203,6 +214,7 @@ export const CURRICULUM = {
       icon: 'FlaskConical',
       color: '#22D3EE', borderColor: 'rgba(34,211,238,0.28)',
       glowColor: 'rgba(34,211,238,0.32)', gradientFrom: 'rgba(34,211,238,0.10)', gradientTo: 'rgba(34,211,238,0.02)',
+      chapterCount: 5,
     },
     {
       id: 'social-science', name: 'Social Science',
@@ -210,6 +222,7 @@ export const CURRICULUM = {
       icon: 'Globe',
       color: '#34D399', borderColor: 'rgba(52,211,153,0.28)',
       glowColor: 'rgba(52,211,153,0.32)', gradientFrom: 'rgba(52,211,153,0.10)', gradientTo: 'rgba(52,211,153,0.02)',
+      chapterCount: 5,
     },
   ],
 
@@ -220,6 +233,7 @@ export const CURRICULUM = {
       icon: 'BookText',
       color: '#F87171', borderColor: 'rgba(248,113,113,0.28)',
       glowColor: 'rgba(248,113,113,0.32)', gradientFrom: 'rgba(248,113,113,0.10)', gradientTo: 'rgba(248,113,113,0.02)',
+      chapterCount: 5,
     },
     {
       id: 'english', name: 'English',
@@ -227,6 +241,7 @@ export const CURRICULUM = {
       icon: 'Languages',
       color: '#FBBF24', borderColor: 'rgba(251,191,36,0.28)',
       glowColor: 'rgba(251,191,36,0.32)', gradientFrom: 'rgba(251,191,36,0.10)', gradientTo: 'rgba(251,191,36,0.02)',
+      chapterCount: 5,
     },
     {
       id: 'mathematics', name: 'Mathematics',
@@ -234,6 +249,7 @@ export const CURRICULUM = {
       icon: 'Calculator',
       color: '#10B981', borderColor: 'rgba(16,185,129,0.28)',
       glowColor: 'rgba(16,185,129,0.32)', gradientFrom: 'rgba(16,185,129,0.10)', gradientTo: 'rgba(16,185,129,0.02)',
+      chapterCount: 6,
     },
     {
       id: 'physics', name: 'Physics',
@@ -241,6 +257,7 @@ export const CURRICULUM = {
       icon: 'Zap',
       color: '#818CF8', borderColor: 'rgba(129,140,248,0.28)',
       glowColor: 'rgba(129,140,248,0.32)', gradientFrom: 'rgba(129,140,248,0.10)', gradientTo: 'rgba(129,140,248,0.02)',
+      chapterCount: 5,
     },
     {
       id: 'chemistry', name: 'Chemistry',
@@ -248,6 +265,7 @@ export const CURRICULUM = {
       icon: 'FlaskConical',
       color: '#22D3EE', borderColor: 'rgba(34,211,238,0.28)',
       glowColor: 'rgba(34,211,238,0.32)', gradientFrom: 'rgba(34,211,238,0.10)', gradientTo: 'rgba(34,211,238,0.02)',
+      chapterCount: 5,
     },
     {
       id: 'biology', name: 'Biology',
@@ -255,6 +273,7 @@ export const CURRICULUM = {
       icon: 'Leaf',
       color: '#4ADE80', borderColor: 'rgba(74,222,128,0.28)',
       glowColor: 'rgba(74,222,128,0.32)', gradientFrom: 'rgba(74,222,128,0.10)', gradientTo: 'rgba(74,222,128,0.02)',
+      chapterCount: 5,
     },
     {
       id: 'social-science', name: 'Social Science',
@@ -262,6 +281,7 @@ export const CURRICULUM = {
       icon: 'Globe',
       color: '#34D399', borderColor: 'rgba(52,211,153,0.28)',
       glowColor: 'rgba(52,211,153,0.32)', gradientFrom: 'rgba(52,211,153,0.10)', gradientTo: 'rgba(52,211,153,0.02)',
+      chapterCount: 5,
     },
   ],
 
@@ -272,6 +292,7 @@ export const CURRICULUM = {
       icon: 'BookText',
       color: '#F87171', borderColor: 'rgba(248,113,113,0.28)',
       glowColor: 'rgba(248,113,113,0.32)', gradientFrom: 'rgba(248,113,113,0.10)', gradientTo: 'rgba(248,113,113,0.02)',
+      chapterCount: 5,
     },
     {
       id: 'english', name: 'English',
@@ -279,6 +300,7 @@ export const CURRICULUM = {
       icon: 'Languages',
       color: '#FBBF24', borderColor: 'rgba(251,191,36,0.28)',
       glowColor: 'rgba(251,191,36,0.32)', gradientFrom: 'rgba(251,191,36,0.10)', gradientTo: 'rgba(251,191,36,0.02)',
+      chapterCount: 5,
     },
     {
       id: 'mathematics', name: 'Mathematics',
@@ -286,6 +308,7 @@ export const CURRICULUM = {
       icon: 'Calculator',
       color: '#10B981', borderColor: 'rgba(16,185,129,0.28)',
       glowColor: 'rgba(16,185,129,0.32)', gradientFrom: 'rgba(16,185,129,0.10)', gradientTo: 'rgba(16,185,129,0.02)',
+      chapterCount: 6,
     },
     {
       id: 'physics', name: 'Physics',
@@ -293,6 +316,7 @@ export const CURRICULUM = {
       icon: 'Zap',
       color: '#818CF8', borderColor: 'rgba(129,140,248,0.28)',
       glowColor: 'rgba(129,140,248,0.32)', gradientFrom: 'rgba(129,140,248,0.10)', gradientTo: 'rgba(129,140,248,0.02)',
+      chapterCount: 5,
     },
     {
       id: 'chemistry', name: 'Chemistry',
@@ -300,6 +324,7 @@ export const CURRICULUM = {
       icon: 'FlaskConical',
       color: '#22D3EE', borderColor: 'rgba(34,211,238,0.28)',
       glowColor: 'rgba(34,211,238,0.32)', gradientFrom: 'rgba(34,211,238,0.10)', gradientTo: 'rgba(34,211,238,0.02)',
+      chapterCount: 5,
     },
     {
       id: 'biology', name: 'Biology',
@@ -307,6 +332,7 @@ export const CURRICULUM = {
       icon: 'Leaf',
       color: '#4ADE80', borderColor: 'rgba(74,222,128,0.28)',
       glowColor: 'rgba(74,222,128,0.32)', gradientFrom: 'rgba(74,222,128,0.10)', gradientTo: 'rgba(74,222,128,0.02)',
+      chapterCount: 5,
     },
     {
       id: 'social-science', name: 'Social Science',
@@ -314,6 +340,7 @@ export const CURRICULUM = {
       icon: 'Globe',
       color: '#34D399', borderColor: 'rgba(52,211,153,0.28)',
       glowColor: 'rgba(52,211,153,0.32)', gradientFrom: 'rgba(52,211,153,0.10)', gradientTo: 'rgba(52,211,153,0.02)',
+      chapterCount: 5,
     },
   ],
 
@@ -324,6 +351,7 @@ export const CURRICULUM = {
       icon: 'Zap',
       color: '#818CF8', borderColor: 'rgba(129,140,248,0.28)',
       glowColor: 'rgba(129,140,248,0.32)', gradientFrom: 'rgba(129,140,248,0.10)', gradientTo: 'rgba(129,140,248,0.02)',
+      chapterCount: 5,
     },
     {
       id: 'chemistry', name: 'Chemistry',
@@ -331,7 +359,7 @@ export const CURRICULUM = {
       icon: 'FlaskConical',
       color: '#22D3EE', borderColor: 'rgba(34,211,238,0.28)',
       glowColor: 'rgba(34,211,238,0.32)', gradientFrom: 'rgba(34,211,238,0.10)', gradientTo: 'rgba(34,211,238,0.02)',
-      chapterCount: 14,
+      chapterCount: 6,
     },
     {
       id: 'mathematics', name: 'Mathematics',
@@ -339,6 +367,7 @@ export const CURRICULUM = {
       icon: 'Calculator',
       color: '#10B981', borderColor: 'rgba(16,185,129,0.28)',
       glowColor: 'rgba(16,185,129,0.32)', gradientFrom: 'rgba(16,185,129,0.10)', gradientTo: 'rgba(16,185,129,0.02)',
+      chapterCount: 6,
     },
     {
       id: 'biology', name: 'Biology',
@@ -346,6 +375,7 @@ export const CURRICULUM = {
       icon: 'Leaf',
       color: '#4ADE80', borderColor: 'rgba(74,222,128,0.28)',
       glowColor: 'rgba(74,222,128,0.32)', gradientFrom: 'rgba(74,222,128,0.10)', gradientTo: 'rgba(74,222,128,0.02)',
+      chapterCount: 5,
     },
     {
       id: 'computer-science', name: 'Computer Science',
@@ -353,6 +383,7 @@ export const CURRICULUM = {
       icon: 'Terminal',
       color: '#A78BFA', borderColor: 'rgba(167,139,250,0.28)',
       glowColor: 'rgba(167,139,250,0.32)', gradientFrom: 'rgba(167,139,250,0.10)', gradientTo: 'rgba(167,139,250,0.02)',
+      chapterCount: 5,
     },
   ],
 
@@ -363,6 +394,7 @@ export const CURRICULUM = {
       icon: 'Zap',
       color: '#818CF8', borderColor: 'rgba(129,140,248,0.28)',
       glowColor: 'rgba(129,140,248,0.32)', gradientFrom: 'rgba(129,140,248,0.10)', gradientTo: 'rgba(129,140,248,0.02)',
+      chapterCount: 5,
     },
     {
       id: 'chemistry', name: 'Chemistry',
@@ -370,7 +402,7 @@ export const CURRICULUM = {
       icon: 'FlaskConical',
       color: '#22D3EE', borderColor: 'rgba(34,211,238,0.28)',
       glowColor: 'rgba(34,211,238,0.32)', gradientFrom: 'rgba(34,211,238,0.10)', gradientTo: 'rgba(34,211,238,0.02)',
-      chapterCount: 16,
+      chapterCount: 6,
     },
     {
       id: 'mathematics', name: 'Mathematics',
@@ -378,6 +410,7 @@ export const CURRICULUM = {
       icon: 'Calculator',
       color: '#10B981', borderColor: 'rgba(16,185,129,0.28)',
       glowColor: 'rgba(16,185,129,0.32)', gradientFrom: 'rgba(16,185,129,0.10)', gradientTo: 'rgba(16,185,129,0.02)',
+      chapterCount: 6,
     },
     {
       id: 'biology', name: 'Biology',
@@ -385,6 +418,7 @@ export const CURRICULUM = {
       icon: 'Leaf',
       color: '#4ADE80', borderColor: 'rgba(74,222,128,0.28)',
       glowColor: 'rgba(74,222,128,0.32)', gradientFrom: 'rgba(74,222,128,0.10)', gradientTo: 'rgba(74,222,128,0.02)',
+      chapterCount: 5,
     },
     {
       id: 'computer-science', name: 'Computer Science',
@@ -392,33 +426,556 @@ export const CURRICULUM = {
       icon: 'Terminal',
       color: '#A78BFA', borderColor: 'rgba(167,139,250,0.28)',
       glowColor: 'rgba(167,139,250,0.32)', gradientFrom: 'rgba(167,139,250,0.10)', gradientTo: 'rgba(167,139,250,0.02)',
+      chapterCount: 5,
+    },
+  ],
+};
+
+// ─── CHAPTER DEFINITIONS ───────────────────────────────────────────────────────
+// Explicit chapter lists per standard & subject.
+// Standard 11 Chemistry aligns precisely with existing ChemEscape escape room engines.
+
+export const CHAPTERS_STORE = {
+  // ── Standard 11 Chemistry (Existing 6 Units) ─────────────────────────────────
+  'grade-11:chemistry': [
+    {
+      id: 'chap-1',
+      chapterNumber: 1,
+      title: 'Some Basic Concepts of Chemistry',
+      description: 'Mole concept, stoichiometry, and empirical calculations in the Mole Scanner Vault.',
+      difficulty: 'Beginner',
+      xpReward: 500,
+      coinsReward: 120,
+      gameType: 'Chem Calculation Heist',
+      missionCode: 'MSN-0011',
+    },
+    {
+      id: 'chap-2',
+      chapterNumber: 2,
+      title: 'Structure of Atom',
+      description: 'Quantum mechanical model, orbitals, Hund’s rule, and electron configuration chamber.',
+      difficulty: 'Beginner',
+      xpReward: 650,
+      coinsReward: 160,
+      gameType: 'Quantum Orbital Architect',
+      missionCode: 'MSN-0022',
+    },
+    {
+      id: 'chap-3',
+      chapterNumber: 3,
+      title: 'Classification of Elements and Periodicity',
+      description: 'Periodic table reconstruction, groups, periods, and periodic trends matrix.',
+      difficulty: 'Intermediate',
+      xpReward: 700,
+      coinsReward: 180,
+      gameType: 'Periodic Grid Reconstruction',
+      missionCode: 'MSN-0033',
+    },
+    {
+      id: 'chap-4',
+      chapterNumber: 4,
+      title: 'Hydrogen',
+      description: 'Isotopes, heavy water, and hydrogen fuel cell reactor control terminal.',
+      difficulty: 'Intermediate',
+      xpReward: 800,
+      coinsReward: 200,
+      gameType: 'Hydrogen Fuel Cell Reactor',
+      missionCode: 'MSN-0044',
+    },
+    {
+      id: 'chap-5',
+      chapterNumber: 5,
+      title: 's-Block Elements (Alkali & Alkaline Earth)',
+      description: 'Group 1 & 2 metals, flame test identification, and metal sorting factory.',
+      difficulty: 'Advanced',
+      xpReward: 900,
+      coinsReward: 240,
+      gameType: 'Flame Test Metal Sorting Factory',
+      missionCode: 'MSN-0055',
+    },
+    {
+      id: 'chap-6',
+      chapterNumber: 6,
+      title: 'States of Matter: Gaseous State',
+      description: 'Gas chamber simulator, Boyle’s Law, Charles’s Law, Combined Gas Law, and Ideal Gas equations.',
+      difficulty: 'Expert',
+      xpReward: 950,
+      coinsReward: 250,
+      gameType: 'Gas Chamber Simulator',
+      missionCode: 'MSN-0066',
+    },
+  ],
+
+  // ── Standard 4 Mathematics ──────────────────────────────────────────────────
+  'grade-4:mathematics': [
+    {
+      id: 'g4-math-1',
+      chapterNumber: 1,
+      title: 'Numbers Around Us',
+      description: 'Explore 4-digit numbers, place values, number comparison, and expanded forms.',
+      difficulty: 'Beginner',
+      xpReward: 400,
+      coinsReward: 100,
+      gameType: 'Number Sense Puzzle',
+      missionCode: 'MTH-0401',
+    },
+    {
+      id: 'g4-math-2',
+      chapterNumber: 2,
+      title: 'Fractions & Equal Parts',
+      description: 'Understand halves, thirds, quarters, fraction representations, and simple comparisons.',
+      difficulty: 'Beginner',
+      xpReward: 450,
+      coinsReward: 110,
+      gameType: 'Fraction Slicer Challenge',
+      missionCode: 'MTH-0402',
+    },
+    {
+      id: 'g4-math-3',
+      chapterNumber: 3,
+      title: 'Multiplication & Division Adventures',
+      description: 'Times table patterns, repeated grouping, multi-digit operations, and word problems.',
+      difficulty: 'Intermediate',
+      xpReward: 500,
+      coinsReward: 120,
+      gameType: 'Operation Escape Room',
+      missionCode: 'MTH-0403',
+    },
+    {
+      id: 'g4-math-4',
+      chapterNumber: 4,
+      title: 'Shapes, Patterns & Symmetry',
+      description: 'Identify 2D and 3D shapes, lines of symmetry, angle basics, and geometric patterns.',
+      difficulty: 'Intermediate',
+      xpReward: 550,
+      coinsReward: 130,
+      gameType: 'Geometry Pattern Builder',
+      missionCode: 'MTH-0404',
+    },
+    {
+      id: 'g4-math-5',
+      chapterNumber: 5,
+      title: 'Measurement: Length, Weight & Capacity',
+      description: 'Convert centimeters to meters, grams to kilograms, liters, and practical estimation.',
+      difficulty: 'Advanced',
+      xpReward: 600,
+      coinsReward: 140,
+      gameType: 'Measurement Scale Quest',
+      missionCode: 'MTH-0405',
+    },
+    {
+      id: 'g4-math-6',
+      chapterNumber: 6,
+      title: 'Time, Money & Data Handling',
+      description: 'Reading analog and digital clocks, currency word problems, and pictographs.',
+      difficulty: 'Advanced',
+      xpReward: 650,
+      coinsReward: 150,
+      gameType: 'Time Vault & Cash Register',
+      missionCode: 'MTH-0406',
+    },
+  ],
+
+  // ── Standard 4 Science ──────────────────────────────────────────────────────
+  'grade-4:science': [
+    {
+      id: 'g4-sci-1',
+      chapterNumber: 1,
+      title: 'Plants: The Green World',
+      description: 'Parts of a plant, photosynthesis basics, root systems, and seed germination stages.',
+      difficulty: 'Beginner',
+      xpReward: 400,
+      coinsReward: 100,
+      gameType: 'Botanical Lab Quest',
+      missionCode: 'SCI-0401',
+    },
+    {
+      id: 'g4-sci-2',
+      chapterNumber: 2,
+      title: 'Animals & Their Habitats',
+      description: 'Herbivores, carnivores, omnivores, animal adaptations, and life cycle stages.',
+      difficulty: 'Beginner',
+      xpReward: 450,
+      coinsReward: 110,
+      gameType: 'Habitat Explorer Simulator',
+      missionCode: 'SCI-0402',
+    },
+    {
+      id: 'g4-sci-3',
+      chapterNumber: 3,
+      title: 'States of Matter & Materials',
+      description: 'Solids, liquids, gases, melting, freezing, evaporation, and material properties.',
+      difficulty: 'Intermediate',
+      xpReward: 500,
+      coinsReward: 120,
+      gameType: 'Matter Chamber Experiment',
+      missionCode: 'SCI-0403',
+    },
+    {
+      id: 'g4-sci-4',
+      chapterNumber: 4,
+      title: 'Air, Water & Weather',
+      description: 'Properties of air, water filtration, the water cycle, and atmospheric weather.',
+      difficulty: 'Intermediate',
+      xpReward: 550,
+      coinsReward: 130,
+      gameType: 'Weather Station Simulator',
+      missionCode: 'SCI-0404',
+    },
+    {
+      id: 'g4-sci-5',
+      chapterNumber: 5,
+      title: 'Force, Work & Simple Machines',
+      description: 'Push and pull, friction, gravity, levers, pulleys, wheels, and inclined planes.',
+      difficulty: 'Advanced',
+      xpReward: 600,
+      coinsReward: 140,
+      gameType: 'Physics Playground Mission',
+      missionCode: 'SCI-0405',
+    },
+  ],
+
+  // ── Standard 4 Tamil ────────────────────────────────────────────────────────
+  'grade-4:tamil': [
+    {
+      id: 'g4-tam-1',
+      chapterNumber: 1,
+      title: 'அன்னைத் தமிழே',
+      description: 'தமிழ் மொழியின் இனிமை, சொல்வளம் மற்றும் கவிதை நயம்.',
+      difficulty: 'Beginner',
+      xpReward: 400,
+      coinsReward: 100,
+      gameType: 'தமிழ் சொல் விளையாட்டு',
+      missionCode: 'TAM-0401',
+    },
+    {
+      id: 'g4-tam-2',
+      chapterNumber: 2,
+      title: 'பனிமலைப் பயணம்',
+      description: 'இயற்கை எழில், கதை வாசிப்பு மற்றும் சொல்லாக்கம்.',
+      difficulty: 'Beginner',
+      xpReward: 450,
+      coinsReward: 110,
+      gameType: 'கதை வாசிப்பு சவால்',
+      missionCode: 'TAM-0402',
+    },
+    {
+      id: 'g4-tam-3',
+      chapterNumber: 3,
+      title: 'ஏழாம் சுவை',
+      description: 'சுவைகள், பண்பாடு மற்றும் இலக்கணப் பயிற்சிகள்.',
+      difficulty: 'Intermediate',
+      xpReward: 500,
+      coinsReward: 120,
+      gameType: 'இலக்கண வினாடி வினா',
+      missionCode: 'TAM-0403',
+    },
+    {
+      id: 'g4-tam-4',
+      chapterNumber: 4,
+      title: 'நன்னெறி & நீதி நூல்கள்',
+      description: 'ஒழுக்கம், சமூக அறம் மற்றும் ஆத்திசூடி நன்மொழிகள்.',
+      difficulty: 'Advanced',
+      xpReward: 550,
+      coinsReward: 130,
+      gameType: 'அறநெறி புதிர்',
+      missionCode: 'TAM-0404',
+    },
+  ],
+
+  // ── Standard 4 English ──────────────────────────────────────────────────────
+  'grade-4:english': [
+    {
+      id: 'g4-eng-1',
+      chapterNumber: 1,
+      title: 'A Feast for Rats',
+      description: 'Reading comprehension, narrative voice, and contextual vocabulary exploration.',
+      difficulty: 'Beginner',
+      xpReward: 400,
+      coinsReward: 100,
+      gameType: 'Word Power Adventure',
+      missionCode: 'ENG-0401',
+    },
+    {
+      id: 'g4-eng-2',
+      chapterNumber: 2,
+      title: 'The Saving Habit',
+      description: 'Passage comprehension, moral theme analysis, and sentence construction.',
+      difficulty: 'Beginner',
+      xpReward: 450,
+      coinsReward: 110,
+      gameType: 'Grammar Trail Quest',
+      missionCode: 'ENG-0402',
+    },
+    {
+      id: 'g4-eng-3',
+      chapterNumber: 3,
+      title: 'Grammar Explorer: Nouns & Verbs',
+      description: 'Proper, common, collective nouns, action verbs, and subject-verb agreement.',
+      difficulty: 'Intermediate',
+      xpReward: 500,
+      coinsReward: 120,
+      gameType: 'Parts of Speech Sorter',
+      missionCode: 'ENG-0403',
+    },
+    {
+      id: 'g4-eng-4',
+      chapterNumber: 4,
+      title: 'Creative Storyteller',
+      description: 'Paragraph writing, punctuation, dialog tags, and creative descriptive expression.',
+      difficulty: 'Advanced',
+      xpReward: 550,
+      coinsReward: 130,
+      gameType: 'Story Builder Challenge',
+      missionCode: 'ENG-0404',
+    },
+  ],
+
+  // ── Standard 4 Social Science ───────────────────────────────────────────────
+  'grade-4:social-science': [
+    {
+      id: 'g4-soc-1',
+      chapterNumber: 1,
+      title: 'Kingdoms of Rivers',
+      description: 'Explore the ancient dynasties: Cheras, Cholas, Pandyas, and Pallavas along riverbanks.',
+      difficulty: 'Beginner',
+      xpReward: 400,
+      coinsReward: 100,
+      gameType: 'Ancient Kingdom Quest',
+      missionCode: 'SOC-0401',
+    },
+    {
+      id: 'g4-soc-2',
+      chapterNumber: 2,
+      title: 'Five Types of Landforms (Thinai)',
+      description: 'Kurinji (mountains), Mullai (forest), Marutham (plains), Neithal (sea), and Paalai (desert).',
+      difficulty: 'Beginner',
+      xpReward: 450,
+      coinsReward: 110,
+      gameType: 'Landform Map Expedition',
+      missionCode: 'SOC-0402',
+    },
+    {
+      id: 'g4-soc-3',
+      chapterNumber: 3,
+      title: 'Municipality & Civic Duties',
+      description: 'Local government structure, duties of citizens, public services, and community care.',
+      difficulty: 'Intermediate',
+      xpReward: 500,
+      coinsReward: 120,
+      gameType: 'Civic City Builder',
+      missionCode: 'SOC-0403',
+    },
+    {
+      id: 'g4-soc-4',
+      chapterNumber: 4,
+      title: 'Our Natural Resources & Heritage',
+      description: 'Forests, minerals, conservation, historical monuments, and environmental stewardship.',
+      difficulty: 'Advanced',
+      xpReward: 550,
+      coinsReward: 130,
+      gameType: 'Heritage Preservation Quest',
+      missionCode: 'SOC-0404',
     },
   ],
 };
 
 /**
  * Get subjects for a given standard ID.
- * Returns [] if the standard is not found (safe empty state).
+ * Returns [] if standard not found.
  */
 export function getSubjectsForStandard(standardId) {
   return CURRICULUM[standardId] || [];
 }
 
 /**
- * curriculumService — drop-in replacement point for future backend API.
- * Import and call curriculumService.getSubjects(standardId) from pages.
- * When backend is ready, swap the body of getSubjects() to call the API.
+ * Generate fallback realistic chapters for any standard/subject pair
+ * if not explicitly present in CHAPTERS_STORE.
+ */
+function generateFallbackChapters(standardId, subjectId) {
+  const stdNum = standardId ? standardId.replace(/[^0-9]/g, '') || '4' : '4';
+  const cleanSubj = (subjectId || 'general').replace('-', ' ');
+  const capitalizedSubj = cleanSubj.charAt(0).toUpperCase() + cleanSubj.slice(1);
+
+  return [
+    {
+      id: `${standardId}-${subjectId}-1`,
+      chapterNumber: 1,
+      title: `Introduction to ${capitalizedSubj}`,
+      description: `Fundamental core principles and core concepts in Grade ${stdNum} ${capitalizedSubj}.`,
+      difficulty: 'Beginner',
+      xpReward: 400,
+      coinsReward: 100,
+      gameType: `${capitalizedSubj} Concept Quest`,
+      missionCode: `MSN-${stdNum}01`,
+    },
+    {
+      id: `${standardId}-${subjectId}-2`,
+      chapterNumber: 2,
+      title: `${capitalizedSubj} Fundamentals & Practice`,
+      description: `Intermediate applications, practical examples, and core analytical problems.`,
+      difficulty: 'Intermediate',
+      xpReward: 550,
+      coinsReward: 130,
+      gameType: `${capitalizedSubj} Challenge Lab`,
+      missionCode: `MSN-${stdNum}02`,
+    },
+    {
+      id: `${standardId}-${subjectId}-3`,
+      chapterNumber: 3,
+      title: `Advanced ${capitalizedSubj} Applications`,
+      description: `Applied topic analysis, problem solving, and comprehensive unit assessments.`,
+      difficulty: 'Advanced',
+      xpReward: 700,
+      coinsReward: 180,
+      gameType: `${capitalizedSubj} Escape Chamber`,
+      missionCode: `MSN-${stdNum}03`,
+    },
+    {
+      id: `${standardId}-${subjectId}-4`,
+      chapterNumber: 4,
+      title: `${capitalizedSubj} Mastery & Integration`,
+      description: `Capstone unit synthesis, complex problem solving, and comprehensive review.`,
+      difficulty: 'Expert',
+      xpReward: 850,
+      coinsReward: 220,
+      gameType: `${capitalizedSubj} Master Arena`,
+      missionCode: `MSN-${stdNum}04`,
+    },
+  ];
+}
+
+/**
+ * Get chapters for a given standard and subject.
+ */
+export function getChaptersForStandardAndSubject(standardId, subjectId) {
+  if (!standardId || !subjectId) return [];
+
+  // Normalize keys
+  const stdKey = standardId.includes('grade-') ? standardId : `grade-${standardId.replace(/[^0-9]/g, '')}`;
+  const subjKey = subjectId.toLowerCase().trim();
+  const storeKey = `${stdKey}:${subjKey}`;
+
+  if (CHAPTERS_STORE[storeKey]) {
+    return CHAPTERS_STORE[storeKey];
+  }
+
+  // Also check aliases like 11th Chemistry
+  if (stdKey === 'grade-11' && (subjKey === 'chemistry' || subjKey === 'chem')) {
+    return CHAPTERS_STORE['grade-11:chemistry'];
+  }
+
+  return generateFallbackChapters(stdKey, subjKey);
+}
+
+/**
+ * getChapterStatus
+ * ─────────────────────────────────────────────────────────────────────────────
+ * Centralized unlock/completion resolver.
+ * Precedence:
+ *   1. Backend-provided status/completion in progress data
+ *   2. Match in local user completedRooms list
+ *   3. Chapter 1 is always UNLOCKED initially
+ *   4. Chapter N unlocks only if Chapter N-1 is COMPLETED
+ *
+ * Returns: 'LOCKED' | 'UNLOCKED' | 'IN_PROGRESS' | 'COMPLETED' | 'MASTERED'
+ */
+export function getChapterStatus(chapter, index, allChapters, completedRooms = [], userProgressList = []) {
+  if (!chapter) return { status: 'LOCKED', progress: 0, stars: 0, isUnlocked: false };
+
+  const possibleIds = [
+    chapter.id,
+    `chap-${index + 1}`,
+    `chap_${index + 1}`,
+    `room${index + 1}`,
+    `room-${index + 1}`,
+    `unit${index + 1}`,
+    `unit-${index + 1}`,
+    String(index + 1),
+    chapter.missionCode,
+  ].filter(Boolean);
+
+  // 1. Check completedRooms array
+  const isLocallyCompleted = possibleIds.some(id => completedRooms.includes(id));
+
+  // 2. Check backend userProgressList
+  let backendProgress = null;
+  if (Array.isArray(userProgressList)) {
+    backendProgress = userProgressList.find(p => {
+      const roomId = p.roomId || p.room?.id;
+      const chapterId = p.chapterId || p.chapter?.id;
+      const roomNum = p.room?.roomNumber;
+      return (
+        possibleIds.includes(roomId) ||
+        possibleIds.includes(chapterId) ||
+        roomNum === index + 1
+      );
+    });
+  }
+
+  const isBackendCompleted = backendProgress?.isCompleted || backendProgress?.status === 'COMPLETED' || backendProgress?.status === 'MASTERED';
+  const isCompleted = isLocallyCompleted || isBackendCompleted;
+
+  if (isCompleted) {
+    const isMastered = backendProgress?.status === 'MASTERED' || backendProgress?.stars === 3 || backendProgress?.score >= 100;
+    return {
+      status: isMastered ? 'MASTERED' : 'COMPLETED',
+      progress: 100,
+      stars: backendProgress?.stars || 3,
+      isUnlocked: true,
+      isCompleted: true,
+    };
+  }
+
+  // 3. Check if previous chapter is completed
+  let isPreviousCompleted = false;
+  if (index === 0) {
+    isPreviousCompleted = true; // First chapter is always unlocked
+  } else {
+    const prevChapter = allChapters[index - 1];
+    const prevStatus = getChapterStatus(prevChapter, index - 1, allChapters, completedRooms, userProgressList);
+    isPreviousCompleted = prevStatus.isCompleted;
+  }
+
+  if (isPreviousCompleted) {
+    // Check if in progress
+    const partialProgress = backendProgress?.progress || (backendProgress?.currentStage > 1 ? Math.min(backendProgress.currentStage * 30, 80) : 0);
+    if (partialProgress > 0) {
+      return {
+        status: 'IN_PROGRESS',
+        progress: partialProgress,
+        stars: backendProgress?.stars || 0,
+        isUnlocked: true,
+        isCompleted: false,
+      };
+    }
+    return {
+      status: 'UNLOCKED',
+      progress: 0,
+      stars: 0,
+      isUnlocked: true,
+      isCompleted: false,
+    };
+  }
+
+  return {
+    status: 'LOCKED',
+    progress: 0,
+    stars: 0,
+    isUnlocked: false,
+    isCompleted: false,
+  };
+}
+
+/**
+ * curriculumService abstraction layer
  */
 export const curriculumService = {
-  /**
-   * Returns subjects for a standard.
-   * Currently resolves from static config; replace with API call when ready:
-   *   const res = await apiClient.get(`/standards/${standardId}/subjects`);
-   *   return res.data || [];
-   */
   getSubjects: async (standardId) => {
-    // Future: return subjectService.getSubjectsByStandard(standardId)
     return getSubjectsForStandard(standardId);
+  },
+  getChapters: async (standardId, subjectId) => {
+    return getChaptersForStandardAndSubject(standardId, subjectId);
   },
 };
 

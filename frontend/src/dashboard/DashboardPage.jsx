@@ -328,12 +328,7 @@ function MissionCard({ isDark }) {
   const isChemistry = selectedSubjectId === 'chemistry';
 
   const handleContinue = () => {
-    if (isChemistry) {
-      navigateTo('standards');
-    } else {
-      // Future: navigate to chapter map
-      navigateTo('select-subject');
-    }
+    navigateTo('chapters');
   };
 
   const cardBg = isDark
