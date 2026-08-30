@@ -85,14 +85,18 @@ model User {
 }
 
 model Standard {
-  id          String   @id @default(uuid())
-  name        String   @unique // e.g. "11", "12"
-  displayName String   // e.g. "11th Standard"
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id           String   @id @default(uuid())
+  grade        Int?     @unique
+  name         String   @unique // e.g. "4", "5", "6", "7", "8", "9", "10", "11", "12"
+  displayName  String   // e.g. "4th Standard", "11th Standard"
+  description  String?  @db.Text
+  displayOrder Int      @default(0)
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 
-  subjects    StandardSubject[]
-  chapters    Chapter[]
+  subjects     StandardSubject[]
+  chapters     Chapter[]
 
   @@map("standards")
 }

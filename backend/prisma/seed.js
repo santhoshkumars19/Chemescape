@@ -59,19 +59,45 @@ async function main() {
     },
   });
 
-  // ── 2. STANDARDS ──────────────────────────────────────────────────────────
-  const std11 = await prisma.standard.upsert({
-    where: { name: '11' },
-    update: {},
-    create: { name: '11', displayName: '11th Standard' },
-  });
+  // ── 2. STANDARDS (4th to 12th) ──────────────────────────────────────────
+  const standardsData = [
+    { grade: 4, name: '4', displayName: '4th Standard', description: 'Primary School 4th Standard Curriculum', displayOrder: 1 },
+    { grade: 5, name: '5', displayName: '5th Standard', description: 'Primary School 5th Standard Curriculum', displayOrder: 2 },
+    { grade: 6, name: '6', displayName: '6th Standard', description: 'Middle School 6th Standard Curriculum', displayOrder: 3 },
+    { grade: 7, name: '7', displayName: '7th Standard', description: 'Middle School 7th Standard Curriculum', displayOrder: 4 },
+    { grade: 8, name: '8', displayName: '8th Standard', description: 'Middle School 8th Standard Curriculum', displayOrder: 5 },
+    { grade: 9, name: '9', displayName: '9th Standard', description: 'Secondary School 9th Standard Curriculum', displayOrder: 6 },
+    { grade: 10, name: '10', displayName: '10th Standard', description: 'Secondary School 10th Standard Curriculum', displayOrder: 7 },
+    { grade: 11, name: '11', displayName: '11th Standard', description: 'Higher Secondary 11th Standard Curriculum', displayOrder: 8 },
+    { grade: 12, name: '12', displayName: '12th Standard', description: 'Higher Secondary 12th Standard Curriculum', displayOrder: 9 },
+  ];
 
-  const std12 = await prisma.standard.upsert({
-    where: { name: '12' },
-    update: {},
-    create: { name: '12', displayName: '12th Standard' },
-  });
-  console.log(' ✔ Standards seeded: 11th Standard, 12th Standard');
+  const seededStandards = {};
+  for (const std of standardsData) {
+    const record = await prisma.standard.upsert({
+      where: { name: std.name },
+      update: {
+        grade: std.grade,
+        displayName: std.displayName,
+        description: std.description,
+        displayOrder: std.displayOrder,
+        isActive: true,
+      },
+      create: {
+        grade: std.grade,
+        name: std.name,
+        displayName: std.displayName,
+        description: std.description,
+        displayOrder: std.displayOrder,
+        isActive: true,
+      },
+    });
+    seededStandards[std.name] = record;
+  }
+
+  const std11 = seededStandards['11'];
+  const std12 = seededStandards['12'];
+  console.log(' ✔ Standards seeded: 4th through 12th Standards (9 standards total)');
 
   // ── 3. SUBJECTS ───────────────────────────────────────────────────────────
   const chemSubject = await prisma.subject.upsert({
