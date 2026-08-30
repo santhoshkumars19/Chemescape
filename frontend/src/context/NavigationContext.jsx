@@ -73,7 +73,7 @@ export function NavigationProvider({ children }) {
   const [selectedChapterId, setSelectedChapterIdRaw]   = useState(null);
   const [selectedChapter, setSelectedChapterRaw]       = useState(null);
   const [selectedRoomId, setSelectedRoomIdRaw]         = useState(null);
-  const [currentRoom, setCurrentRoomRaw]               = useState('room1');
+  const [currentRoom, setCurrentRoomRaw]               = useState(null);
 
   // Cascade-safe setters
   const setSelectedStandardId = useCallback((stdId) => {

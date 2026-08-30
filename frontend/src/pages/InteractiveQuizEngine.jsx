@@ -101,9 +101,10 @@ export default function InteractiveQuizEngine() {
       setLoading(true);
       setError(null);
       try {
-        let targetRoomId = selectedRoomId || (typeof currentRoom === 'object' ? currentRoom?.id : currentRoom);
+        let targetRoomId = null;
 
-        if (!targetRoomId && activeChapter?.id) {
+        // 1. Primary: Query authoritative rooms for the active chapter
+        if (activeChapter?.id) {
           try {
             const roomRes = await roomService.getRoomsByChapter(activeChapter.id, {
               standardId: resolvedStdId,
@@ -111,11 +112,25 @@ export default function InteractiveQuizEngine() {
             });
             const rooms = roomRes?.data?.rooms || roomRes?.data || (Array.isArray(roomRes) ? roomRes : []);
             if (rooms.length > 0) {
-              targetRoomId = rooms[0].id;
+              const matched = selectedRoomId ? rooms.find(r => r.id === selectedRoomId) : null;
+              targetRoomId = matched ? matched.id : rooms[0].id;
             }
           } catch (e) {
-            // No rooms configured or context mismatch
+            console.warn('[InteractiveQuizEngine] Notice on getRoomsByChapter:', e.message);
           }
+        }
+
+        // 2. Secondary fallback: check selectedRoomId or currentRoom
+        if (!targetRoomId) {
+          const cand = selectedRoomId || (typeof currentRoom === 'object' ? currentRoom?.id : currentRoom);
+          if (cand && typeof cand === 'string' && cand.startsWith('room-')) {
+            targetRoomId = cand;
+          }
+        }
+
+        // 3. Deterministic chapter-to-room convention fallback (e.g. ch-soc4-1 -> room-soc4-1)
+        if (!targetRoomId && activeChapter?.id && typeof activeChapter.id === 'string' && activeChapter.id.startsWith('ch-')) {
+          targetRoomId = activeChapter.id.replace('ch-', 'room-');
         }
 
         if (!targetRoomId) {

@@ -482,9 +482,10 @@ export default function MissionBriefPage() {
     }
 
     setLaunching(true);
-    setTimeout(() => {
-      navigateTo(availability.endpoint);
-    }, 1000);
+      navigateTo(availability.endpoint, {
+        chapterId: activeChapter?.id,
+        chapter: activeChapter,
+      });
   }, [chapterStatus.isUnlocked, availability, navigateTo]);
 
   const color = mission.accentColor;
