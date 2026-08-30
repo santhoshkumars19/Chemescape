@@ -53,10 +53,22 @@ export default function LoginPage() {
     setToast(null);
     try {
       const loggedInUser = await login(form.email, form.password);
-      // STUDENT → standard selection; Teacher/Admin → dashboard directly
       const role = loggedInUser?.role || 'STUDENT';
       if (role === 'STUDENT') {
-        navigateTo('select-standard');
+        let prefs = null;
+        try {
+          prefs = loggedInUser?.id ? JSON.parse(localStorage.getItem(`chemescape:user:${loggedInUser.id}:preferences`) || 'null') : null;
+        } catch {
+          prefs = null;
+        }
+
+        if (prefs?.selectedStandardId && prefs?.selectedSubjectId) {
+          navigateTo('dashboard');
+        } else if (prefs?.selectedStandardId) {
+          navigateTo('select-subject');
+        } else {
+          navigateTo('select-standard');
+        }
       } else {
         navigateTo('dashboard');
       }

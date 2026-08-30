@@ -67,9 +67,9 @@ export function NavigationProvider({ children }) {
 
   // ── Syllabus Selection (not user-specific — safe to keep globally) ─────────
   const [selectedStandardId, setSelectedStandardId] = useState(null);
-  const [selectedStandard, setSelectedStandard]     = useState('11th Standard');
+  const [selectedStandard, setSelectedStandard]     = useState(null);
   const [selectedSubjectId, setSelectedSubjectId]   = useState(null);
-  const [selectedSubject, setSelectedSubject]       = useState('Chemistry');
+  const [selectedSubject, setSelectedSubject]       = useState(null);
   const [selectedChapterId, setSelectedChapterId]   = useState(null);
   const [selectedChapter, setSelectedChapter]       = useState(null);
   const [selectedRoomId, setSelectedRoomId]         = useState(null);
@@ -237,6 +237,19 @@ export function NavigationProvider({ children }) {
 
         // Persist scoped to this user
         if (userId) scopedSetJSON(userId, 'completedRooms', backendRooms);
+      }
+
+      // ── Restore user-scoped preferences (standard & subject) ─────────────
+      if (userId) {
+        const prefs = scopedGetJSON(userId, 'preferences');
+        if (prefs?.selectedStandardId) {
+          setSelectedStandardId(prefs.selectedStandardId);
+          setSelectedStandard(prefs.selectedStandardName || '');
+        }
+        if (prefs?.selectedSubjectId) {
+          setSelectedSubjectId(prefs.selectedSubjectId);
+          setSelectedSubject(prefs.selectedSubjectName || '');
+        }
       }
     } catch (err) {
       console.warn('[ChemEscape] Failed to refresh user stats:', err.message);
