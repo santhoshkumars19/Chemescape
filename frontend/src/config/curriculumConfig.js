@@ -638,14 +638,14 @@ export const CHAPTERS_STORE = {
   // ── Standard 4 Tamil ────────────────────────────────────────────────────────
   'grade-4:tamil': [
     {
-      id: 'g4-tam-1',
+      id: 'ch-tam4-1',
       chapterNumber: 1,
       title: 'அன்னைத் தமிழே',
       description: 'தமிழ் மொழியின் இனிமை, சொல்வளம் மற்றும் கவிதை நயம்.',
       difficulty: 'Beginner',
       xpReward: 400,
       coinsReward: 100,
-      gameType: 'தமிழ் சொல் விளையாட்டு',
+      gameType: 'Interactive Quiz Engine',
       missionCode: 'TAM-0401',
     },
     {

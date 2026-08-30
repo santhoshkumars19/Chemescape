@@ -215,6 +215,24 @@ const DEFAULT_ROOMS = [
     orderNumber: 1,
     isActive: true,
   },
+  // Standard 4 Tamil Room 1
+  {
+    id: 'room-tam4-1',
+    chapterId: 'ch-tam4-1',
+    roomNumber: 1,
+    name: 'அன்னைத் தமிழ் அரங்கம்',
+    title: 'அன்னைத் தமிழ் அரங்கம்',
+    description: 'அன்னைத் தமிழே பாடலின் நயங்கள், சொல்வளம் மற்றும் வினாடி வினா.',
+    roomType: 'PUZZLE',
+    gameType: 'GENERIC_CHAPTER_QUIZ',
+    gameConfig: { questionCount: 10, timeLimit: 300 },
+    difficulty: 'EASY',
+    estimatedMinutes: 15,
+    xpReward: 400,
+    coinReward: 100,
+    orderNumber: 1,
+    isActive: true,
+  },
   // Standard 5 Subject Rooms
   {
     id: 'room-tam5-1',

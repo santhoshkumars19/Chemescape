@@ -78,6 +78,25 @@ const DEFAULT_CHAPTERS = [
     subject: { id: 'subj-math', name: 'Mathematics', code: 'MATH', icon: '📐' },
     standard: { id: 'grade-4', name: '4', displayName: '4th Standard' },
   },
+  // Standard 4 Tamil Chapter 1
+  {
+    id: 'ch-tam4-1',
+    standardId: 'grade-4',
+    subjectId: 'subj-tamil',
+    title: 'அன்னைத் தமிழே',
+    description: 'தமிழ் மொழியின் இனிமை, பாடல் நயம், சொல்வளம் மற்றும் இலக்கணம்',
+    chapterNumber: 1,
+    difficulty: 'EASY',
+    estimatedMinutes: 20,
+    xpReward: 400,
+    coinReward: 100,
+    badgeName: 'அன்னைத் தமிழ் அறிஞர்',
+    isLocked: false,
+    isActive: true,
+    displayOrder: 1,
+    subject: { id: 'subj-tamil', name: 'Tamil', code: 'TAMIL', icon: '📚' },
+    standard: { id: 'grade-4', name: '4', displayName: '4th Standard' },
+  },
   // Standard 4 Science demonstration chapters
   {
     id: 'ch-sci4-1',
