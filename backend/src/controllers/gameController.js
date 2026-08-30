@@ -1,6 +1,27 @@
 const gameProgressService = require('../services/gameProgressService');
+const chapterUnlockService = require('../services/chapterUnlockService');
 
 class GameController {
+  async getUnlockedChapters(req, res, next) {
+    try {
+      const { standardId, subjectId } = req.query;
+      if (!standardId || !subjectId) {
+        return res.status(400).json({
+          success: false,
+          message: 'standardId and subjectId are required query parameters',
+        });
+      }
+      const data = await chapterUnlockService.getUnlockedChapters(req.user.id, standardId, subjectId);
+      return res.status(200).json({
+        success: true,
+        message: 'Unlocked chapters retrieved successfully',
+        data,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+
   async getUserProgress(req, res, next) {
     try {
       const progress = await gameProgressService.getUserProgress(req.user.id);

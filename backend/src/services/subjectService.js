@@ -354,6 +354,38 @@ class SubjectService {
       return { message: 'Subject unmapped from standard successfully' };
     }
   }
+
+  /**
+   * Check if a subject is mapped to a standard
+   */
+  async isSubjectMappedToStandard(standardId, subjectId) {
+    let standard;
+    let subject;
+    try {
+      standard = await standardService.getStandardById(standardId);
+      subject = await this.getSubjectById(subjectId);
+    } catch {
+      return false;
+    }
+
+    try {
+      const mapping = await prisma.standardSubject.findUnique({
+        where: {
+          standardId_subjectId: {
+            standardId: standard.id,
+            subjectId: subject.id,
+          },
+        },
+      });
+      if (mapping) return true;
+    } catch {
+      /* fallback below */
+    }
+
+    const gradeKey = String(standard.grade || standard.name || '').replace(/^(grade-|std-)/, '');
+    const allowedCodes = DEFAULT_STANDARD_SUBJECT_MAP[gradeKey] || [];
+    return allowedCodes.includes(subject.code);
+  }
 }
 
 module.exports = new SubjectService();

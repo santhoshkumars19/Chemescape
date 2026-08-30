@@ -49,13 +49,15 @@ class StandardService {
    * Get single standard by ID, Grade, or Name
    */
   async getStandardById(id) {
+    const extractedNum = Number(String(id).replace(/\D/g, ''));
+
     try {
       let standard = await prisma.standard.findFirst({
         where: {
           OR: [
             { id },
             { name: String(id) },
-            ...(Number.isInteger(Number(id)) ? [{ grade: Number(id) }] : []),
+            ...(extractedNum && extractedNum >= 1 && extractedNum <= 12 ? [{ grade: extractedNum }] : []),
           ],
         },
       });
@@ -63,7 +65,7 @@ class StandardService {
       if (!standard) {
         // Check fallback list
         standard = DEFAULT_STANDARDS.find(
-          s => s.id === id || s.name === String(id) || s.grade === Number(id)
+          s => s.id === id || s.name === String(id) || s.grade === extractedNum || s.id === `grade-${extractedNum}`
         );
       }
 
@@ -77,7 +79,7 @@ class StandardService {
     } catch (error) {
       if (error.statusCode) throw error;
       const fallback = DEFAULT_STANDARDS.find(
-        s => s.id === id || s.name === String(id) || s.grade === Number(id)
+        s => s.id === id || s.name === String(id) || s.grade === extractedNum || s.id === `grade-${extractedNum}`
       );
       if (fallback) return fallback;
       const notFound = new Error('Standard not found');

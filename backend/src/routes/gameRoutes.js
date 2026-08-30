@@ -18,7 +18,8 @@ const {
 // All game engine routes require student authentication
 router.use(authMiddleware);
 
-// --- 1. Generic Game Progress APIs ---
+// --- 1. Generic Game Progress & Chapter Unlock APIs ---
+router.get('/unlocked', gameController.getUnlockedChapters);
 router.get('/progress', gameController.getUserProgress);
 router.get('/progress/:roomId', gameController.getRoomProgress);
 router.post('/progress/:roomId/start', gameController.startGame);

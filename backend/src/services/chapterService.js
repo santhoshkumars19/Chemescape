@@ -78,6 +78,43 @@ const DEFAULT_CHAPTERS = [
     subject: { id: 'subj-math', name: 'Mathematics', code: 'MATH', icon: '📐' },
     standard: { id: 'grade-4', name: '4', displayName: '4th Standard' },
   },
+  // Standard 4 Science demonstration chapters
+  {
+    id: 'ch-sci4-1',
+    standardId: 'grade-4',
+    subjectId: 'subj-sci',
+    title: 'Living & Non-Living Things',
+    description: 'Characteristics of living organisms and their environment',
+    chapterNumber: 1,
+    difficulty: 'EASY',
+    estimatedMinutes: 20,
+    xpReward: 100,
+    coinReward: 25,
+    badgeName: 'Nature Explorer',
+    isLocked: false,
+    isActive: true,
+    displayOrder: 1,
+    subject: { id: 'subj-sci', name: 'Science', code: 'SCI', icon: '🔬' },
+    standard: { id: 'grade-4', name: '4', displayName: '4th Standard' },
+  },
+  {
+    id: 'ch-sci4-2',
+    standardId: 'grade-4',
+    subjectId: 'subj-sci',
+    title: 'Plant Life & Ecosystems',
+    description: 'Discover how plants grow, photosynthesize, and support life',
+    chapterNumber: 2,
+    difficulty: 'EASY',
+    estimatedMinutes: 25,
+    xpReward: 150,
+    coinReward: 35,
+    badgeName: 'Botanist Junior',
+    isLocked: true,
+    isActive: true,
+    displayOrder: 2,
+    subject: { id: 'subj-sci', name: 'Science', code: 'SCI', icon: '🔬' },
+    standard: { id: 'grade-4', name: '4', displayName: '4th Standard' },
+  },
 ];
 
 // Fallback allowed subject codes per standard grade
@@ -122,11 +159,18 @@ class ChapterService {
   }
 
   /**
-   * Get chapters belonging to a specific Standard (and optional Subject)
+   * Get all chapters for a specific standard and subject
+   */
+  async getChaptersByStandardAndSubject(standardId, subjectId) {
+    return this.getChaptersByStandard(standardId, { subjectFilter: subjectId });
+  }
+
+  /**
+   * Get all chapters for a specific standard with optional subject filter
    */
   async getChaptersByStandard(standardId, options = {}) {
     const includeInactive = options.includeInactive || false;
-    const subjectFilter = options.subjectId || null;
+    const subjectFilter = options.subjectId || options.subjectFilter || null;
 
     // 1. Resolve standard
     let standard;
@@ -173,28 +217,28 @@ class ChapterService {
 
     // 3. Query Database
     try {
-      const whereClause = {
-        OR: [
-          { standardId: standard.id },
-          { standard: { name: standard.name } },
-          ...(standard.grade ? [{ standard: { grade: standard.grade } }] : []),
-        ],
-        ...(includeInactive ? {} : { isActive: true }),
-      };
+      const whereConditions = [
+        {
+          OR: [
+            { standardId: standard.id },
+            { standard: { name: standard.name } },
+            ...(standard.grade ? [{ standard: { grade: standard.grade } }] : []),
+          ],
+        },
+        ...(includeInactive ? [] : [{ isActive: true }]),
+      ];
 
       if (subject) {
-        whereClause.AND = [
-          {
-            OR: [
-              { subjectId: subject.id },
-              { subject: { code: subject.code } },
-            ],
-          },
-        ];
+        whereConditions.push({
+          OR: [
+            { subjectId: subject.id },
+            { subject: { code: subject.code } },
+          ],
+        });
       }
 
       const chapters = await prisma.chapter.findMany({
-        where: whereClause,
+        where: { AND: whereConditions },
         orderBy: [
           { chapterNumber: 'asc' },
           { displayOrder: 'asc' },
