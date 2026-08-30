@@ -100,46 +100,84 @@ async function main() {
   console.log(' ✔ Standards seeded: 4th through 12th Standards (9 standards total)');
 
   // ── 3. SUBJECTS ───────────────────────────────────────────────────────────
-  const chemSubject = await prisma.subject.upsert({
-    where: { code: 'CHEM' },
-    update: {},
-    create: {
-      name: 'Chemistry',
-      code: 'CHEM',
-      description: 'Higher secondary Chemistry learning content and escape rooms',
-      icon: '🧪',
-    },
-  });
-  console.log(' ✔ Subject seeded: Chemistry (CHEM)');
+  const subjectsData = [
+    { name: 'Tamil', code: 'TAMIL', description: 'Tamil Language and Literature', icon: '📚', displayOrder: 1 },
+    { name: 'English', code: 'ENG', description: 'English Language and Grammar', icon: '📖', displayOrder: 2 },
+    { name: 'Mathematics', code: 'MATH', description: 'Mathematics and Problem Solving', icon: '📐', displayOrder: 3 },
+    { name: 'Science', code: 'SCI', description: 'General Science, Physics, Chemistry, Biology', icon: '🔬', displayOrder: 4 },
+    { name: 'Social Science', code: 'SOCIAL', description: 'History, Geography, Civics, Economics', icon: '🌍', displayOrder: 5 },
+    { name: 'Physics', code: 'PHY', description: 'Higher Secondary Mechanics, Electromagnetism, Optics', icon: '⚡', displayOrder: 1 },
+    { name: 'Chemistry', code: 'CHEM', description: 'Higher Secondary Chemistry, Stoichiometry, Organic, Inorganic', icon: '🧪', displayOrder: 2 },
+    { name: 'Biology', code: 'BIO', description: 'Higher Secondary Botany and Zoology', icon: '🧬', displayOrder: 4 },
+    { name: 'Computer Science', code: 'CS', description: 'Higher Secondary Programming, Data Structures, Python', icon: '💻', displayOrder: 5 },
+  ];
+
+  const seededSubjects = {};
+  for (const s of subjectsData) {
+    const record = await prisma.subject.upsert({
+      where: { code: s.code },
+      update: {
+        name: s.name,
+        description: s.description,
+        icon: s.icon,
+        displayOrder: s.displayOrder,
+        isActive: true,
+      },
+      create: {
+        name: s.name,
+        code: s.code,
+        description: s.description,
+        icon: s.icon,
+        displayOrder: s.displayOrder,
+        isActive: true,
+      },
+    });
+    seededSubjects[s.code] = record;
+  }
+  const chemSubject = seededSubjects['CHEM'];
+  console.log(' ✔ Subjects seeded: 9 core subjects (Tamil, English, Math, Science, Social, Physics, Chem, Bio, CS)');
 
   // ── 4. STANDARD-SUBJECT RELATIONS ───────────────────────────────────────
-  await prisma.standardSubject.upsert({
-    where: {
-      standardId_subjectId: {
-        standardId: std11.id,
-        subjectId: chemSubject.id,
-      },
-    },
-    update: {},
-    create: {
-      standardId: std11.id,
-      subjectId: chemSubject.id,
-    },
-  });
+  const standardSubjectMap = {
+    '4': ['TAMIL', 'ENG', 'MATH', 'SCI', 'SOCIAL'],
+    '5': ['TAMIL', 'ENG', 'MATH', 'SCI', 'SOCIAL'],
+    '6': ['TAMIL', 'ENG', 'MATH', 'SCI', 'SOCIAL'],
+    '7': ['TAMIL', 'ENG', 'MATH', 'SCI', 'SOCIAL'],
+    '8': ['TAMIL', 'ENG', 'MATH', 'SCI', 'SOCIAL'],
+    '9': ['TAMIL', 'ENG', 'MATH', 'SCI', 'SOCIAL'],
+    '10': ['TAMIL', 'ENG', 'MATH', 'SCI', 'SOCIAL'],
+    '11': ['PHY', 'CHEM', 'MATH', 'BIO', 'CS'],
+    '12': ['PHY', 'CHEM', 'MATH', 'BIO', 'CS'],
+  };
 
-  await prisma.standardSubject.upsert({
-    where: {
-      standardId_subjectId: {
-        standardId: std12.id,
-        subjectId: chemSubject.id,
-      },
-    },
-    update: {},
-    create: {
-      standardId: std12.id,
-      subjectId: chemSubject.id,
-    },
-  });
+  for (const [gradeStr, subjectCodes] of Object.entries(standardSubjectMap)) {
+    const std = seededStandards[gradeStr];
+    if (!std) continue;
+
+    for (let i = 0; i < subjectCodes.length; i++) {
+      const code = subjectCodes[i];
+      const subj = seededSubjects[code];
+      if (!subj) continue;
+
+      await prisma.standardSubject.upsert({
+        where: {
+          standardId_subjectId: {
+            standardId: std.id,
+            subjectId: subj.id,
+          },
+        },
+        update: {
+          displayOrder: i + 1,
+        },
+        create: {
+          standardId: std.id,
+          subjectId: subj.id,
+          displayOrder: i + 1,
+        },
+      });
+    }
+  }
+  console.log(' ✔ StandardSubject mappings seeded for Standards 4 through 12');
 
   // ── 5. CHAPTER: PERIODIC TABLE (11th Chemistry) ───────────────────────────
   const periodicChapter = await prisma.chapter.upsert({

@@ -102,28 +102,31 @@ model Standard {
 }
 
 model Subject {
-  id          String   @id @default(uuid())
-  name        String   // e.g. "Chemistry"
-  code        String   @unique // e.g. "CHEM"
-  description String?  @db.Text
-  icon        String?  @default("🧪")
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id           String   @id @default(uuid())
+  name         String   // e.g. "Chemistry"
+  code         String   @unique // e.g. "CHEM"
+  description  String?  @db.Text
+  icon         String?  @default("🧪")
+  displayOrder Int      @default(0)
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 
-  standards   StandardSubject[]
-  chapters    Chapter[]
+  standards    StandardSubject[]
+  chapters     Chapter[]
 
   @@map("subjects")
 }
 
 model StandardSubject {
-  id         String   @id @default(uuid())
-  standardId String
-  subjectId  String
-  createdAt  DateTime @default(now())
+  id           String   @id @default(uuid())
+  standardId   String
+  subjectId    String
+  displayOrder Int      @default(0)
+  createdAt    DateTime @default(now())
 
-  standard   Standard @relation(fields: [standardId], references: [id], onDelete: Cascade)
-  subject    Subject  @relation(fields: [subjectId], references: [id], onDelete: Cascade)
+  standard     Standard @relation(fields: [standardId], references: [id], onDelete: Cascade)
+  subject      Subject  @relation(fields: [subjectId], references: [id], onDelete: Cascade)
 
   @@unique([standardId, subjectId])
   @@map("standard_subjects")
