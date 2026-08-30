@@ -1,6 +1,7 @@
 const prisma = require('../config/db');
 const roomService = require('./roomService');
 const chapterUnlockService = require('./chapterUnlockService');
+const GAME_PROGRESS_CONFIG = require('../config/gameProgressConfig');
 
 // Fallback in-memory stores for offline resilience
 const fallbackUserStats = new Map(); // userId -> stats
@@ -330,8 +331,15 @@ class GameProgressService {
 
   /**
    * POST /api/game/progress/:roomId/complete (Atomically complete room with Prisma Transaction)
+   *
+   * Enforces server-authoritative Pass/Fail threshold:
+   * - Generic Chapter Quiz: requires minimum 7/10 score (or configured threshold) to pass
+   * - Pass (>= 7/10): marks room completed, unlocks next chapter, awards rewards
+   * - Fail (< 7/10): marks attempt failed, next chapter remains locked, requires retry
+   * - Replay Safety: if room was already completed previously, a lower replay score
+   *   does NOT relock the chapter or undo existing completion status.
    */
-  async completeGame(userId, roomId, { score, stars, timeSpentSec = 0, gameState = null }) {
+  async completeGame(userId, roomId, { score = 0, stars = 0, timeSpentSec = 0, gameState = null }) {
     let room;
     try {
       room = await roomService.getRoomById(roomId);
@@ -354,6 +362,35 @@ class GameProgressService {
       throw error;
     }
 
+    // Determine if this is a generic chapter quiz or a specialized chemistry game engine
+    const isGenericQuiz = !room.gameType || room.gameType === 'GENERIC_CHAPTER_QUIZ' || room.gameType === 'GENERIC_QUIZ';
+
+    let evalResult;
+    if (isGenericQuiz) {
+      const totalQuestions = gameState?.answeredQuestions ?? gameState?.totalQuestions ?? room.questionCount ?? GAME_PROGRESS_CONFIG.DEFAULT_TOTAL_QUESTIONS;
+      let correctCount;
+      if (gameState?.correctAnswers !== undefined && gameState?.correctAnswers !== null) {
+        correctCount = Number(gameState.correctAnswers);
+      } else if (score <= totalQuestions) {
+        correctCount = Number(score);
+      } else {
+        correctCount = Math.round(Number(score) / 100);
+      }
+      evalResult = GAME_PROGRESS_CONFIG.evaluatePass(correctCount, totalQuestions, room.minimumPassScore);
+    } else {
+      // Specialized Chemistry games (Calculation Heist, Quantum Architect, Periodic Grid, Hydrogen Reactor, Metal Sorting, Gas Simulator)
+      evalResult = {
+        passed: true,
+        score: score,
+        totalQuestions: 10,
+        minimumPassScore: 7,
+        accuracyPercent: 100,
+        retryRequired: false,
+      };
+    }
+
+    const passed = evalResult.passed;
+
     // SERVER-SIDE REWARD CALCULATION (Never trust client XP/coins)
     const baseXP = room.xpReward || 500;
     const baseCoins = room.coinReward || 100;
@@ -361,24 +398,125 @@ class GameProgressService {
     const badgeDescription = `Completed ${room.title || room.name}`;
     const badgeIcon = '🏆';
 
-    // Record fallback progress directly
-    chapterUnlockService.recordFallbackProgress(userId, roomId, {
-      chapterId: room.chapterId,
-      isCompleted: true,
-      highScore: score,
-      starsEarned: stars,
-      bestTimeSec: timeSpentSec,
-    });
-
     try {
       // Execute ATOMIC PRISMA TRANSACTION for safety
       return await prisma.$transaction(async (tx) => {
-        // 1. Get or create progress
+        // 1. Get existing progress
         const existingProgress = await tx.userGameProgress.findUnique({
           where: { userId_roomId: { userId, roomId } },
         });
 
-        const isFirstCompletion = !existingProgress || !existingProgress.isCompleted;
+        const wasAlreadyCompleted = Boolean(existingProgress && existingProgress.isCompleted);
+
+        // ── CASE A: Failed Attempt (score < 7/10) ────────────────────────────
+        if (!passed) {
+          if (wasAlreadyCompleted) {
+            // Replay after prior pass: preserve completion status, do not relock!
+            const newHighScore = Math.max(existingProgress.highScore, score);
+            const updatedProgress = await tx.userGameProgress.update({
+              where: { userId_roomId: { userId, roomId } },
+              data: {
+                highScore: newHighScore,
+                attempts: { increment: 1 },
+              },
+            });
+            const userStats = await this.getOrCreateUserStats(userId, tx);
+
+            chapterUnlockService.recordFallbackProgress(userId, roomId, {
+              chapterId: room.chapterId,
+              isCompleted: true,
+              highScore: newHighScore,
+            });
+
+            return {
+              completed: true,
+              passed: false,
+              score: evalResult.score,
+              totalQuestions: evalResult.totalQuestions,
+              minimumPassScore: evalResult.minimumPassScore,
+              retryRequired: true,
+              nextChapterUnlocked: true,
+              isFirstCompletion: false,
+              awardedXP: 0,
+              awardedCoins: 0,
+              badgeUnlocked: null,
+              progress: updatedProgress,
+              stats: userStats,
+              message: `Attempt score (${evalResult.score}/${evalResult.totalQuestions}) did not meet pass threshold (${evalResult.minimumPassScore}/${evalResult.totalQuestions}). Replay required to improve score.`,
+            };
+          }
+
+          // Fresh attempt failed: do NOT mark complete, next chapter remains locked!
+          const updatedProgress = await tx.userGameProgress.upsert({
+            where: { userId_roomId: { userId, roomId } },
+            update: {
+              isCompleted: false,
+              highScore: Math.max(existingProgress?.highScore || 0, score),
+              starsEarned: Math.max(existingProgress?.starsEarned || 0, stars),
+              attempts: { increment: 1 },
+              gameState: null,
+            },
+            create: {
+              userId,
+              roomId,
+              chapterId: room.chapterId,
+              isCompleted: false,
+              highScore: score,
+              starsEarned: stars,
+              bestTimeSec: timeSpentSec,
+              attempts: 1,
+            },
+          });
+
+          // Mark active session as FAILED
+          const activeSession = await tx.gameSession.findFirst({
+            where: { userId, roomId, status: 'ACTIVE' },
+            orderBy: { startedAt: 'desc' },
+          });
+
+          if (activeSession) {
+            await tx.gameSession.update({
+              where: { id: activeSession.id },
+              data: {
+                status: 'FAILED',
+                score,
+                stars,
+                timeSpentSec,
+                completedAt: new Date(),
+              },
+            });
+          }
+
+          const userStats = await this.getOrCreateUserStats(userId, tx);
+
+          chapterUnlockService.recordFallbackProgress(userId, roomId, {
+            chapterId: room.chapterId,
+            isCompleted: false,
+            highScore: score,
+            starsEarned: stars,
+            bestTimeSec: timeSpentSec,
+          });
+
+          return {
+            completed: false,
+            passed: false,
+            score: evalResult.score,
+            totalQuestions: evalResult.totalQuestions,
+            minimumPassScore: evalResult.minimumPassScore,
+            retryRequired: true,
+            nextChapterUnlocked: false,
+            isFirstCompletion: false,
+            awardedXP: 0,
+            awardedCoins: 0,
+            badgeUnlocked: null,
+            progress: updatedProgress,
+            stats: userStats,
+            message: `Mission not passed. Score was ${evalResult.score}/${evalResult.totalQuestions}. Complete at least ${evalResult.minimumPassScore}/${evalResult.totalQuestions} questions to unlock the next chapter.`,
+          };
+        }
+
+        // ── CASE B: Passed Attempt (score >= 7/10) ───────────────────────────
+        const isFirstCompletion = !wasAlreadyCompleted;
 
         // First completion -> 100% XP & Coins. Repeat completion -> 10% bonus XP, 0 coins, no duplicate badge.
         const awardedXP = isFirstCompletion ? baseXP : Math.floor(baseXP * 0.1);
@@ -418,7 +556,7 @@ class GameProgressService {
           },
         });
 
-        // 2. Mark GameSession as COMPLETED
+        // Mark GameSession as COMPLETED
         const activeSession = await tx.gameSession.findFirst({
           where: { userId, roomId, status: 'ACTIVE' },
           orderBy: { startedAt: 'desc' },
@@ -437,7 +575,7 @@ class GameProgressService {
           });
         }
 
-        // 3. Update UserStats (XP, Coins, Level)
+        // Update UserStats (XP, Coins, Level)
         const userStats = await this.getOrCreateUserStats(userId, tx);
         const newTotalXP = userStats.totalXP + awardedXP;
         const newTotalCoins = userStats.totalCoins + awardedCoins;
@@ -452,7 +590,7 @@ class GameProgressService {
           },
         });
 
-        // 4. Award Badge (First completion only)
+        // Award Badge (First completion only)
         let unlockedBadge = null;
         if (isFirstCompletion && badgeName) {
           unlockedBadge = await tx.userBadge.upsert({
@@ -467,19 +605,87 @@ class GameProgressService {
           });
         }
 
+        chapterUnlockService.recordFallbackProgress(userId, roomId, {
+          chapterId: room.chapterId,
+          isCompleted: true,
+          highScore: newHighScore,
+          starsEarned: newStars,
+          bestTimeSec: newBestTime,
+        });
+
         return {
+          completed: true,
+          passed: true,
+          score: evalResult.score,
+          totalQuestions: evalResult.totalQuestions,
+          minimumPassScore: evalResult.minimumPassScore,
+          retryRequired: false,
+          nextChapterUnlocked: true,
           isFirstCompletion,
           awardedXP,
           awardedCoins,
           badgeUnlocked: unlockedBadge,
           progress: updatedProgress,
           stats: updatedStats,
+          message: isFirstCompletion
+            ? 'Congratulations! Room completed and rewards unlocked!'
+            : 'Room re-cleared successfully!',
         };
       });
-    } catch {
+    } catch (err) {
+      if (err.statusCode) throw err;
       // In offline mode
       const sessionKey = `${userId}:${roomId}`;
       const session = fallbackSessions.get(sessionKey);
+      const existingFallback = await chapterUnlockService.getRoomProgress(userId, roomId);
+      const wasAlreadyCompleted = Boolean(existingFallback && existingFallback.isCompleted);
+
+      // ── OFFLINE CASE A: Failed Attempt ──
+      if (!passed) {
+        if (session) {
+          session.status = 'FAILED';
+          session.score = score;
+          session.stars = stars;
+          session.timeSpentSec = timeSpentSec;
+        }
+
+        const stats = await this.getOrCreateUserStats(userId);
+
+        chapterUnlockService.recordFallbackProgress(userId, roomId, {
+          chapterId: room.chapterId,
+          isCompleted: wasAlreadyCompleted,
+          highScore: Math.max(existingFallback?.highScore || 0, score),
+          starsEarned: Math.max(existingFallback?.starsEarned || 0, stars),
+          bestTimeSec: timeSpentSec,
+        });
+
+        return {
+          completed: wasAlreadyCompleted,
+          passed: false,
+          score: evalResult.score,
+          totalQuestions: evalResult.totalQuestions,
+          minimumPassScore: evalResult.minimumPassScore,
+          retryRequired: true,
+          nextChapterUnlocked: wasAlreadyCompleted,
+          isFirstCompletion: false,
+          awardedXP: 0,
+          awardedCoins: 0,
+          badgeUnlocked: null,
+          progress: {
+            userId,
+            roomId,
+            chapterId: room.chapterId,
+            isCompleted: wasAlreadyCompleted,
+            highScore: Math.max(existingFallback?.highScore || 0, score),
+            starsEarned: Math.max(existingFallback?.starsEarned || 0, stars),
+            bestTimeSec: timeSpentSec,
+          },
+          stats,
+          message: `Mission not passed. Score was ${evalResult.score}/${evalResult.totalQuestions}. Complete at least ${evalResult.minimumPassScore}/${evalResult.totalQuestions} questions to unlock the next chapter.`,
+        };
+      }
+
+      // ── OFFLINE CASE B: Passed Attempt ──
       if (session) {
         session.status = 'COMPLETED';
         session.score = score;
@@ -502,7 +708,22 @@ class GameProgressService {
         fallbackBadges.set(`${userId}:${badgeName}`, badge);
       }
 
+      chapterUnlockService.recordFallbackProgress(userId, roomId, {
+        chapterId: room.chapterId,
+        isCompleted: true,
+        highScore: score,
+        starsEarned: stars,
+        bestTimeSec: timeSpentSec,
+      });
+
       return {
+        completed: true,
+        passed: true,
+        score: evalResult.score,
+        totalQuestions: evalResult.totalQuestions,
+        minimumPassScore: evalResult.minimumPassScore,
+        retryRequired: false,
+        nextChapterUnlocked: true,
         isFirstCompletion: isFirst,
         awardedXP,
         awardedCoins,
@@ -517,6 +738,9 @@ class GameProgressService {
           bestTimeSec: timeSpentSec,
         },
         stats,
+        message: isFirst
+          ? 'Congratulations! Room completed and rewards unlocked!'
+          : 'Room re-cleared successfully!',
       };
     }
   }

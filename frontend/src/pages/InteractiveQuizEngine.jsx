@@ -306,7 +306,7 @@ export default function InteractiveQuizEngine() {
     setCompletionError(null);
 
     const accuracy = totalQuestions > 0 ? Math.round((correctCount / totalQuestions) * 100) : 100;
-    const calculatedStars = accuracy >= 80 ? 3 : accuracy >= 50 ? 2 : accuracy >= 30 ? 1 : 0;
+    const calculatedStars = correctCount >= 8 ? 3 : correctCount >= 7 ? 2 : correctCount >= 5 ? 1 : 0;
 
     const targetRoomId = loadedRoomId || selectedRoomId || (activeChapter?.id?.startsWith('ch-') ? activeChapter.id.replace('ch-', 'room-') : (typeof currentRoom === 'object' ? currentRoom?.id : currentRoom));
 
@@ -327,15 +327,34 @@ export default function InteractiveQuizEngine() {
       const data = res?.data || res;
       setCompletionData(data);
 
-      markRoomCompleted(targetRoomId, activeChapter?.id);
-      refreshUserStats();
+      // Only mark completed in client navigation if server authoritatively confirms pass
+      const isPassed = data?.passed === true || (data?.passed !== false && correctCount >= 7);
+      if (isPassed) {
+        markRoomCompleted(targetRoomId, activeChapter?.id);
+        refreshUserStats();
+      }
 
       setQuizComplete(true);
       setSubmittingCompletion(false);
     } catch (err) {
       console.warn('[QuizEngine] Completion API call returned:', err.message);
-      markRoomCompleted(targetRoomId, activeChapter?.id);
-      refreshUserStats();
+      // In offline fallback, check pass threshold
+      const isPassed = correctCount >= 7;
+      if (isPassed) {
+        markRoomCompleted(targetRoomId, activeChapter?.id);
+        refreshUserStats();
+      }
+      setCompletionData({
+        passed: isPassed,
+        completed: isPassed,
+        score: correctCount,
+        totalQuestions,
+        minimumPassScore: 7,
+        retryRequired: !isPassed,
+        nextChapterUnlocked: isPassed,
+        awardedXP: isPassed ? score : 0,
+        awardedCoins: isPassed ? (accuracy >= 80 ? 100 : 50) : 0,
+      });
       setQuizComplete(true);
       setSubmittingCompletion(false);
     }
@@ -457,12 +476,16 @@ export default function InteractiveQuizEngine() {
   }
 
   // ───────────────────────────────────────────────────────────────────────────
-  // RENDER: Mission Complete Celebration Screen
+  // RENDER: Mission Complete / Result Screen (Pass >= 7/10 or Fail < 7/10)
   // ─────────────────────────────────────────────────────────────────────────
   if (quizComplete) {
-    const accuracy = totalQuestions > 0 ? Math.round((correctCount / totalQuestions) * 100) : 100;
-    const finalEarnedXP = completionData?.awardedXP ?? score;
-    const finalEarnedCoins = completionData?.awardedCoins ?? (accuracy >= 80 ? 100 : 50);
+    const isPassed = completionData?.passed === true || (completionData?.passed === undefined && correctCount >= 7);
+    const minPassScore = completionData?.minimumPassScore ?? 7;
+    const finalEarnedXP = isPassed ? (completionData?.awardedXP ?? score) : 0;
+    const finalEarnedCoins = isPassed ? (completionData?.awardedCoins ?? (correctCount >= 8 ? 100 : 50)) : 0;
+
+    const resultColor = isPassed ? accentColor : '#F43F5E';
+    const resultGlow = isPassed ? `${accentColor}25` : 'rgba(244,63,94,0.25)';
 
     return (
       <div className="relative min-h-screen bg-[#020609] text-white flex flex-col items-center justify-center p-6">
@@ -470,45 +493,71 @@ export default function InteractiveQuizEngine() {
           className="relative w-full max-w-xl rounded-3xl p-8 sm:p-10 text-center overflow-hidden"
           style={{
             background: 'linear-gradient(135deg, rgba(15,23,42,0.96), rgba(8,14,24,0.98))',
-            border: `2px solid ${accentColor}50`,
-            boxShadow: `0 0 60px ${accentColor}25`,
+            border: `2px solid ${resultColor}50`,
+            boxShadow: `0 0 60px ${resultGlow}`,
           }}
           initial={{ opacity: 0, scale: 0.9, y: 20 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
           transition={{ duration: 0.4 }}
         >
-          <HUDCorners color={accentColor} size={16} />
+          <HUDCorners color={resultColor} size={16} />
 
           <motion.div
             className="w-20 h-20 rounded-3xl mx-auto flex items-center justify-center mb-6 text-4xl shadow-xl"
-            style={{ background: `${accentColor}25`, border: `1.5px solid ${accentColor}50` }}
-            animate={{ scale: [1, 1.1, 1], rotate: [0, 5, -5, 0] }}
+            style={{
+              background: isPassed ? `${accentColor}25` : 'rgba(244,63,94,0.20)',
+              border: `1.5px solid ${resultColor}50`,
+            }}
+            animate={isPassed ? { scale: [1, 1.1, 1], rotate: [0, 5, -5, 0] } : { scale: [1, 1.05, 1] }}
             transition={{ duration: 2, repeat: Infinity }}
           >
-            🏆
+            {isPassed ? '🏆' : '⚠️'}
           </motion.div>
 
           <span
             className="inline-block px-3.5 py-1 rounded-full text-[10px] font-orbitron font-bold tracking-widest uppercase mb-3"
-            style={{ background: `${accentColor}20`, color: accentColor }}
+            style={{
+              background: isPassed ? `${accentColor}20` : 'rgba(244,63,94,0.18)',
+              color: isPassed ? accentColor : '#F43F5E',
+            }}
           >
-            MISSION COMPLETE
+            {isPassed ? 'MISSION PASSED • NEXT CHAPTER UNLOCKED' : 'MISSION NOT PASSED • RETRY REQUIRED'}
           </span>
 
           <h2 className="font-orbitron font-black text-2xl sm:text-3xl text-white mb-2">
-            Chapter Completed!
+            {isPassed ? 'Chapter Completed!' : 'Chapter Not Passed'}
           </h2>
 
           <p className="text-sm font-inter text-white/70 mb-8">
-            You successfully completed the mission for <strong>{chapterTitle}</strong> ({stdDisplayName} {subjDisplayName}). Next chapter is now unlocked!
+            {isPassed ? (
+              <>
+                You successfully passed <strong>{chapterTitle}</strong> ({stdDisplayName} {subjDisplayName}) with{' '}
+                <strong className="text-emerald-400">{correctCount}/{totalQuestions}</strong>. Next chapter is now unlocked!
+              </>
+            ) : (
+              <>
+                You scored <strong className="text-rose-400">{correctCount}/{totalQuestions}</strong>. Complete at least{' '}
+                <strong>{minPassScore}/{totalQuestions}</strong> questions correctly to pass and unlock the next chapter.
+              </>
+            )}
           </p>
 
           {/* Stats Grid */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-8">
-            <div className="p-3.5 rounded-2xl" style={{ background: `${accentColor}0d`, border: `1px solid ${accentColor}25` }}>
-              <CheckCircle2 size={16} style={{ color: accentColor, marginBottom: 4 }} />
+            <div
+              className="p-3.5 rounded-2xl"
+              style={{
+                background: isPassed ? `${accentColor}0d` : 'rgba(244,63,94,0.08)',
+                border: `1px solid ${isPassed ? `${accentColor}25` : 'rgba(244,63,94,0.25)'}`,
+              }}
+            >
+              {isPassed ? (
+                <CheckCircle2 size={16} style={{ color: accentColor, marginBottom: 4 }} />
+              ) : (
+                <XCircle size={16} className="text-rose-400 mb-1" />
+              )}
               <p className="font-orbitron font-black text-lg text-white">{correctCount}/{totalQuestions}</p>
-              <p className="text-[10px] font-space text-white/40 uppercase">Answered</p>
+              <p className="text-[10px] font-space text-white/40 uppercase">Score (Min: {minPassScore})</p>
             </div>
 
             <div className="p-3.5 rounded-2xl" style={{ background: 'rgba(251,191,36,0.08)', border: '1px solid rgba(251,191,36,0.2)' }}>
@@ -540,25 +589,35 @@ export default function InteractiveQuizEngine() {
                 setCalculationInput('');
                 setHintVisible(false);
                 setIsSubmitted(false);
+                setIsChecking(false);
                 setFeedback(null);
+                setAnswerError(null);
                 setScore(0);
                 setCorrectCount(0);
                 setWrongCount(0);
                 setQuizComplete(false);
                 setTimeSpentSeconds(0);
+                setCompletionData(null);
               }}
               className="w-full sm:w-auto px-6 py-3.5 rounded-xl font-orbitron font-bold text-xs tracking-wider uppercase flex items-center justify-center gap-2 cursor-pointer border-0 transition-transform active:scale-95"
-              style={{ background: 'rgba(255,255,255,0.08)', color: '#fff' }}
+              style={{
+                background: !isPassed ? `linear-gradient(135deg, ${accentColor}, ${accentColor}CC)` : 'rgba(255,255,255,0.08)',
+                color: !isPassed ? '#020609' : '#fff',
+                boxShadow: !isPassed ? `0 0 25px ${glowColor}` : 'none',
+              }}
             >
               <RotateCcw size={14} />
-              <span>Replay</span>
+              <span>{isPassed ? 'Replay' : 'Play Again'}</span>
             </button>
 
             <button
               type="button"
               onClick={() => navigateTo('chapters')}
-              className="w-full sm:w-auto px-6 py-3.5 rounded-xl font-orbitron font-black text-xs tracking-wider uppercase flex items-center justify-center gap-2 text-slate-950 cursor-pointer border-0 transition-transform active:scale-95 shadow-lg"
-              style={{ background: `linear-gradient(135deg, ${accentColor}, ${accentColor}CC)` }}
+              className="w-full sm:w-auto px-6 py-3.5 rounded-xl font-orbitron font-black text-xs tracking-wider uppercase flex items-center justify-center gap-2 cursor-pointer border-0 transition-transform active:scale-95 shadow-lg"
+              style={{
+                background: isPassed ? `linear-gradient(135deg, ${accentColor}, ${accentColor}CC)` : 'rgba(255,255,255,0.08)',
+                color: isPassed ? '#020609' : '#fff',
+              }}
             >
               <ArrowLeft size={14} />
               <span>Back to Chapters</span>
