@@ -52,6 +52,39 @@ const DEFAULT_TOPICS = [
     orderNumber: 6,
     isActive: true,
   },
+  // Standard 4 Math Chapter 1 Topics (Geometry & 2D Shapes)
+  {
+    id: 'topic-math4-1-1',
+    chapterId: 'ch-math4-1',
+    title: 'Properties of 2D Shapes',
+    description: 'Sides, corners, and diagonals of square, rectangle, triangle, and circle.',
+    orderNumber: 1,
+    isActive: true,
+  },
+  {
+    id: 'topic-math4-1-2',
+    chapterId: 'ch-math4-1',
+    title: 'Circle Elements: Radius & Diameter',
+    description: 'Center, circumference, radius, and diameter relationships (D = 2r).',
+    orderNumber: 2,
+    isActive: true,
+  },
+  {
+    id: 'topic-math4-1-3',
+    chapterId: 'ch-math4-1',
+    title: '3D Geometric Solids',
+    description: 'Faces, vertices, and edges of cube, cuboid, sphere, cone, and cylinder.',
+    orderNumber: 3,
+    isActive: true,
+  },
+  {
+    id: 'topic-math4-1-4',
+    chapterId: 'ch-math4-1',
+    title: 'Symmetry & Perimeter Basics',
+    description: 'Lines of symmetry in regular figures and calculating perimeter of polygons.',
+    orderNumber: 4,
+    isActive: true,
+  },
   // Standard 4 Math Chapter 2 Topics
   {
     id: 'topic-math4-2-1',

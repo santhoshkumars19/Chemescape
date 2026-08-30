@@ -509,14 +509,14 @@ export const CHAPTERS_STORE = {
   // ── Standard 4 Mathematics ──────────────────────────────────────────────────
   'grade-4:mathematics': [
     {
-      id: 'g4-math-1',
+      id: 'ch-math4-1',
       chapterNumber: 1,
-      title: 'Numbers Around Us',
-      description: 'Explore 4-digit numbers, place values, number comparison, and expanded forms.',
+      title: 'Geometry & 2D Shapes',
+      description: 'Properties of circles, rectangles, triangles, perimeter basics, and symmetrical patterns.',
       difficulty: 'Beginner',
       xpReward: 400,
       coinsReward: 100,
-      gameType: 'Number Sense Puzzle',
+      gameType: 'Interactive Quiz Engine',
       missionCode: 'MTH-0401',
     },
     {

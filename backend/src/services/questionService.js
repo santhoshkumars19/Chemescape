@@ -205,6 +205,44 @@ const DEFAULT_QUESTIONS = [
   })),
 
   // ───────────────────────────────────────────────────────────────────────────
+  // Standard 4 Mathematics Room 1 (10 Questions - room-math4-1: Geometry & 2D Shapes)
+  // ───────────────────────────────────────────────────────────────────────────
+  ...[
+    { qn: 1, text: 'How many equal sides and right angles does a square have?', hint: 'A square is a regular quadrilateral with all sides and internal angles identical.', opts: ['4 equal sides and 4 right angles', '3 equal sides and 3 right angles', '4 unequal sides and 2 right angles', '2 equal sides and 4 right angles'], ans: 0 },
+    { qn: 2, text: 'If the radius of a circle is 7 cm, what is its diameter?', hint: 'Diameter is twice the radius length (D = 2 * r).', opts: ['14 cm', '7 cm', '21 cm', '49 cm'], ans: 0 },
+    { qn: 3, text: 'How many flat square faces does a standard cube have?', hint: 'Think of a standard six-sided game die.', opts: ['6 faces', '4 faces', '8 faces', '12 faces'], ans: 0 },
+    { qn: 4, text: 'Find the perimeter of a rectangle with length 9 cm and breadth 4 cm.', hint: 'Perimeter = 2 * (length + breadth) = 2 * (9 + 4).', opts: ['26 cm', '36 cm', '13 cm', '22 cm'], ans: 0 },
+    { qn: 5, text: 'How many lines of symmetry does a regular rectangle have?', hint: 'A non-square rectangle folds onto itself along its horizontal and vertical midlines.', opts: ['2 lines of symmetry', '4 lines of symmetry', '1 line of symmetry', '8 lines of symmetry'], ans: 0 },
+    { qn: 6, text: 'What is a triangle called when all three of its sides have equal length?', hint: 'The prefix equi- signifies equal lengths on all 3 sides.', opts: ['Equilateral triangle', 'Isosceles triangle', 'Scalene triangle', 'Right-angled triangle'], ans: 0 },
+    { qn: 7, text: 'Which 3D shape has 2 circular flat faces and 1 curved surface?', hint: 'Think of an aluminum drink can or a cylindrical pipe.', opts: ['Cylinder', 'Cone', 'Sphere', 'Prism'], ans: 0 },
+    { qn: 8, text: 'What is the perimeter of a triangle with sides measuring 6 cm, 8 cm, and 10 cm?', hint: 'Add the lengths of all three boundary sides together: 6 + 8 + 10.', opts: ['24 cm', '48 cm', '14 cm', '18 cm'], ans: 0 },
+    { qn: 9, text: 'What is the measurement of a right angle in degrees?', hint: 'A right angle is the exact angle formed by the square corner of a page (90 degrees).', opts: ['90 degrees', '45 degrees', '180 degrees', '360 degrees'], ans: 0 },
+    { qn: 10, text: 'A traditional Chinese Tangram puzzle consists of how many geometric pieces?', hint: 'A standard tangram has 5 triangles, 1 square, and 1 parallelogram (7 pieces total).', opts: ['7 pieces', '5 pieces', '10 pieces', '12 pieces'], ans: 0 },
+  ].map((item) => ({
+    id: `q-math4-r1-${item.qn}`,
+    chapterId: 'ch-math4-1',
+    roomId: 'room-math4-1',
+    questionNumber: item.qn,
+    displayOrder: item.qn,
+    questionType: 'MCQ',
+    questionText: item.text,
+    description: `Standard 4 Math Ch 1 Question ${item.qn}`,
+    difficulty: item.qn <= 3 ? 'EASY' : item.qn <= 7 ? 'MEDIUM' : 'HARD',
+    points: 100,
+    timeLimit: 60,
+    hint: item.hint,
+    status: 'PUBLISHED',
+    isActive: true,
+    options: item.opts.map((opt, idx) => ({
+      id: `opt-math4-${item.qn}-${idx + 1}`,
+      optionKey: String.fromCharCode(65 + idx),
+      optionText: opt,
+      isCorrect: idx === item.ans,
+      orderNumber: idx + 1,
+    })),
+  })),
+
+  // ───────────────────────────────────────────────────────────────────────────
   // Standard 5 Tamil Room 1 (10 Questions - room-tam5-1)
   // ───────────────────────────────────────────────────────────────────────────
   ...[
