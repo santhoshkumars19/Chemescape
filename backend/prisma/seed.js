@@ -549,6 +549,54 @@ async function main() {
       badgeIcon: '💨',
     },
   });
+
+  // Demonstration room for Standard 4 Math Chapter 2
+  if (std4 && mathSubject) {
+    const ch2Fractions = await prisma.chapter.findFirst({
+      where: { standardId: std4.id, subjectId: mathSubject.id, chapterNumber: 2 },
+    });
+
+    if (ch2Fractions) {
+      await prisma.room.upsert({
+        where: {
+          chapterId_roomNumber: {
+            chapterId: ch2Fractions.id,
+            roomNumber: 1,
+          },
+        },
+        update: {
+          name: 'Fraction Bakery',
+          title: 'Fraction Bakery',
+          description: 'Bake delicious fraction pies by calculating equivalent proportions.',
+          roomType: 'PUZZLE',
+          gameType: 'CALCULATION_HEIST',
+          gameConfig: { timeLimit: 300, targetFractions: 5 },
+          difficulty: 'EASY',
+          estimatedMinutes: 10,
+          xpReward: 100,
+          coinReward: 25,
+          isActive: true,
+        },
+        create: {
+          chapterId: ch2Fractions.id,
+          roomNumber: 1,
+          name: 'Fraction Bakery',
+          title: 'Fraction Bakery',
+          description: 'Bake delicious fraction pies by calculating equivalent proportions.',
+          roomType: 'PUZZLE',
+          gameType: 'CALCULATION_HEIST',
+          gameConfig: { timeLimit: 300, targetFractions: 5 },
+          difficulty: 'EASY',
+          estimatedMinutes: 10,
+          xpReward: 100,
+          coinReward: 25,
+          isActive: true,
+        },
+      });
+      console.log(' ✔ Room seeded: Standard 4 Math Chapter 2 Room 1 (Fraction Bakery)');
+    }
+  }
+
   console.log(' ✔ Game Engine & Reward configurations seeded for Rooms 1-4 & Gas Simulator');
 
   console.log('\n[SEED] Game Engine Infrastructure Seeding Complete!');

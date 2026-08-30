@@ -180,23 +180,29 @@ model Topic {
 }
 
 model Room {
-  id          String   @id @default(uuid())
-  chapterId   String
-  roomNumber  Int
-  name        String
-  description String?  @db.Text
-  roomType    RoomType @default(PUZZLE)
-  gameType    GameType @default(CALCULATION_HEIST)
-  gameConfig  Json?
-  orderNumber Int
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id               String             @id @default(uuid())
+  chapterId        String
+  roomNumber       Int
+  name             String
+  title            String?
+  description      String?            @db.Text
+  roomType         RoomType           @default(PUZZLE)
+  gameType         GameType           @default(CALCULATION_HEIST)
+  gameConfig       Json?
+  difficulty       Difficulty         @default(MEDIUM)
+  estimatedMinutes Int                @default(15)
+  xpReward         Int                @default(100)
+  coinReward       Int                @default(25)
+  orderNumber      Int                @default(0)
+  isActive         Boolean            @default(true)
+  createdAt        DateTime           @default(now())
+  updatedAt        DateTime           @updatedAt
 
-  chapter     Chapter            @relation(fields: [chapterId], references: [id], onDelete: Cascade)
-  questions   Question[]
-  progress    UserGameProgress[]
-  sessions    GameSession[]
-  reward      GameReward?
+  chapter          Chapter            @relation(fields: [chapterId], references: [id], onDelete: Cascade)
+  questions        Question[]
+  progress         UserGameProgress[]
+  sessions         GameSession[]
+  reward           GameReward?
 
   @@unique([chapterId, roomNumber])
   @@map("rooms")
