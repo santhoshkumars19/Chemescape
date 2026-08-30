@@ -45,7 +45,7 @@ const scopedSetJSON = (userId, key, value) => {
   try { localStorage.setItem(k, JSON.stringify(value)); } catch { /* non-fatal */ }
 };
 
-// Remove the old GLOBAL (non-scoped) keys left by previous sessions
+// Remove old GLOBAL (non-scoped) keys left by previous sessions
 const removeGlobalLegacyKeys = () => {
   const LEGACY = [
     'chemescape_completedRooms',
@@ -65,15 +65,60 @@ export function NavigationProvider({ children }) {
   // ── Navigation ────────────────────────────────────────────────────────────
   const [currentScreen, setCurrentScreen] = useState('landing');
 
-  // ── Syllabus Selection (not user-specific — safe to keep globally) ─────────
-  const [selectedStandardId, setSelectedStandardId] = useState(null);
-  const [selectedStandard, setSelectedStandard]     = useState(null);
-  const [selectedSubjectId, setSelectedSubjectId]   = useState(null);
-  const [selectedSubject, setSelectedSubject]       = useState(null);
-  const [selectedChapterId, setSelectedChapterId]   = useState(null);
-  const [selectedChapter, setSelectedChapter]       = useState(null);
-  const [selectedRoomId, setSelectedRoomId]         = useState(null);
-  const [currentRoom, setCurrentRoom]               = useState('room1');
+  // ── Syllabus Selection (Isolated & Cascade Cleaned) ───────────────────────
+  const [selectedStandardId, setSelectedStandardIdRaw] = useState(null);
+  const [selectedStandard, setSelectedStandardRaw]     = useState(null);
+  const [selectedSubjectId, setSelectedSubjectIdRaw]   = useState(null);
+  const [selectedSubject, setSelectedSubjectRaw]       = useState(null);
+  const [selectedChapterId, setSelectedChapterIdRaw]   = useState(null);
+  const [selectedChapter, setSelectedChapterRaw]       = useState(null);
+  const [selectedRoomId, setSelectedRoomIdRaw]         = useState(null);
+  const [currentRoom, setCurrentRoomRaw]               = useState('room1');
+
+  // Cascade-safe setters
+  const setSelectedStandardId = useCallback((stdId) => {
+    setSelectedStandardIdRaw(stdId);
+    setSelectedSubjectIdRaw(null);
+    setSelectedSubjectRaw('');
+    setSelectedChapterIdRaw(null);
+    setSelectedChapterRaw(null);
+    setSelectedRoomIdRaw(null);
+    setCurrentRoomRaw(null);
+  }, []);
+
+  const setSelectedStandard = useCallback((stdName) => {
+    setSelectedStandardRaw(stdName);
+  }, []);
+
+  const setSelectedSubjectId = useCallback((subjId) => {
+    setSelectedSubjectIdRaw(subjId);
+    setSelectedChapterIdRaw(null);
+    setSelectedChapterRaw(null);
+    setSelectedRoomIdRaw(null);
+    setCurrentRoomRaw(null);
+  }, []);
+
+  const setSelectedSubject = useCallback((subjName) => {
+    setSelectedSubjectRaw(subjName);
+  }, []);
+
+  const setSelectedChapterId = useCallback((chapId) => {
+    setSelectedChapterIdRaw(chapId);
+    setSelectedRoomIdRaw(null);
+    setCurrentRoomRaw(null);
+  }, []);
+
+  const setSelectedChapter = useCallback((chapObj) => {
+    setSelectedChapterRaw(chapObj);
+  }, []);
+
+  const setSelectedRoomId = useCallback((roomId) => {
+    setSelectedRoomIdRaw(roomId);
+  }, []);
+
+  const setCurrentRoom = useCallback((roomObj) => {
+    setCurrentRoomRaw(roomObj);
+  }, []);
 
   // ── User-specific progress (starts empty — loaded per-user after login) ──
   const [completedRooms, setCompletedRooms]     = useState([]);
@@ -121,7 +166,7 @@ export function NavigationProvider({ children }) {
     }
   }, [lives, nextLifeRegenTime]);
 
-  // Timed Life Regeneration Check (runs only when lives < 3, checks every 2s without state mutation if target not reached)
+  // Timed Life Regeneration Check
   useEffect(() => {
     if (lives >= 3) {
       if (nextLifeRegenTime !== null) setNextLifeRegenTime(null);
@@ -137,7 +182,6 @@ export function NavigationProvider({ children }) {
     const interval = setInterval(() => {
       const now = Date.now();
       if (now >= targetTime) {
-        // Calculate how many 10-minute intervals passed while offline/idle
         const elapsedSinceTarget = now - targetTime;
         const additionalGained = 1 + Math.floor(elapsedSinceTarget / REGEN_INTERVAL_MS);
 
@@ -157,7 +201,6 @@ export function NavigationProvider({ children }) {
     return () => clearInterval(interval);
   }, [lives, nextLifeRegenTime]);
 
-  // Deduct Life helper
   const deductLife = useCallback((amount = 1) => {
     setLives((prevLives) => {
       const nextLives = Math.max(0, prevLives - amount);
@@ -173,7 +216,6 @@ export function NavigationProvider({ children }) {
     });
   }, [nextLifeRegenTime]);
 
-  // Gain Life helper
   const gainLife = useCallback((amount = 1) => {
     setLives((prevLives) => {
       const nextLives = Math.min(3, prevLives + amount);
@@ -182,11 +224,6 @@ export function NavigationProvider({ children }) {
     });
   }, []);
 
-  // ─────────────────────────────────────────────────────────────────────────
-  // clearProgressState — MUST be called on logout and before loading a new user.
-  // Wipes every piece of in-memory game progress so User A's data can never
-  // bleed into User B's session.
-  // ─────────────────────────────────────────────────────────────────────────
   const clearProgressState = useCallback(() => {
     setCompletedRooms([]);
     setXp(0);
@@ -195,21 +232,17 @@ export function NavigationProvider({ children }) {
     setStreak(1);
     setUserBadges([]);
     setUserProgressList([]);
-    // Clear subject/standard selection so they don't leak between users
-    setSelectedSubjectId(null);
-    setSelectedSubject('');
-    setSelectedStandardId(null);
-    setSelectedStandard('');
-    // Also blow away the old non-scoped legacy keys
+    setSelectedSubjectIdRaw(null);
+    setSelectedSubjectRaw('');
+    setSelectedStandardIdRaw(null);
+    setSelectedStandardRaw('');
+    setSelectedChapterIdRaw(null);
+    setSelectedChapterRaw(null);
+    setSelectedRoomIdRaw(null);
+    setCurrentRoomRaw(null);
     removeGlobalLegacyKeys();
   }, []);
 
-  // ─────────────────────────────────────────────────────────────────────────
-  // refreshUserStats — fetch progress for a specific authenticated user.
-  // Accepts userId so the caller can pass the JUST-logged-in user's id,
-  // preventing any race between token storage and fetch.
-  // REPLACES (never merges) completedRooms to avoid cross-user contamination.
-  // ─────────────────────────────────────────────────────────────────────────
   const refreshUserStats = useCallback(async (userId = null) => {
     const token = localStorage.getItem('chemescape_token');
     if (!token) return;
@@ -227,28 +260,23 @@ export function NavigationProvider({ children }) {
       if (Array.isArray(data.badges))       setUserBadges(data.badges);
       if (Array.isArray(data.progress))     setUserProgressList(data.progress);
 
-      // ── KEY FIX: REPLACE, never merge ──────────────────────────────────
       if (Array.isArray(data.completedList)) {
         const backendRooms = data.completedList
           .map(p => p.roomId || p.room?.id)
           .filter(Boolean);
-        // Overwrite completely — do NOT spread `prev` here
         setCompletedRooms(backendRooms);
-
-        // Persist scoped to this user
         if (userId) scopedSetJSON(userId, 'completedRooms', backendRooms);
       }
 
-      // ── Restore user-scoped preferences (standard & subject) ─────────────
       if (userId) {
         const prefs = scopedGetJSON(userId, 'preferences');
         if (prefs?.selectedStandardId) {
-          setSelectedStandardId(prefs.selectedStandardId);
-          setSelectedStandard(prefs.selectedStandardName || '');
+          setSelectedStandardIdRaw(prefs.selectedStandardId);
+          setSelectedStandardRaw(prefs.selectedStandardName || '');
         }
         if (prefs?.selectedSubjectId) {
-          setSelectedSubjectId(prefs.selectedSubjectId);
-          setSelectedSubject(prefs.selectedSubjectName || '');
+          setSelectedSubjectIdRaw(prefs.selectedSubjectId);
+          setSelectedSubjectRaw(prefs.selectedSubjectName || '');
         }
       }
     } catch (err) {
@@ -274,14 +302,31 @@ export function NavigationProvider({ children }) {
       return;
     }
 
-    if (params.standardId) setSelectedStandardId(params.standardId);
-    if (params.standard)   setSelectedStandard(params.standard);
-    if (params.subjectId)  setSelectedSubjectId(params.subjectId);
-    if (params.subject)    setSelectedSubject(params.subject);
-    if (params.chapterId)  setSelectedChapterId(params.chapterId);
-    if (params.chapter)    setSelectedChapter(params.chapter);
-    if (params.roomId)     setSelectedRoomId(params.roomId);
-    if (params.room)       setCurrentRoom(params.room);
+    if (params.standardId !== undefined) {
+      setSelectedStandardIdRaw(params.standardId);
+      if (params.standard) setSelectedStandardRaw(params.standard);
+      if (params.subjectId === undefined) {
+        setSelectedSubjectIdRaw(null);
+        setSelectedSubjectRaw('');
+        setSelectedChapterIdRaw(null);
+        setSelectedChapterRaw(null);
+      }
+    }
+    if (params.subjectId !== undefined) {
+      setSelectedSubjectIdRaw(params.subjectId);
+      if (params.subject) setSelectedSubjectRaw(params.subject);
+      if (params.chapterId === undefined) {
+        setSelectedChapterIdRaw(null);
+        setSelectedChapterRaw(null);
+      }
+    }
+    if (params.chapterId !== undefined) {
+      setSelectedChapterIdRaw(params.chapterId);
+      if (params.chapter) setSelectedChapterRaw(params.chapter);
+    }
+    if (params.roomId !== undefined) setSelectedRoomIdRaw(params.roomId);
+    if (params.room !== undefined) setCurrentRoomRaw(params.room);
+
     setCurrentScreen(screen);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }, [lives]);

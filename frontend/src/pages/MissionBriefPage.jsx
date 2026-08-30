@@ -9,17 +9,18 @@ import {
   getChapterStatus,
   getSubjectsForStandard,
 } from '../config/curriculumConfig';
+import { GAME_REGISTRY, getGameEndpointByGameType } from '../games/gameRegistry';
 import {
   ArrowLeft, Zap, Clock, Target, Shield, Star,
   ChevronRight, Rocket, AlertTriangle, CheckCircle,
   Crosshair, Radio, Map, Trophy, Sparkles, Play,
   FlaskConical, Lock, Award, SkipForward, RotateCcw,
-  Heart, BookOpen, GraduationCap, CheckCircle2,
+  Heart, BookOpen, GraduationCap, CheckCircle2, X,
 } from 'lucide-react';
 
-// ─── Standard Chemistry Mission Presets ─────────────────────────────────────────
+// ─── Standard 11 Chemistry Mission Presets ───────────────────────────────────────
 const CHEMISTRY_MISSIONS = {
-  'chap-1': {
+  1: {
     missionCode: 'MSN-0011',
     missionName: 'The Mole Vault',
     subtitle: 'A race against chemical conversion',
@@ -58,7 +59,7 @@ const CHEMISTRY_MISSIONS = {
     threatLevel: 'Low',
     threatColor: '#22d3ee',
   },
-  'chap-2': {
+  2: {
     missionCode: 'MSN-0022',
     missionName: 'Quantum Core Breach',
     subtitle: 'Electrons hold the master key',
@@ -97,7 +98,7 @@ const CHEMISTRY_MISSIONS = {
     threatLevel: 'Moderate',
     threatColor: '#00d4ff',
   },
-  'chap-3': {
+  3: {
     missionCode: 'MSN-0033',
     missionName: 'Periodic Grid Reconstruction',
     subtitle: 'The elements are your only allies',
@@ -136,7 +137,7 @@ const CHEMISTRY_MISSIONS = {
     threatLevel: 'Moderate',
     threatColor: '#a78bfa',
   },
-  'chap-4': {
+  4: {
     missionCode: 'MSN-0044',
     missionName: 'Hydrogen Reactor Terminal',
     subtitle: 'Control the simplest element, harness immense power',
@@ -158,35 +159,34 @@ const CHEMISTRY_MISSIONS = {
       'Position of Hydrogen & Isotopes (Protium, Deuterium, Tritium)',
       'Hydrides (Ionic, Covalent, Interstitial)',
       'Water & Heavy Water (D2O)',
-      'Hydrogen Peroxide & Hydrogen Economy',
+      'Hydrogen Peroxide (H2O2) & Hydrogen Economy',
     ],
     story: [
-      'The hydrogen fuel cell generation unit has lost automated isotope balance regulation.',
-      'Control hydrogen combustion rates, balance isotope pressure chambers, and synthesize heavy water moderators.',
-      'Stabilize all four reactor injectors to bring the power grid back online safely.',
+      'An emergency at the clean-energy Hydrogen Substation requires manual isotopic calibration before reactor rods melt down.',
+      'Balance isotope ratios of Protium and Deuterium, purify heavy water containment vats, and stabilize hydrogen storage tanks.',
     ],
     objectives: [
-      { text: 'Separate protium from deuterium isotopes', done: false },
-      { text: 'Regulate covalent hydride fuel injectors', done: false },
-      { text: 'Neutralize excess peroxide in the cooling channel', done: false },
-      { text: 'Engage the clean hydrogen fuel cell master switch', done: false },
+      { text: 'Separate and balance Hydrogen isotopes by atomic mass', done: false },
+      { text: 'Configure ionic and covalent hydride fuel cells', done: false },
+      { text: 'Analyze heavy water decomposition kinetics', done: false },
+      { text: 'Complete thermal regulation cycle for Hydrogen economy fuel system', done: false },
     ],
-    tacticalNotes: 'Heavy water moderates neutrons. Monitor temperature differentials closely.',
+    tacticalNotes: 'Deuterium contains one proton and one neutron. Heavy water D2O has higher boiling point.',
     threatLevel: 'High',
-    threatColor: '#f59e0b',
+    threatColor: '#7c3aed',
   },
-  'chap-5': {
+  5: {
     missionCode: 'MSN-0055',
     missionName: 'Element Sorting Factory',
-    subtitle: 'Flame tests and alkali reactions',
+    subtitle: 'Alkali and alkaline earth elements in motion',
     accentColor: '#f97316',
     glowColor: 'rgba(249,115,22,0.4)',
     difficultyLabel: 'Advanced',
     difficultyLevel: 3,
-    timeEst: '4h',
-    xp: 900,
-    coins: 240,
-    badgeName: 'Metal Master',
+    timeEst: '5h',
+    xp: 850,
+    coins: 220,
+    badgeName: 'Master Metallurgist',
     badgeIcon: '🔥',
     badgeRarity: 'Rare',
     rooms: 3,
@@ -194,9 +194,9 @@ const CHEMISTRY_MISSIONS = {
     gameType: 'METAL_SORTING',
     gameScreen: 'metal-sorting',
     topics: [
-      'Group 1 Alkali Metals: Physical & Chemical Trends',
-      'Group 2 Alkaline Earth Metals: Reactivity & Solubility',
-      'Flame Test Emission Spectra',
+      'Group 1: Alkali Metals (Li, Na, K, Rb, Cs)',
+      'Group 2: Alkaline Earth Metals (Be, Mg, Ca, Sr, Ba)',
+      'Flame Test Colors & Reactivity with Water',
       'Important Compounds of Calcium & Sodium',
     ],
     story: [
@@ -213,7 +213,7 @@ const CHEMISTRY_MISSIONS = {
     threatLevel: 'High',
     threatColor: '#f97316',
   },
-  'chap-6': {
+  6: {
     missionCode: 'MSN-0066',
     missionName: 'Gas Chamber Simulator',
     subtitle: 'Ideal laws and molecular velocities',
@@ -357,7 +357,7 @@ export default function MissionBriefPage() {
   // ── 1. Resolve Standard & Subject Context ───────────────────────────────────
   const resolvedStdId = selectedStandardId || 'grade-11';
   const resolvedSubjId = selectedSubjectId || 'chemistry';
-  const stdDisplayName = selectedStandard || (resolvedStdId === 'grade-4' ? '4th Standard' : '11th Standard');
+  const stdDisplayName = selectedStandard || (resolvedStdId === 'grade-4' ? '4th Standard' : resolvedStdId === 'grade-5' ? '5th Standard' : '11th Standard');
   const subjDisplayName = selectedSubject || (resolvedSubjId.charAt(0).toUpperCase() + resolvedSubjId.slice(1));
 
   // ── 2. Resolve Chapter & Chapters List ──────────────────────────────────────
@@ -389,111 +389,111 @@ export default function MissionBriefPage() {
   }, [activeChapter, chapterIndex, chaptersList, completedRooms, userProgressList]);
 
   // ── 4. Build Mission Configuration (Dynamic or Presets) ─────────────────────
-  const mission = useMemo(() => {
-    // Check if chemistry preset exists
-    const chemKey = activeChapter?.id || `chap-${chapterIndex + 1}`;
-    if (resolvedSubjId === 'chemistry' && CHEMISTRY_MISSIONS[chemKey]) {
+  const isChemistry11 = (resolvedStdId === 'grade-11' || resolvedStdId === 'std-11') && (resolvedSubjId === 'chemistry' || resolvedSubjId === 'subj-chem');
+
+  const { mission, isPlayable, targetScreen } = useMemo(() => {
+    const chNum = activeChapter?.chapterNumber || chapterIndex + 1;
+
+    // 1. Check if Standard 11 Chemistry preset exists
+    if (isChemistry11 && CHEMISTRY_MISSIONS[chNum]) {
+      const chemPreset = CHEMISTRY_MISSIONS[chNum];
       return {
-        ...CHEMISTRY_MISSIONS[chemKey],
-        chapterTitle: activeChapter?.title || CHEMISTRY_MISSIONS[chemKey].missionName,
-        chapterNumber: activeChapter?.chapterNumber || chapterIndex + 1,
+        mission: {
+          ...chemPreset,
+          chapterTitle: activeChapter?.title || chemPreset.missionName,
+          chapterNumber: chNum,
+        },
+        isPlayable: true,
+        targetScreen: chemPreset.gameScreen || 'calculation-heist',
       };
     }
 
-    // Generic dynamic mission generation for all other subjects/chapters
+    // 2. Generic dynamic mission generation for all other subjects/chapters
     const subjects = getSubjectsForStandard(resolvedStdId);
     const subjConfig = subjects.find(s => s.id === resolvedSubjId);
     const accent = subjConfig?.color || '#10B981';
 
-    const chNum = activeChapter?.chapterNumber || chapterIndex + 1;
     const chTitle = activeChapter?.title || `Chapter ${chNum}`;
     const chDesc = activeChapter?.description || `Master key ${subjDisplayName} concepts in this interactive learning unit.`;
 
+    // Strict game registry lookup — never fallback to Chemistry games
+    let registeredEndpoint = null;
+    if (activeChapter?.gameType) {
+      const endpoint = getGameEndpointByGameType(activeChapter.gameType);
+      if (endpoint && GAME_REGISTRY[endpoint?.toUpperCase()?.replace(/-/g, '_')]?.subject === resolvedSubjId) {
+        registeredEndpoint = endpoint;
+      }
+    }
+
+    const playable = Boolean(registeredEndpoint);
+
     return {
-      missionCode: activeChapter?.missionCode || `MSN-${chNum.toString().padStart(2, '0')}`,
-      missionName: chTitle,
-      subtitle: `Master ${subjDisplayName} — Chapter ${chNum}`,
-      accentColor: accent,
-      glowColor: `${accent}40`,
-      difficultyLabel: activeChapter?.difficulty || (chNum <= 2 ? 'Beginner' : chNum <= 4 ? 'Intermediate' : 'Advanced'),
-      difficultyLevel: chNum <= 2 ? 1 : chNum <= 4 ? 2 : 3,
-      timeEst: `${3 + chNum * 0.5}h`,
-      xp: activeChapter?.xpReward || (400 + chNum * 50),
-      coins: activeChapter?.coinsReward || (100 + chNum * 15),
-      badgeName: `${subjDisplayName} Specialist`,
-      badgeIcon: '🏅',
-      badgeRarity: chNum <= 2 ? 'Common' : 'Uncommon',
-      rooms: 3,
-      classification: 'ALPHA',
-      gameType: activeChapter?.gameType || `${subjDisplayName} Interactive Quest`,
-      gameScreen: 'lab',
-      topics: [
-        `${chTitle} Core Concepts`,
-        'Interactive Problem Solving & Analysis',
-        'Practical Applications & Calculation',
-        'Unit Mastery & Assessment',
-      ],
-      story: [
-        `Welcome to ${chTitle}. This mission is designed to build foundational mastery in ${stdDisplayName} ${subjDisplayName}.`,
-        `Complete each interactive problem systematically to unlock progression points and advance along your adventure map.`,
-        `Every correct answer earns XP and contributes toward unlocking your subject mastery certificate.`,
-      ],
-      objectives: [
-        { text: `Understand and apply key concepts of ${chTitle}`, done: false },
-        { text: 'Solve the primary interactive unit challenges', done: false },
-        { text: 'Score minimum 80% accuracy in the assessment stage', done: false },
-        { text: 'Claim your chapter completion rewards and advance', done: false },
-      ],
-      tacticalNotes: `Focus on accuracy and review mistakes to maximize XP gains.`,
-      threatLevel: 'Standard',
-      threatColor: accent,
-      chapterTitle: chTitle,
-      chapterNumber: chNum,
+      mission: {
+        missionCode: activeChapter?.missionCode || `MSN-${chNum.toString().padStart(2, '0')}`,
+        missionName: chTitle,
+        subtitle: `Master ${subjDisplayName} — Chapter ${chNum}`,
+        accentColor: accent,
+        glowColor: `${accent}40`,
+        difficultyLabel: activeChapter?.difficulty || (chNum <= 2 ? 'Beginner' : chNum <= 4 ? 'Intermediate' : 'Advanced'),
+        difficultyLevel: chNum <= 2 ? 1 : chNum <= 4 ? 2 : 3,
+        timeEst: `${3 + chNum * 0.5}h`,
+        xp: activeChapter?.xpReward || (400 + chNum * 50),
+        coins: activeChapter?.coinsReward || (100 + chNum * 15),
+        badgeName: `${subjDisplayName} Specialist`,
+        badgeIcon: '🏅',
+        badgeRarity: chNum <= 2 ? 'Common' : 'Uncommon',
+        rooms: 3,
+        classification: 'ALPHA',
+        gameType: activeChapter?.gameType || `${subjDisplayName} Interactive Quest`,
+        gameScreen: registeredEndpoint,
+        topics: [
+          `${chTitle} Core Concepts`,
+          'Interactive Problem Solving & Analysis',
+          'Practical Applications & Calculation',
+          'Unit Mastery & Assessment',
+        ],
+        story: [
+          `Welcome to ${chTitle}. This mission is designed to build foundational mastery in ${stdDisplayName} ${subjDisplayName}.`,
+          `Complete each interactive problem systematically to unlock progression points and advance along your adventure map.`,
+          `Every correct answer earns XP and contributes toward unlocking your subject mastery certificate.`,
+        ],
+        objectives: [
+          { text: `Understand and apply key concepts of ${chTitle}`, done: false },
+          { text: 'Solve the primary interactive unit challenges', done: false },
+          { text: 'Score minimum 80% accuracy in the assessment stage', done: false },
+          { text: 'Claim your chapter completion rewards and advance', done: false },
+        ],
+        tacticalNotes: `Focus on accuracy and review mistakes to maximize XP gains.`,
+        threatLevel: 'Standard',
+        threatColor: accent,
+        chapterTitle: chTitle,
+        chapterNumber: chNum,
+      },
+      isPlayable: playable,
+      targetScreen: registeredEndpoint,
     };
-  }, [activeChapter, chapterIndex, resolvedSubjId, resolvedStdId, subjDisplayName, stdDisplayName]);
+  }, [activeChapter, chapterIndex, isChemistry11, resolvedSubjId, resolvedStdId, subjDisplayName, stdDisplayName]);
 
   // ── 5. Component State ───────────────────────────────────────────────────────
-  const [phase, setPhase] = useState('brief'); // brief | ready
   const [launching, setLaunching] = useState(false);
+  const [comingSoonModalOpen, setComingSoonModalOpen] = useState(false);
 
   // ── 6. Game Launch Handler ──────────────────────────────────────────────────
-  const handleLaunch = useCallback(async () => {
+  const handleLaunch = useCallback(() => {
     // Block locked chapters
     if (!chapterStatus.isUnlocked) return;
 
-    setLaunching(true);
-
-    try {
-      const { getGameEndpointByGameType } = await import('../games/gameRegistry');
-      let targetScreen = 'calculation-heist';
-
-      // Check explicit gameType
-      const gameTypeKey = (mission.gameType || '').toUpperCase().replace(/[-\s]/g, '_');
-      if (mission.gameScreen) {
-        targetScreen = mission.gameScreen;
-      } else if (gameTypeKey && getGameEndpointByGameType) {
-        targetScreen = getGameEndpointByGameType(gameTypeKey);
-      }
-
-      // Specific fallbacks for Chemistry Units 1–6
-      const cid = String(activeChapter?.id || '');
-      const cTitle = String(activeChapter?.title || '');
-      if (cid.includes('chap-2') || cid.includes('ch-2') || cTitle.includes('Atom')) targetScreen = 'quantum-architect';
-      else if (cid.includes('chap-3') || cid.includes('ch-3') || cTitle.includes('Periodic')) targetScreen = 'grid-reconstruction';
-      else if (cid.includes('chap-4') || cid.includes('ch-4') || cTitle.includes('Hydrogen')) targetScreen = 'hydrogen-reactor';
-      else if (cid.includes('chap-5') || cid.includes('ch-5') || cTitle.includes('Metal') || cTitle.includes('s-Block')) targetScreen = 'metal-sorting';
-      else if (cid.includes('chap-6') || cid.includes('ch-6') || cTitle.includes('Gas')) targetScreen = 'gas-simulator';
-      else if (cid.includes('chap-1') || cid.includes('ch-1') || cTitle.includes('Mole') || cTitle.includes('Basic Concepts')) targetScreen = 'calculation-heist';
-
-      setTimeout(() => {
-        navigateTo(targetScreen);
-      }, 1000);
-    } catch {
-      setTimeout(() => {
-        navigateTo('calculation-heist');
-      }, 1000);
+    // If game is not playable / content not configured yet
+    if (!isPlayable || !targetScreen) {
+      setComingSoonModalOpen(true);
+      return;
     }
-  }, [chapterStatus.isUnlocked, mission, activeChapter, navigateTo]);
+
+    setLaunching(true);
+    setTimeout(() => {
+      navigateTo(targetScreen);
+    }, 1000);
+  }, [chapterStatus.isUnlocked, isPlayable, targetScreen, navigateTo]);
 
   const color = mission.accentColor;
   const glow = mission.glowColor;
@@ -504,15 +504,99 @@ export default function MissionBriefPage() {
   // ── Button Text & State ──────────────────────────────────────────────────────
   const actionButtonText = isLocked
     ? `Chapter Locked (Complete Chapter ${chapterIndex} First)`
-    : isCompleted
-      ? 'Replay Mission'
-      : isInProgress
-        ? 'Continue Mission'
-        : 'Start Mission';
+    : !isPlayable
+      ? 'Mission Content Coming Soon'
+      : isCompleted
+        ? 'Replay Mission'
+        : isInProgress
+          ? 'Continue Mission'
+          : 'Start Mission';
 
   return (
     <div className="relative min-h-screen bg-[#020609] text-white overflow-x-hidden flex flex-col pb-16">
       <ScanlineOverlay />
+
+      {/* ── Coming Soon / Unconfigured Content Modal ── */}
+      <AnimatePresence>
+        {comingSoonModalOpen && (
+          <motion.div
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+          >
+            <motion.div
+              className="relative w-full max-w-lg rounded-3xl p-6 sm:p-8 overflow-hidden text-center"
+              style={{
+                background: 'linear-gradient(135deg, rgba(15,23,42,0.95), rgba(8,14,24,0.98))',
+                border: `1.5px solid ${color}40`,
+                boxShadow: `0 0 50px ${color}25`,
+              }}
+              initial={{ scale: 0.9, y: 20 }}
+              animate={{ scale: 1, y: 0 }}
+              exit={{ scale: 0.9, y: 20 }}
+            >
+              <button
+                type="button"
+                onClick={() => setComingSoonModalOpen(false)}
+                className="absolute top-4 right-4 p-2 rounded-full text-white/50 hover:text-white bg-white/5 hover:bg-white/10 cursor-pointer border-0"
+              >
+                <X size={18} />
+              </button>
+
+              <div
+                className="w-16 h-16 rounded-2xl mx-auto flex items-center justify-center mb-5 text-3xl"
+                style={{ background: `${color}18`, border: `1px solid ${color}35` }}
+              >
+                🚀
+              </div>
+
+              <span
+                className="inline-block px-3 py-1 rounded-full text-[10px] font-orbitron font-bold tracking-widest uppercase mb-3"
+                style={{ background: `${color}18`, color }}
+              >
+                Mission In Development
+              </span>
+
+              <h3 className="font-orbitron font-black text-xl sm:text-2xl text-white mb-2">
+                No Mission Content Available Yet
+              </h3>
+
+              <p className="text-sm font-inter text-white/70 leading-relaxed mb-6">
+                Interactive mission games for <strong style={{ color }}>{stdDisplayName} {subjDisplayName}</strong> — <em>{mission.missionName}</em> are currently being engineered.
+              </p>
+
+              <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setComingSoonModalOpen(false);
+                    navigateTo('chapters');
+                  }}
+                  className="w-full sm:w-auto px-6 py-3 rounded-xl font-orbitron font-bold text-xs tracking-wider uppercase flex items-center justify-center gap-2 cursor-pointer border-0 transition-transform active:scale-95"
+                  style={{ background: 'rgba(255,255,255,0.1)', color: '#fff' }}
+                >
+                  <ArrowLeft size={14} />
+                  <span>Back to Chapters</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    setComingSoonModalOpen(false);
+                    navigateTo('select-subject');
+                  }}
+                  className="w-full sm:w-auto px-6 py-3 rounded-xl font-orbitron font-black text-xs tracking-wider uppercase flex items-center justify-center gap-2 text-slate-950 cursor-pointer border-0 transition-transform active:scale-95"
+                  style={{ background: `linear-gradient(135deg, ${color}, ${color}CC)` }}
+                >
+                  <Sparkles size={14} />
+                  <span>Explore Other Subjects</span>
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* ── Launch Sequence Overlay ── */}
       <AnimatePresence>
@@ -568,88 +652,103 @@ export default function MissionBriefPage() {
         <div className="absolute top-0 left-0 w-full h-full" style={{ background: 'radial-gradient(ellipse 60% 50% at 20% 50%, rgba(0,0,0,0.8) 0%, transparent 70%)' }} />
         <motion.div
           className="absolute top-1/2 right-0 w-[500px] h-[500px] rounded-full -translate-y-1/2"
-          style={{ background: `radial-gradient(circle, ${glow} 0%, transparent 70%)` }}
-          animate={{ scale: [1, 1.08, 1] }}
-          transition={{ duration: 5, repeat: Infinity }}
+          style={{ background: `radial-gradient(circle, ${glow} 0%, transparent 70%)`, filter: 'blur(80px)' }}
+          animate={{ scale: [1, 1.15, 1], opacity: [0.35, 0.55, 0.35] }}
+          transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
         />
       </div>
-      <div className="fixed inset-0 lab-grid opacity-15 pointer-events-none z-0" />
 
-      {/* ── Top Navigation Bar ── */}
-      <div
-        className="relative z-20 flex items-center justify-between px-4 sm:px-10 py-5"
-        style={{ borderBottom: `1px solid ${color}20` }}
-      >
+      {/* ── TOP NAV BAR ── */}
+      <header className="relative z-20 border-b border-white/10 px-4 sm:px-8 py-4 flex items-center justify-between backdrop-blur-md bg-black/30">
         <button
           type="button"
           onClick={() => navigateTo('chapters')}
-          id="brief-back-btn"
-          className="inline-flex items-center gap-2 text-white/50 hover:text-white font-space text-xs sm:text-sm transition-colors group bg-transparent border-0 cursor-pointer"
+          className="flex items-center gap-2 text-xs font-space font-medium text-white/70 hover:text-white bg-transparent border-0 cursor-pointer transition-colors"
         >
-          <ArrowLeft size={15} className="group-hover:-translate-x-1 transition-transform" />
-          Back to Chapter Map
+          <ArrowLeft size={16} />
+          <span>Chapter Map</span>
         </button>
 
-        {/* Standard + Subject Breadcrumbs */}
         <div className="flex items-center gap-2">
-          <span
-            className="flex items-center gap-1.5 px-3 py-1 rounded-xl text-xs font-space font-semibold"
-            style={{ background: `${color}15`, border: `1px solid ${color}30`, color }}
-          >
-            <GraduationCap size={12} />
-            {stdDisplayName} › {subjDisplayName}
+          <span className="text-[10px] font-orbitron font-bold tracking-widest uppercase px-3 py-1 rounded-full bg-white/5 border border-white/10 text-white/70">
+            {stdDisplayName} • {subjDisplayName}
           </span>
         </div>
-      </div>
 
-      {/* ── Main Briefing Layout ── */}
-      <div className="relative z-10 flex-1 px-4 sm:px-10 py-6 max-w-6xl mx-auto w-full">
+        <div className="flex items-center gap-4 text-xs font-space">
+          <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-rose-500/10 border border-rose-500/20 text-rose-400">
+            <Heart size={13} className="fill-rose-400" />
+            <span>{lives} / 3 Lives</span>
+          </div>
+        </div>
+      </header>
 
-        {/* ── LOCKED STATE BANNER (if locked) ── */}
-        {isLocked && (
-          <motion.div
-            className="mb-6 p-4 rounded-2xl flex items-center gap-3 border"
-            style={{ background: 'rgba(245,158,11,0.10)', borderColor: 'rgba(245,158,11,0.30)', color: '#FBBF24' }}
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-          >
-            <Lock size={18} className="flex-shrink-0" />
-            <div className="text-xs sm:text-sm font-inter">
-              <strong>Mission Locked:</strong> Complete Chapter {chapterIndex} in the learning journey to unlock this mission.
-            </div>
-          </motion.div>
-        )}
-
-        <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
+      {/* ── MAIN CONTENT ── */}
+      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 flex-1 w-full">
+        <div className="grid grid-cols-1 lg:grid-cols-5 gap-8 items-start">
 
           {/* ════ LEFT COLUMN (3/5) ════ */}
           <div className="lg:col-span-3 flex flex-col gap-6">
 
-            {/* Mission Title Header */}
+            {/* Mission Classification Header */}
             <div>
-              <div className="flex items-center gap-2 mb-3 flex-wrap">
+              <div className="flex items-center gap-2 mb-2 flex-wrap">
                 <span
-                  className="px-3 py-1 rounded-lg text-[10px] font-orbitron font-bold tracking-widest uppercase"
-                  style={{ background: `${color}15`, border: `1px solid ${color}30`, color }}
+                  className="text-[10px] font-orbitron font-bold tracking-widest uppercase px-2.5 py-0.5 rounded-md"
+                  style={{ background: `${color}18`, color, border: `1px solid ${color}35` }}
                 >
-                  CHAPTER {mission.chapterNumber} · {mission.missionCode}
+                  CLASSIFICATION: {mission.classification || 'ALPHA'}
                 </span>
-
-                {isCompleted && (
-                  <span className="flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-orbitron font-bold bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">
-                    <CheckCircle2 size={11} />
-                    COMPLETED
-                  </span>
-                )}
+                <span className="text-[10px] font-space text-white/40 tracking-wider">
+                  MISSION CODE: {mission.missionCode}
+                </span>
               </div>
 
-              <h1 className="font-orbitron font-black text-2xl sm:text-4xl text-white leading-tight mb-2">
-                <span style={{ color }}>{mission.missionName}</span>
+              <h1 className="font-orbitron font-black text-2xl sm:text-3xl lg:text-4xl text-white tracking-tight leading-tight">
+                {mission.missionName}
               </h1>
-              <p className="text-white/40 font-space text-sm sm:text-base italic">
+
+              <p className="font-space text-sm sm:text-base mt-1" style={{ color: `${color}dd` }}>
                 "{mission.subtitle}"
               </p>
             </div>
+
+            {/* Content Availability Alert for Unconfigured Subject Chapters */}
+            {!isPlayable && (
+              <div
+                className="rounded-2xl p-5 border flex items-start gap-3.5"
+                style={{
+                  background: 'linear-gradient(135deg, rgba(245,158,11,0.08), rgba(12,20,17,0.85))',
+                  borderColor: 'rgba(245,158,11,0.35)',
+                }}
+              >
+                <AlertTriangle size={18} className="text-amber-400 flex-shrink-0 mt-0.5" />
+                <div>
+                  <h4 className="font-orbitron font-bold text-xs sm:text-sm text-amber-400 mb-1">
+                    No Interactive Game Engine Available Yet
+                  </h4>
+                  <p className="text-xs font-inter text-white/80 leading-relaxed mb-3">
+                    This chapter belongs to <strong>{stdDisplayName} {subjDisplayName}</strong>. Our custom gamified challenge room for this mission is currently in production.
+                  </p>
+                  <div className="flex items-center gap-2.5 flex-wrap">
+                    <button
+                      type="button"
+                      onClick={() => navigateTo('chapters')}
+                      className="px-3 py-1.5 rounded-lg text-xs font-space font-semibold bg-white/10 hover:bg-white/20 text-white cursor-pointer border-0"
+                    >
+                      ← Back to Chapters
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => navigateTo('select-subject')}
+                      className="px-3 py-1.5 rounded-lg text-xs font-space font-semibold bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-400 cursor-pointer border border-emerald-500/40"
+                    >
+                      Explore Other Subjects
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
 
             {/* Intel Report / Story */}
             <div
@@ -808,7 +907,7 @@ export default function MissionBriefPage() {
                 <div className="p-3 rounded-xl" style={{ background: 'rgba(251,191,36,0.08)', border: '1px solid rgba(251,191,36,0.2)' }}>
                   <span className="text-base">🪙</span>
                   <p className="font-orbitron font-black text-lg text-amber-400 mt-1">+{mission.coins}</p>
-                  <p className="text-[10px] text-white/30 font-space">Lab Coins</p>
+                  <p className="text-[10px] text-white/30 font-space">Coins</p>
                 </div>
               </div>
 
@@ -837,9 +936,11 @@ export default function MissionBriefPage() {
                 style={{
                   background: isLocked
                     ? 'rgba(51,65,85,0.5)'
-                    : `linear-gradient(135deg, ${color}, ${color}BB)`,
-                  color: isLocked ? '#94A3B8' : '#050807',
-                  boxShadow: isLocked ? 'none' : `0 0 30px ${glow}, 0 4px 20px rgba(0,0,0,0.4)`,
+                    : !isPlayable
+                      ? 'linear-gradient(135deg, rgba(245,158,11,0.85), rgba(217,119,6,0.9))'
+                      : `linear-gradient(135deg, ${color}, ${color}BB)`,
+                  color: isLocked ? '#94A3B8' : !isPlayable ? '#FFFFFF' : '#050807',
+                  boxShadow: isLocked ? 'none' : !isPlayable ? '0 0 25px rgba(245,158,11,0.3)' : `0 0 30px ${glow}, 0 4px 20px rgba(0,0,0,0.4)`,
                 }}
                 whileHover={!isLocked ? { scale: 1.02 } : {}}
                 whileTap={!isLocked ? { scale: 0.98 } : {}}
@@ -848,6 +949,11 @@ export default function MissionBriefPage() {
                   <>
                     <Lock size={16} />
                     <span>Mission Locked</span>
+                  </>
+                ) : !isPlayable ? (
+                  <>
+                    <AlertTriangle size={16} />
+                    <span>Mission Content Coming Soon</span>
                   </>
                 ) : isCompleted ? (
                   <>

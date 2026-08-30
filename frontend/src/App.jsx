@@ -7,6 +7,9 @@ import { AuthProvider, useAuth } from './auth/AuthContext';
 import { NavigationProvider, useNavigation } from './context/NavigationContext';
 import { ThemeProvider } from './context/ThemeContext';
 
+// Components
+import CurriculumMismatchGuard from './components/CurriculumMismatchGuard';
+
 // ── ProgressBridge ────────────────────────────────────────────────────────────
 // Sits inside BOTH AuthProvider and NavigationProvider.
 // On mount it injects NavigationContext's clearProgressState + refreshUserStats
@@ -144,37 +147,81 @@ function SingleUrlUnifiedApp() {
       case 'mission':
         return <MissionBriefPage />;
       case 'lab':
-        return <LabGamePage />;
+        return (
+          <CurriculumMismatchGuard gameName="Chemistry 2D Lab Escape">
+            <LabGamePage />
+          </CurriculumMismatchGuard>
+        );
       case 'calculation-heist':
       case 'heist':
-        return <CalculationHeistPage />;
+        return (
+          <CurriculumMismatchGuard gameName="Mole Calculation Heist">
+            <CalculationHeistPage />
+          </CurriculumMismatchGuard>
+        );
       case 'quantum-architect':
       case 'quantum':
-        return <QuantumArchitectPage />;
+        return (
+          <CurriculumMismatchGuard gameName="Quantum Orbital Architect">
+            <QuantumArchitectPage />
+          </CurriculumMismatchGuard>
+        );
       case 'grid-reconstruction':
       case 'grid':
       case 'periodic-grid':
-        return <GridReconstructionPage />;
+        return (
+          <CurriculumMismatchGuard gameName="Periodic Grid Reconstruction">
+            <GridReconstructionPage />
+          </CurriculumMismatchGuard>
+        );
       case 'hydrogen-reactor':
       case 'hydrogen':
       case 'reactor':
-        return <HydrogenReactorPage />;
+        return (
+          <CurriculumMismatchGuard gameName="Hydrogen Reactor Terminal">
+            <HydrogenReactorPage />
+          </CurriculumMismatchGuard>
+        );
       case 'metal-sorting':
       case 'element-sorting':
       case 'sorting-factory':
-        return <MetalSortingPage />;
+        return (
+          <CurriculumMismatchGuard gameName="Element Sorting Factory">
+            <MetalSortingPage />
+          </CurriculumMismatchGuard>
+        );
       case 'gas-simulator':
       case 'gas':
       case 'gas-chamber':
-        return <GasSimulatorPage />;
+        return (
+          <CurriculumMismatchGuard gameName="Gas Chamber Simulator">
+            <GasSimulatorPage />
+          </CurriculumMismatchGuard>
+        );
       case 'room1':
-        return <Room1Page />;
+        return (
+          <CurriculumMismatchGuard gameName="Periodic Table Room 1">
+            <Room1Page />
+          </CurriculumMismatchGuard>
+        );
       case 'room2':
-        return <Room2Page />;
+        return (
+          <CurriculumMismatchGuard gameName="Quantum Chamber Room 2">
+            <Room2Page />
+          </CurriculumMismatchGuard>
+        );
       case 'room3':
-        return <Room3Page />;
+        return (
+          <CurriculumMismatchGuard gameName="Reaction Vault Room 3">
+            <Room3Page />
+          </CurriculumMismatchGuard>
+        );
       case 'boss':
-        return <BossPage />;
+        return (
+          <CurriculumMismatchGuard gameName="Master Lab Boss">
+            <BossPage />
+          </CurriculumMismatchGuard>
+        );
       case 'mission-complete':
         return <MissionCompletePage />;
       case 'leaderboard':
