@@ -289,10 +289,36 @@ export function NavigationProvider({ children }) {
   const addXp    = useCallback((amount) => setXp(prev  => prev + amount), []);
   const addCoins = useCallback((amount) => setCoins(prev => prev + amount), []);
 
-  const markRoomCompleted = useCallback((roomName) => {
-    setCompletedRooms(prev => (prev.includes(roomName) ? prev : [...prev, roomName]));
-    refreshUserStats();
-  }, [refreshUserStats]);
+  const markRoomCompleted = useCallback((roomName, chapterId = null) => {
+    const idsToAdd = [
+      roomName,
+      chapterId,
+      selectedChapterId,
+    ].filter(Boolean);
+
+    setCompletedRooms(prev => {
+      const next = [...prev];
+      idsToAdd.forEach(id => {
+        if (!next.includes(id)) next.push(id);
+      });
+      try {
+        const userRaw = localStorage.getItem('chemescape_user');
+        const u = userRaw ? JSON.parse(userRaw) : null;
+        if (u?.id) scopedSetJSON(u.id, 'completedRooms', next);
+      } catch {
+        /* non-fatal */
+      }
+      return next;
+    });
+
+    try {
+      const userRaw = localStorage.getItem('chemescape_user');
+      const u = userRaw ? JSON.parse(userRaw) : null;
+      refreshUserStats(u?.id);
+    } catch {
+      refreshUserStats();
+    }
+  }, [selectedChapterId, refreshUserStats]);
 
   return (
     <NavigationContext.Provider
