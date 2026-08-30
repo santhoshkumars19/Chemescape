@@ -92,6 +92,7 @@ export default function InteractiveQuizEngine() {
   const [completionData, setCompletionData] = useState(null);
   const [completionError, setCompletionError] = useState(null);
   const [timeSpentSeconds, setTimeSpentSeconds] = useState(0);
+  const [loadedRoomId, setLoadedRoomId] = useState(null);
 
   // ── 3. Fetch Questions Strictly Belonging to Current Room/Mission ───────────
   useEffect(() => {
@@ -100,6 +101,19 @@ export default function InteractiveQuizEngine() {
     async function loadMissionQuestions() {
       setLoading(true);
       setError(null);
+      setQuestions([]);
+      setCurrentQuestionIndex(0);
+      setSelectedOptionId(null);
+      setCalculationInput('');
+      setHintVisible(false);
+      setIsSubmitted(false);
+      setFeedback(null);
+      setScore(0);
+      setCorrectCount(0);
+      setWrongCount(0);
+      setQuizComplete(false);
+      setTimeSpentSeconds(0);
+
       try {
         let targetRoomId = null;
 
@@ -139,6 +153,10 @@ export default function InteractiveQuizEngine() {
             setLoading(false);
           }
           return;
+        }
+
+        if (isMounted) {
+          setLoadedRoomId(targetRoomId);
         }
 
         const qRes = await roomService.getQuestionsByRoom(targetRoomId, {
@@ -255,10 +273,7 @@ export default function InteractiveQuizEngine() {
     const accuracy = totalQuestions > 0 ? Math.round((correctCount / totalQuestions) * 100) : 100;
     const calculatedStars = accuracy >= 80 ? 3 : accuracy >= 50 ? 2 : accuracy >= 30 ? 1 : 0;
 
-    let targetRoomId = selectedRoomId || (typeof currentRoom === 'object' ? currentRoom?.id : currentRoom);
-    if (!targetRoomId && activeChapter?.id) {
-      targetRoomId = activeChapter.id;
-    }
+    const targetRoomId = loadedRoomId || selectedRoomId || (activeChapter?.id?.startsWith('ch-') ? activeChapter.id.replace('ch-', 'room-') : (typeof currentRoom === 'object' ? currentRoom?.id : currentRoom));
 
     try {
       const payload = {
@@ -291,7 +306,7 @@ export default function InteractiveQuizEngine() {
     }
   }, [
     submittingCompletion, totalQuestions, correctCount, wrongCount, hintsUsed,
-    score, timeSpentSeconds, selectedRoomId, currentRoom, activeChapter?.id,
+    score, timeSpentSeconds, loadedRoomId, selectedRoomId, currentRoom, activeChapter?.id,
     markRoomCompleted, refreshUserStats
   ]);
 
