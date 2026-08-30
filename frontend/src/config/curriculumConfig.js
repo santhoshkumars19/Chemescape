@@ -686,14 +686,14 @@ export const CHAPTERS_STORE = {
   // ── Standard 4 English ──────────────────────────────────────────────────────
   'grade-4:english': [
     {
-      id: 'g4-eng-1',
+      id: 'ch-eng4-1',
       chapterNumber: 1,
       title: 'A Feast for Rats',
       description: 'Reading comprehension, narrative voice, and contextual vocabulary exploration.',
       difficulty: 'Beginner',
       xpReward: 400,
       coinsReward: 100,
-      gameType: 'Word Power Adventure',
+      gameType: 'Interactive Quiz Engine',
       missionCode: 'ENG-0401',
     },
     {

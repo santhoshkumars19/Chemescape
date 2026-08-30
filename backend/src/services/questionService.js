@@ -167,6 +167,44 @@ const DEFAULT_QUESTIONS = [
   })),
 
   // ───────────────────────────────────────────────────────────────────────────
+  // Standard 4 English Room 1 (10 Questions - room-eng4-1: A Feast for Rats)
+  // ───────────────────────────────────────────────────────────────────────────
+  ...[
+    { qn: 1, text: "In the story 'A Feast for Rats', who were traveling together in the train compartment?", hint: 'The story revolves around school students on their journey and an old Sanskrit teacher.', opts: ['A group of school boys and an elderly passenger', 'A captain and his sailors', 'A teacher and a doctor', 'A king and his soldiers'], ans: 0 },
+    { qn: 2, text: "What is the meaning of the word 'Feast' in the context of the story?", hint: 'A feast is a grand celebration involving delicious food and sweets.', opts: ['A large and delightful meal', 'A long sleep', 'A fast train', 'A quiet study room'], ans: 0 },
+    { qn: 3, text: "What is the antonym (opposite) of the word 'Delightful'?", hint: 'Something delightful brings joy; its opposite causes discomfort or annoyance.', opts: ['Pleasant', 'Unpleasant', 'Joyful', 'Wonderful'], ans: 1 },
+    { qn: 4, text: "Choose the correct collective noun: 'A _______ of keys was left on the train bench.'", hint: 'We say a herd of cattle, a flock of birds, and a bunch of keys.', opts: ['bunch', 'flock', 'herd', 'pack'], ans: 0 },
+    { qn: 5, text: "Identify the Proper Noun in the sentence: 'Rabindranath Tagore wrote timeless stories for children.'", hint: 'A proper noun is the specific name of a person, place, or organization and starts with a capital letter.', opts: ['Rabindranath Tagore', 'stories', 'children', 'wrote'], ans: 0 },
+    { qn: 6, text: "Which word is a synonym for 'Delicious'?", hint: 'Food that is delicious has a rich, enjoyable flavor.', opts: ['Tasty', 'Sour', 'Bitter', 'Plain'], ans: 0 },
+    { qn: 7, text: "What is the correct plural form of the noun 'Box'?", hint: 'Nouns ending in -x usually form their plural by adding -es.', opts: ['Boxes', 'Boxs', 'Boxies', 'Boxen'], ans: 0 },
+    { qn: 8, text: "Which of the following sentences is punctuated correctly?", hint: 'A direct question begins with a capital letter and concludes with a question mark.', opts: ['Did the rats eat the mangoes and sweets?', 'did the rats eat the mangoes and sweets.', 'Did the rats eat the mangoes and sweets!', 'Did the rats eat the mangoes, and sweets'], ans: 0 },
+    { qn: 9, text: "Replace the underlined noun with the correct pronoun: 'The old man smiled kindly at the boys.'", hint: 'Use the singular masculine subject pronoun for an elderly gentleman.', opts: ['He', 'She', 'They', 'It'], ans: 0 },
+    { qn: 10, text: "What lesson did the schoolboys learn by the end of the journey?", hint: 'The boys realized the true identity and benevolent nature of their new teacher.', opts: ['To respect elders and appreciate their kindness', 'To skip classes', 'To avoid eating sweets', 'To travel alone on trains'], ans: 0 },
+  ].map((item) => ({
+    id: `q-eng4-r1-${item.qn}`,
+    chapterId: 'ch-eng4-1',
+    roomId: 'room-eng4-1',
+    questionNumber: item.qn,
+    displayOrder: item.qn,
+    questionType: 'MCQ',
+    questionText: item.text,
+    description: `Standard 4 English Ch 1 Question ${item.qn}`,
+    difficulty: item.qn <= 3 ? 'EASY' : item.qn <= 7 ? 'MEDIUM' : 'HARD',
+    points: 100,
+    timeLimit: 60,
+    hint: item.hint,
+    status: 'PUBLISHED',
+    isActive: true,
+    options: item.opts.map((opt, idx) => ({
+      id: `opt-eng4-${item.qn}-${idx + 1}`,
+      optionKey: String.fromCharCode(65 + idx),
+      optionText: opt,
+      isCorrect: idx === item.ans,
+      orderNumber: idx + 1,
+    })),
+  })),
+
+  // ───────────────────────────────────────────────────────────────────────────
   // Standard 5 Tamil Room 1 (10 Questions - room-tam5-1)
   // ───────────────────────────────────────────────────────────────────────────
   ...[

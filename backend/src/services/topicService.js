@@ -102,6 +102,39 @@ const DEFAULT_TOPICS = [
     orderNumber: 4,
     isActive: true,
   },
+  // Standard 4 English Chapter 1 Topics (A Feast for Rats)
+  {
+    id: 'topic-eng4-1-1',
+    chapterId: 'ch-eng4-1',
+    title: 'Story & Reading Comprehension',
+    description: 'A Feast for Rats narrative, characters, and plot sequence.',
+    orderNumber: 1,
+    isActive: true,
+  },
+  {
+    id: 'topic-eng4-1-2',
+    chapterId: 'ch-eng4-1',
+    title: 'Vocabulary & Word Meanings',
+    description: 'Contextual vocabulary, synonyms, and antonyms from the story.',
+    orderNumber: 2,
+    isActive: true,
+  },
+  {
+    id: 'topic-eng4-1-3',
+    chapterId: 'ch-eng4-1',
+    title: 'Nouns: Proper, Common & Collective',
+    description: 'Identifying naming words, groups of things, and capitalization.',
+    orderNumber: 3,
+    isActive: true,
+  },
+  {
+    id: 'topic-eng4-1-4',
+    chapterId: 'ch-eng4-1',
+    title: 'Sentence Formation & Punctuation',
+    description: 'Crafting meaningful sentences with capital letters and punctuation.',
+    orderNumber: 4,
+    isActive: true,
+  },
 ];
 
 class TopicService {
