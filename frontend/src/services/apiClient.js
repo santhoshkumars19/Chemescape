@@ -8,6 +8,19 @@ const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api
  * ALL user state (token + in-memory game progress) regardless of which
  * component/service made the request.
  */
+function buildUrl(endpoint, params) {
+  if (!params || typeof params !== 'object' || Object.keys(params).length === 0) return endpoint;
+  const searchParams = new URLSearchParams();
+  Object.entries(params).forEach(([key, val]) => {
+    if (val !== undefined && val !== null && val !== '') {
+      searchParams.append(key, val);
+    }
+  });
+  const queryString = searchParams.toString();
+  if (!queryString) return endpoint;
+  return endpoint.includes('?') ? `${endpoint}&${queryString}` : `${endpoint}?${queryString}`;
+}
+
 async function request(endpoint, options = {}) {
   const token = localStorage.getItem('chemescape_token');
 
@@ -48,10 +61,34 @@ async function request(endpoint, options = {}) {
 }
 
 export const apiClient = {
-  get:    (endpoint, headers)       => request(endpoint, { method: 'GET', headers }),
-  post:   (endpoint, body, headers) => request(endpoint, { method: 'POST',   body: JSON.stringify(body), headers }),
-  put:    (endpoint, body, headers) => request(endpoint, { method: 'PUT',    body: JSON.stringify(body), headers }),
-  delete: (endpoint, headers)       => request(endpoint, { method: 'DELETE', headers }),
+  get: (endpoint, options = {}) => {
+    const isOptionsObj = options && typeof options === 'object' && ('params' in options || 'headers' in options);
+    const params = isOptionsObj ? options.params : null;
+    const headers = isOptionsObj ? options.headers : options;
+    const url = buildUrl(endpoint, params);
+    return request(url, { method: 'GET', headers });
+  },
+  post: (endpoint, body, options = {}) => {
+    const isOptionsObj = options && typeof options === 'object' && ('params' in options || 'headers' in options);
+    const params = isOptionsObj ? options.params : null;
+    const headers = isOptionsObj ? options.headers : options;
+    const url = buildUrl(endpoint, params);
+    return request(url, { method: 'POST', body: JSON.stringify(body), headers });
+  },
+  put: (endpoint, body, options = {}) => {
+    const isOptionsObj = options && typeof options === 'object' && ('params' in options || 'headers' in options);
+    const params = isOptionsObj ? options.params : null;
+    const headers = isOptionsObj ? options.headers : options;
+    const url = buildUrl(endpoint, params);
+    return request(url, { method: 'PUT', body: JSON.stringify(body), headers });
+  },
+  delete: (endpoint, options = {}) => {
+    const isOptionsObj = options && typeof options === 'object' && ('params' in options || 'headers' in options);
+    const params = isOptionsObj ? options.params : null;
+    const headers = isOptionsObj ? options.headers : options;
+    const url = buildUrl(endpoint, params);
+    return request(url, { method: 'DELETE', headers });
+  },
 };
 
 export default apiClient;
