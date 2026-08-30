@@ -201,6 +201,39 @@ const DEFAULT_TOPICS = [
     orderNumber: 4,
     isActive: true,
   },
+  // Standard 4 Social Science Chapter 1 Topics (Kingdoms of Rivers)
+  {
+    id: 'topic-soc4-1-1',
+    chapterId: 'ch-soc4-1',
+    title: 'The Chera Dynasty & River Poigai',
+    description: 'Capital Vanji, Musiri port, Bow and Arrow flag, and Cheran Senguttuvan.',
+    orderNumber: 1,
+    isActive: true,
+  },
+  {
+    id: 'topic-soc4-1-2',
+    chapterId: 'ch-soc4-1',
+    title: 'The Chola Empire & River Cauvery',
+    description: 'Capital Uraiyur, Tiger flag, Karikalan, and the historic Kallanai Dam.',
+    orderNumber: 2,
+    isActive: true,
+  },
+  {
+    id: 'topic-soc4-1-3',
+    chapterId: 'ch-soc4-1',
+    title: 'The Pandya Kingdom & River Vaigai',
+    description: 'Capital Madurai, Korkai pearl port, Fish flag, and Sangam patronage.',
+    orderNumber: 3,
+    isActive: true,
+  },
+  {
+    id: 'topic-soc4-1-4',
+    chapterId: 'ch-soc4-1',
+    title: 'The Pallavas & Sangam Philanthropists',
+    description: 'Capital Kanchipuram, Palar river, Mamallapuram port, and Kadai Ezhu Vallalgal.',
+    orderNumber: 4,
+    isActive: true,
+  },
 ];
 
 class TopicService {

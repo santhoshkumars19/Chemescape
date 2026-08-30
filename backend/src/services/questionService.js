@@ -281,6 +281,44 @@ const DEFAULT_QUESTIONS = [
   })),
 
   // ───────────────────────────────────────────────────────────────────────────
+  // Standard 4 Social Science Room 1 (10 Questions - room-soc4-1: Kingdoms of Rivers)
+  // ───────────────────────────────────────────────────────────────────────────
+  ...[
+    { qn: 1, text: 'Which famous Chola king built the historic Kallanai Dam across the River Cauvery?', hint: 'He was one of the greatest early Chola monarchs and constructed the worlds oldest functional water-diversion structure.', opts: ['Karikalan', 'Cheran Senguttuvan', 'Narasimhavarman', 'Rajendra Chola'], ans: 0 },
+    { qn: 2, text: 'Along which riverbank did the ancient Chera dynasty establish their kingdom with Vanji as capital?', hint: 'The Chera kingdom occupied parts of modern western Tamil Nadu and Kerala along the Poigai river.', opts: ['River Poigai', 'River Cauvery', 'River Vaigai', 'River Palar'], ans: 0 },
+    { qn: 3, text: 'Which ancient sea port of the Pandya dynasty was world-renowned for its natural pearl fisheries?', hint: 'Located at the mouth of the Thamirabarani river, this port traded exquisite pearls with Rome and Greece.', opts: ['Korkai', 'Musiri', 'Mamallapuram', 'Poompuhar'], ans: 0 },
+    { qn: 4, text: 'What was the royal emblem embossed on the flag of the Chola empire?', hint: 'The fierce king of the jungle was the Cholas martial symbol (Tiger).', opts: ['Tiger', 'Bow and Arrow', 'Two Fish', 'Bull (Nandi)'], ans: 0 },
+    { qn: 5, text: 'Which emblem was depicted on the royal flag of the Pandya kings?', hint: 'The Pandyas reigned from Madurai and flew the twin fish banner.', opts: ['Twin Fish', 'Tiger', 'Bow and Arrow', 'Lion'], ans: 0 },
+    { qn: 6, text: 'Which weapon symbol was featured on the flag of the Chera rulers?', hint: 'The Cheras were renowned archers who honored the bow and arrow.', opts: ['Bow and Arrow', 'Sword', 'Spear', 'Shield'], ans: 0 },
+    { qn: 7, text: 'What was the capital city of the Pallava dynasty situated on the banks of River Palar?', hint: 'Known as the City of Thousand Temples and a great center of classical learning.', opts: ['Kanchipuram', 'Madurai', 'Uraiyur', 'Vanji'], ans: 0 },
+    { qn: 8, text: 'Which benevolent Sangam philanthropist gave his royal silk shawl to a shivering peacock?', hint: 'One of the Kadai Ezhu Vallalgal who showed immense compassion towards birds and nature.', opts: ['Pegan', 'Pari', 'Athiyaman', 'Valvil Ori'], ans: 0 },
+    { qn: 9, text: 'Which generous chieftain offered his golden chariot to support a delicate mullai (jasmine) creeper?', hint: 'The ruler of Parambu Malai known for sacrificing his chariot so the plant could climb.', opts: ['Pari', 'Nalli', 'Aai', 'Nedumudi Kari'], ans: 0 },
+    { qn: 10, text: 'Which famous coastal port and architectural site served the Pallava kingdom?', hint: 'Renowned for rock-cut shore temples, monolith rathas, and UNESCO world heritage monuments.', opts: ['Mamallapuram (Mahabalipuram)', 'Musiri', 'Thondi', 'Korkai'], ans: 0 },
+  ].map((item) => ({
+    id: `q-soc4-r1-${item.qn}`,
+    chapterId: 'ch-soc4-1',
+    roomId: 'room-soc4-1',
+    questionNumber: item.qn,
+    displayOrder: item.qn,
+    questionType: 'MCQ',
+    questionText: item.text,
+    description: `Standard 4 Social Science Ch 1 Question ${item.qn}`,
+    difficulty: item.qn <= 3 ? 'EASY' : item.qn <= 7 ? 'MEDIUM' : 'HARD',
+    points: 100,
+    timeLimit: 60,
+    hint: item.hint,
+    status: 'PUBLISHED',
+    isActive: true,
+    options: item.opts.map((opt, idx) => ({
+      id: `opt-soc4-${item.qn}-${idx + 1}`,
+      optionKey: String.fromCharCode(65 + idx),
+      optionText: opt,
+      isCorrect: idx === item.ans,
+      orderNumber: idx + 1,
+    })),
+  })),
+
+  // ───────────────────────────────────────────────────────────────────────────
   // Standard 5 Tamil Room 1 (10 Questions - room-tam5-1)
   // ───────────────────────────────────────────────────────────────────────────
   ...[

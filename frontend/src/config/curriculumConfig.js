@@ -734,14 +734,14 @@ export const CHAPTERS_STORE = {
   // ── Standard 4 Social Science ───────────────────────────────────────────────
   'grade-4:social-science': [
     {
-      id: 'g4-soc-1',
+      id: 'ch-soc4-1',
       chapterNumber: 1,
       title: 'Kingdoms of Rivers',
       description: 'Explore the ancient dynasties: Cheras, Cholas, Pandyas, and Pallavas along riverbanks.',
       difficulty: 'Beginner',
       xpReward: 400,
       coinsReward: 100,
-      gameType: 'Ancient Kingdom Quest',
+      gameType: 'Interactive Quiz Engine',
       missionCode: 'SOC-0401',
     },
     {
