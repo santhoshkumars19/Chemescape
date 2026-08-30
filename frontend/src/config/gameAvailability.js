@@ -9,7 +9,7 @@
  * 3. Cross-subject anti-leakage guards
  */
 
-import { GAME_REGISTRY, resolveGameEngine, isGameTypeSupported } from '../games/gameRegistry';
+import { GAME_REGISTRY, resolveGameEngine } from '../games/gameRegistry';
 
 export const AVAILABILITY_STATES = {
   AVAILABLE: 'AVAILABLE',
@@ -132,7 +132,7 @@ export function getMissionAvailability({ standardId, subjectId, chapter, room = 
     }
   }
 
-  // 3. Authoritative Standard 11 Chemistry Units 1–6
+  // 3. Authoritative Standard 11 Chemistry Units 1–6 (Specialized Engines)
   const isChemistry11 = normStd === '11' && normSubj === 'chemistry';
 
   if (isChemistry11) {
@@ -163,9 +163,8 @@ export function getMissionAvailability({ standardId, subjectId, chapter, room = 
     }
   }
 
-  // 4. Inspect Declared Game Type from Room or Chapter
+  // 4. Inspect Declared Specialized Game Type from Room or Chapter
   const declaredGameType = room?.gameType || chapter?.gameType;
-
   if (declaredGameType) {
     const resolved = resolveGameEngine(declaredGameType, standardId, subjectId);
     if (resolved && resolved.endpoint && resolved.component) {
@@ -182,34 +181,21 @@ export function getMissionAvailability({ standardId, subjectId, chapter, room = 
         badgeText: 'MISSION READY',
       };
     }
-
-    // Declared game type is registered but not yet implemented in frontend
-    return {
-      status: AVAILABILITY_STATES.COMING_SOON,
-      isPlayable: false,
-      canLaunch: false,
-      gameType: declaredGameType,
-      endpoint: null,
-      component: null,
-      title: 'Interactive Mission Coming Soon',
-      description: 'This chapter content is ready, but its unique game experience is still being prepared.',
-      actionLabel: 'Coming Soon',
-      badgeText: 'COMING SOON',
-    };
   }
 
-  // 5. Default Fallback for Unconfigured Chapters (Student-Friendly UX)
+  // 5. Generic Interactive Chapter Quiz Engine for All Other Chapters & Subjects
+  const quizEngine = GAME_REGISTRY.GENERIC_QUIZ;
   return {
-    status: AVAILABILITY_STATES.COMING_SOON,
-    isPlayable: false,
-    canLaunch: false,
-    gameType: null,
-    endpoint: null,
-    component: null,
-    title: 'Interactive Mission Coming Soon',
-    description: 'This chapter content is ready, but its unique game experience is still being prepared.',
-    actionLabel: 'Coming Soon',
-    badgeText: 'COMING SOON',
+    status: AVAILABILITY_STATES.AVAILABLE,
+    isPlayable: true,
+    canLaunch: true,
+    gameType: 'GENERIC_QUIZ',
+    endpoint: quizEngine?.endpoint || 'interactive-quiz',
+    component: quizEngine?.component || null,
+    title: 'Mission Ready',
+    description: 'Launch the interactive 10-question chapter quiz.',
+    actionLabel: 'Start Mission',
+    badgeText: 'MISSION READY',
   };
 }
 

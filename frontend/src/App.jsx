@@ -63,6 +63,7 @@ import GridReconstructionPage from './pages/GridReconstructionPage';
 import HydrogenReactorPage from './pages/HydrogenReactorPage';
 import MetalSortingPage from './pages/MetalSortingPage';
 import GasSimulatorPage from './pages/GasSimulatorPage';
+import InteractiveQuizEngine from './pages/InteractiveQuizEngine';
 import MissionCompletePage from './pages/MissionCompletePage';
 import LeaderboardPage from './pages/LeaderboardPage';
 import ProfilePage from './pages/ProfilePage';
@@ -146,6 +147,10 @@ function SingleUrlUnifiedApp() {
         return <ChaptersPage />;
       case 'mission':
         return <MissionBriefPage />;
+      case 'interactive-quiz':
+      case 'quiz':
+      case 'chapter-quiz':
+        return <InteractiveQuizEngine />;
       case 'lab':
         return (
           <CurriculumMismatchGuard gameName="Chemistry 2D Lab Escape">

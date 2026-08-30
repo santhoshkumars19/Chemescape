@@ -9,6 +9,10 @@ export const roomService = {
     const res = await apiClient.get(`/rooms/${roomId}`);
     return res.data || res;
   },
+  getQuestionsByRoom: async (roomId) => {
+    const res = await apiClient.get(`/rooms/${roomId}/questions`);
+    return res.data || res;
+  },
 };
 
 export default roomService;

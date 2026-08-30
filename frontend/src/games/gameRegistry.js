@@ -13,9 +13,10 @@ import GridReconstructionPage from '../pages/GridReconstructionPage';
 import HydrogenReactorPage from '../pages/HydrogenReactorPage';
 import MetalSortingPage from '../pages/MetalSortingPage';
 import GasSimulatorPage from '../pages/GasSimulatorPage';
+import InteractiveQuizEngine from '../pages/InteractiveQuizEngine';
 
 export const GAME_REGISTRY = {
-  // ── Standard 11 Chemistry Units 1–6 ──
+  // ── Standard 11 Chemistry Units 1–6 (Specialized Engines) ──
   CALCULATION_HEIST: {
     gameType: 'CALCULATION_HEIST',
     name: 'Chem Calculation Heist',
@@ -63,6 +64,16 @@ export const GAME_REGISTRY = {
     endpoint: 'gas-simulator',
     standard: 'grade-11',
     subject: 'chemistry',
+  },
+
+  // ── Generic Interactive Chapter Quiz Engine ──
+  GENERIC_QUIZ: {
+    gameType: 'GENERIC_QUIZ',
+    name: 'Interactive Chapter Quiz',
+    component: InteractiveQuizEngine,
+    endpoint: 'interactive-quiz',
+    standard: null,
+    subject: null,
   },
 };
 
