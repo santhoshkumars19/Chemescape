@@ -10,6 +10,7 @@ import {
 } from 'lucide-react';
 import { DashCard, SectionHeader, AnimatedCounter } from './DashComponents';
 import { ProgressChart, AccuracyChart } from './Charts';
+import ContinueLearningCard from './ContinueLearningCard';
 import { dailyChallenge } from './mockData';
 import { registerCharts } from './chartConfig';
 import { useNavigation } from '../context/NavigationContext';
@@ -300,159 +301,7 @@ function StatsRow({ isDark }) {
   );
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// CURRENT MISSION CARD — subject-aware
-// ─────────────────────────────────────────────────────────────────────────────
-function MissionCard({ isDark }) {
-  const {
-    navigateTo,
-    selectedStandardId, selectedStandard,
-    selectedSubjectId,  selectedSubject,
-    userProgressList,
-  } = useNavigation();
 
-  const hasSubject = !!selectedSubjectId;
-  const stdName    = selectedStandard  || STANDARD_DISPLAY[selectedStandardId] || '';
-  const subjName   = selectedSubject   || '';
-
-  // Subject config for accent
-  const subjects    = getSubjectsForStandard(selectedStandardId);
-  const subjConfig  = subjects.find(s => s.id === selectedSubjectId);
-  const accent      = subjConfig?.color || '#10B981';
-  const SubjIcon    = resolveIcon(subjConfig?.icon);
-
-  const completedCount = userProgressList.filter(p => p.isCompleted).length;
-  const hasProgress    = completedCount > 0;
-
-  // For Chemistry Standard 11/12 — keep existing game entry
-  const isChemistry = selectedSubjectId === 'chemistry';
-
-  const handleContinue = () => {
-    navigateTo('chapters');
-  };
-
-  const cardBg = isDark
-    ? `linear-gradient(135deg, ${accent}09 0%, ${accent}05 60%, rgba(5,8,7,0.7) 100%)`
-    : `linear-gradient(135deg, ${accent}10 0%, ${accent}05 100%)`;
-  const cardBorder = isDark ? `rgba(167,243,208,0.16)` : `${accent}30`;
-  const textMuted = isDark ? 'rgba(241,245,244,0.50)' : '#5D6C66';
-
-  return (
-    <motion.div variants={fadeUp} className="min-w-0 w-full">
-      <DashCard
-        className="p-5 sm:p-6 mb-5 relative overflow-hidden min-w-0 w-full"
-        id="mission-card"
-        style={{ background: cardBg, border: `1px solid ${cardBorder}` }}
-      >
-        {!hasSubject ? (
-          /* No subject selected state */
-          <div className="flex flex-col items-center justify-center py-8 gap-4 text-center">
-            <div className="w-12 h-12 rounded-2xl flex items-center justify-center"
-              style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' }}>
-              <BookOpen size={22} className="text-slate-500" />
-            </div>
-            <div>
-              <p className="font-space font-bold text-white mb-1">No Subject Selected</p>
-              <p className="text-sm font-inter" style={{ color: textMuted }}>
-                Choose a subject to see your missions.
-              </p>
-            </div>
-            <button
-              type="button"
-              onClick={() => navigateTo('select-subject')}
-              className="flex items-center gap-2 px-5 py-2.5 rounded-xl font-orbitron font-bold text-xs tracking-wider text-slate-950 cursor-pointer border-0"
-              style={{ background: `linear-gradient(135deg, #10B981, #059669)`, boxShadow: '0 0 20px rgba(16,185,129,0.3)' }}
-            >
-              <ChevronRight size={14} />
-              Select Subject
-            </button>
-          </div>
-        ) : (
-          /* Subject mission card */
-          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 min-w-0">
-            <div className="flex items-start sm:items-center gap-4 min-w-0 flex-1">
-              {/* Icon */}
-              <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl flex items-center justify-center flex-shrink-0"
-                style={{ background: `${accent}15`, border: `1px solid ${accent}35`, boxShadow: `0 0 20px ${accent}18` }}>
-                <SubjIcon size={24} style={{ color: accent }} />
-              </div>
-
-              {/* Info */}
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2 mb-1 flex-wrap">
-                  <span className="text-xs font-space tracking-widest uppercase" style={{ color: accent }}>
-                    Current Mission
-                  </span>
-                  <span className="text-[10px] font-space px-2 py-0.5 rounded-full"
-                    style={{ background: `rgba(245,158,11,0.15)`, color: '#F59E0B', border: `1px solid rgba(245,158,11,0.25)` }}>
-                    {isChemistry ? 'Active' : 'Ready'}
-                  </span>
-                </div>
-                <h2 className="font-space font-bold text-white text-base sm:text-lg mb-1 truncate">
-                  {isChemistry
-                    ? 'Continue Chemistry Missions'
-                    : hasProgress
-                      ? `Continue ${subjName}`
-                      : `Begin ${subjName} — Chapter 1`}
-                </h2>
-                <p className="text-xs sm:text-sm font-inter mb-3 line-clamp-2" style={{ color: textMuted }}>
-                  {isChemistry
-                    ? 'Access your existing Chemistry escape rooms and game missions.'
-                    : hasProgress
-                      ? `Resume your ${subjName} learning journey in ${stdName}.`
-                      : `Start your first ${subjName} challenge in ${stdName}. Learning content will appear once chapters are available.`}
-                </p>
-                {/* Progress bar */}
-                <div>
-                  <div className="flex justify-between text-xs font-inter mb-1" style={{ color: textMuted }}>
-                    <span>{completedCount} missions completed</span>
-                    <span className="font-orbitron font-bold" style={{ color: accent }}>
-                      {completedCount > 0 ? `${completedCount * 10}%` : 'New'}
-                    </span>
-                  </div>
-                  <div className="h-2 rounded-full overflow-hidden w-full" style={{ background: isDark ? 'rgba(255,255,255,0.05)' : '#E5EFEA' }}>
-                    <motion.div
-                      className="h-full rounded-full"
-                      style={{ background: `linear-gradient(90deg, ${accent}, ${accent}AA)` }}
-                      initial={{ width: 0 }}
-                      animate={{ width: `${Math.min(completedCount * 10, 100)}%` }}
-                      transition={{ duration: 1.4, ease: [0.22, 1, 0.36, 1], delay: 0.5 }}
-                    />
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Right: CTA */}
-            <div className="flex flex-col sm:flex-row lg:flex-col items-start sm:items-center lg:items-end justify-between gap-4 flex-shrink-0 min-w-0 pt-2 lg:pt-0 border-t lg:border-t-0 border-white/5">
-              <div className="flex items-center gap-3.5 text-xs font-space flex-wrap">
-                <div className="flex items-center gap-1.5">
-                  <Zap size={12} style={{ color: accent }} />
-                  <span className="text-slate-300">+500 XP</span>
-                </div>
-                <div className="flex items-center gap-1.5">
-                  <span className="text-amber-400">🪙</span>
-                  <span className="text-slate-300">+100</span>
-                </div>
-              </div>
-              <motion.button
-                id="continue-learning-btn"
-                onClick={handleContinue}
-                className="flex items-center justify-center gap-2 px-6 py-3 rounded-xl font-orbitron font-extrabold text-xs tracking-wider uppercase text-slate-950 relative overflow-hidden cursor-pointer whitespace-nowrap w-full sm:w-auto border-0"
-                style={{ background: `linear-gradient(135deg, ${accent}, ${accent}CC)`, boxShadow: `0 0 20px ${accent}35` }}
-                whileHover={{ scale: 1.03, boxShadow: `0 0 35px ${accent}55` }}
-                whileTap={{ scale: 0.97 }}
-              >
-                <Play size={14} className="relative z-10 fill-slate-950" />
-                <span className="relative z-10">{isChemistry ? 'Play Chemistry' : 'Start Mission'}</span>
-              </motion.button>
-            </div>
-          </div>
-        )}
-      </DashCard>
-    </motion.div>
-  );
-}
 
 // ─────────────────────────────────────────────────────────────────────────────
 // SUBJECT SUMMARY CARD
@@ -743,8 +592,8 @@ export default function DashboardPage() {
             {/* Stats row */}
             <StatsRow isDark={isDark} />
 
-            {/* Current Mission */}
-            <MissionCard isDark={isDark} />
+            {/* Continue Learning / Current Mission */}
+            <ContinueLearningCard />
 
             {/* Daily Challenge */}
             <DailyChallengeCard isDark={isDark} />
