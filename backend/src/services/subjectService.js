@@ -158,9 +158,16 @@ class SubjectService {
       /* fallback below */
     }
 
-    const fallback = DEFAULT_SUBJECTS.find(
-      s => s.id === id || s.code === id.toUpperCase() || s.name.toLowerCase() === id.toLowerCase()
-    );
+    const normId = String(id || '').toLowerCase().replace(/[^a-z0-9]/g, '').replace(/^subj/, '');
+    const fallback = DEFAULT_SUBJECTS.find(s => {
+      if (s.id === id || s.code === String(id).toUpperCase()) return true;
+      const sNormName = s.name.toLowerCase().replace(/[^a-z0-9]/g, '');
+      const sNormId = s.id.toLowerCase().replace(/[^a-z0-9]/g, '').replace(/^subj/, '');
+      const sNormCode = s.code.toLowerCase();
+      return sNormName === normId || sNormId === normId || sNormCode === normId ||
+             (normId === 'socialscience' && (sNormCode === 'social' || sNormId === 'social')) ||
+             (normId === 'maths' && (sNormCode === 'math' || sNormId === 'math'));
+    });
 
     if (!fallback) {
       const error = new Error('Subject not found');
