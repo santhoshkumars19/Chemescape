@@ -1051,16 +1051,23 @@ export function getChaptersForStandardAndSubject(standardId, subjectId) {
 export function getChapterStatus(chapter, index, allChapters, completedRooms = [], userProgressList = []) {
   if (!chapter) return { status: 'LOCKED', progress: 0, stars: 0, isUnlocked: false };
 
+  const chId = chapter.id || '';
   const possibleIds = [
-    chapter.id,
+    chId,
+    chId.startsWith('ch-') ? chId.replace(/^ch-/, 'room-') : null,
+    chId.startsWith('g4-') ? chId.replace(/^g4-/, 'room-') : null,
+    chId.startsWith('g5-') ? chId.replace(/^g5-/, 'room-') : null,
+    chapter.roomId,
+    chapter.missionCode,
+    `room-${index + 1}`,
+    `room${index + 1}`,
     `chap-${index + 1}`,
     `chap_${index + 1}`,
-    `room${index + 1}`,
-    `room-${index + 1}`,
-    `unit${index + 1}`,
     `unit-${index + 1}`,
+    `unit${index + 1}`,
     String(index + 1),
-    chapter.missionCode,
+    chapter.chapterNumber ? `room-${chapter.chapterNumber}` : null,
+    chapter.chapterNumber ? `chap-${chapter.chapterNumber}` : null,
   ].filter(Boolean);
 
   // 1. Check completedRooms array
@@ -1076,12 +1083,18 @@ export function getChapterStatus(chapter, index, allChapters, completedRooms = [
       return (
         possibleIds.includes(roomId) ||
         possibleIds.includes(chapterId) ||
-        roomNum === index + 1
+        (roomNum !== undefined && roomNum === index + 1)
       );
     });
   }
 
-  const isBackendCompleted = backendProgress?.isCompleted || backendProgress?.status === 'COMPLETED' || backendProgress?.status === 'MASTERED';
+  const isBackendCompleted = Boolean(
+    backendProgress && (
+      backendProgress.isCompleted === true ||
+      backendProgress.status === 'COMPLETED' ||
+      backendProgress.status === 'MASTERED'
+    )
+  );
   const isCompleted = isLocallyCompleted || isBackendCompleted;
 
   if (isCompleted) {

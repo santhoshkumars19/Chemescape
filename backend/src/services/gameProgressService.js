@@ -85,8 +85,9 @@ class GameProgressService {
         orderBy: { unlockedAt: 'desc' },
       });
     } catch {
-      // In offline mode, get user badges
+      // In offline mode, get user badges and progress
       badges = Array.from(fallbackBadges.values()).filter(b => b.userId === userId);
+      completedProgress = chapterUnlockService.getFallbackUserProgress(userId);
     }
 
     return {
@@ -99,6 +100,8 @@ class GameProgressService {
       badgesCount: badges.length,
       badges,
       completedList: completedProgress,
+      progress: completedProgress,
+      stats,
     };
   }
 

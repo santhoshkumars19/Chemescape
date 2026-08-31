@@ -84,9 +84,9 @@ class GameController {
       const result = await gameProgressService.completeGame(req.user.id, roomId, req.body);
       return res.status(200).json({
         success: true,
-        message: result.isFirstCompletion
-          ? 'Congratulations! Room completed and rewards unlocked!'
-          : 'Room re-cleared successfully!',
+        message: result.message || (result.passed
+          ? (result.isFirstCompletion ? 'Congratulations! Room completed and rewards unlocked!' : 'Room re-cleared successfully!')
+          : 'Mission not passed. Score was below pass threshold.'),
         data: result,
       });
     } catch (error) {

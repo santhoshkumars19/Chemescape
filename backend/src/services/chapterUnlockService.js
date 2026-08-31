@@ -31,6 +31,13 @@ class ChapterUnlockService {
   }
 
   /**
+   * Get all fallback user progress records for a user
+   */
+  getFallbackUserProgress(userId) {
+    return Array.from(fallbackUserProgress.values()).filter(p => p.userId === userId && p.isCompleted);
+  }
+
+  /**
    * Get progress for a specific user and room
    */
   async getRoomProgress(userId, roomId) {
