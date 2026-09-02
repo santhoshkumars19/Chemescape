@@ -268,6 +268,39 @@ const DEFAULT_TOPICS = [
     orderNumber: 4,
     isActive: true,
   },
+  // Standard 5 Tamil Chapter 1 Topics (ch-tam5-1)
+  {
+    id: 'topic-tam5-1-1',
+    chapterId: 'ch-tam5-1',
+    title: 'உயிர், மெய் & ஆய்த எழுத்துக்கள்',
+    description: 'உயிர் எழுத்துக்கள் (12), மெய் எழுத்துக்கள் (18) மற்றும் ஆய்த எழுத்து (1) அறிதல்.',
+    orderNumber: 1,
+    isActive: true,
+  },
+  {
+    id: 'topic-tam5-1-2',
+    chapterId: 'ch-tam5-1',
+    title: 'வல்லினம், மெல்லினம் & இடையினம்',
+    description: 'இனவெழுத்துக்களின் பாகுபாடு: கசடதபற, ஙஞணநமன, யரலவழள.',
+    orderNumber: 2,
+    isActive: true,
+  },
+  {
+    id: 'topic-tam5-1-3',
+    chapterId: 'ch-tam5-1',
+    title: 'திருக்குறள் & நீதி இலக்கியம்',
+    description: 'திருவள்ளுவர், திருக்குறள் நயங்கள் மற்றும் கற்க கசடறக் கற்பவை பாடல்.',
+    orderNumber: 3,
+    isActive: true,
+  },
+  {
+    id: 'topic-tam5-1-4',
+    chapterId: 'ch-tam5-1',
+    title: 'தமிழ் எழுத்துகளின் மொத்த எண்ணிக்கை',
+    description: 'தமிழ் மொழியின் 247 எழுத்துக்கள் மற்றும் தொல்காப்பிய இலக்கண மரபு.',
+    orderNumber: 4,
+    isActive: true,
+  },
 ];
 
 class TopicService {

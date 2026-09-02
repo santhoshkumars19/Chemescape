@@ -375,6 +375,7 @@ const DEFAULT_QUESTIONS = [
     id: `q-tam5-r1-${item.qn}`,
     chapterId: 'ch-tam5-1',
     roomId: 'room-tam5-1',
+    topicId: item.qn <= 3 ? 'topic-tam5-1-1' : (item.qn === 4 || item.qn === 5) ? 'topic-tam5-1-3' : (item.qn === 7 || item.qn === 8 || item.qn === 9) ? 'topic-tam5-1-2' : 'topic-tam5-1-4',
     questionNumber: item.qn,
     displayOrder: item.qn,
     questionType: 'MCQ',
