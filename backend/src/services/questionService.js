@@ -864,7 +864,8 @@ class QuestionService {
     if (context.chapterId) {
       const normRoomCh = String(room.chapterId || '').toLowerCase().trim();
       const normCtxCh = String(context.chapterId || '').toLowerCase().trim();
-      if (normRoomCh && normCtxCh && normRoomCh !== normCtxCh) {
+      const isAliasMatch = (normRoomCh === 'ch-tam4-2' && normCtxCh === 'g4-tam-2') || (normRoomCh === 'g4-tam-2' && normCtxCh === 'ch-tam4-2');
+      if (normRoomCh && normCtxCh && normRoomCh !== normCtxCh && !isAliasMatch) {
         const error = new Error('Invalid curriculum context: Room does not belong to specified chapter');
         error.statusCode = 400;
         throw error;

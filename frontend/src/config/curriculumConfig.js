@@ -649,14 +649,14 @@ export const CHAPTERS_STORE = {
       missionCode: 'TAM-0401',
     },
     {
-      id: 'g4-tam-2',
+      id: 'ch-tam4-2',
       chapterNumber: 2,
       title: 'பனிமலைப் பயணம்',
       description: 'இயற்கை எழில், கதை வாசிப்பு மற்றும் சொல்லாக்கம்.',
       difficulty: 'Beginner',
       xpReward: 450,
       coinsReward: 110,
-      gameType: 'கதை வாசிப்பு சவால்',
+      gameType: 'Interactive Quiz Engine',
       missionCode: 'TAM-0402',
     },
     {

@@ -662,7 +662,7 @@ class ChapterService {
     }
 
     if (!chapter) {
-      chapter = DEFAULT_CHAPTERS.find(ch => ch.id === chapterId);
+      chapter = DEFAULT_CHAPTERS.find(ch => ch.id === chapterId || (chapterId === 'g4-tam-2' && ch.id === 'ch-tam4-2'));
     }
 
     if (!chapter) {
