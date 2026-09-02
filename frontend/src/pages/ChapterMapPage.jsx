@@ -20,8 +20,6 @@ import {
   AlertTriangle, Flag, Award,
 } from 'lucide-react';
 
-import gameService from '../services/gameService';
-
 const STANDARD_NAMES = {
   'grade-4': '4th Standard', 'grade-5': '5th Standard',
   'grade-6': '6th Standard', 'grade-7': '7th Standard',
@@ -56,7 +54,6 @@ export default function ChapterMapPage() {
 
   // ── Chapter state ────────────────────────────────────────────────────────────
   const [chapters, setChapters] = useState([]);
-  const [serverUnlockedMap, setServerUnlockedMap] = useState({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -65,23 +62,7 @@ export default function ChapterMapPage() {
     setLoading(true);
     setError(null);
     try {
-      // 1. Fetch server-authoritative unlocked chapters
-      try {
-        const unlRes = await gameService.getUnlockedChapters(resolvedStdId, resolvedSubjId);
-        const unlData = unlRes?.data || unlRes;
-        if (Array.isArray(unlData?.chapters)) {
-          const map = {};
-          unlData.chapters.forEach(c => {
-            if (c.chapterId) map[c.chapterId] = c;
-            if (c.chapterNumber !== undefined) map[`num_${c.chapterNumber}`] = c;
-          });
-          setServerUnlockedMap(map);
-        }
-      } catch (e) {
-        console.warn('[ChapterMap] Server unlocked fetch fallback:', e.message);
-      }
-
-      // 2. Check if backend provides chapters for standard 11 or other standards
+      // 1. Check if backend provides chapters for standard 11 or other standards
       let backendChapters = null;
       if (resolvedStdId === 'grade-11' && (resolvedSubjId === 'chemistry' || !resolvedSubjId)) {
         try {
@@ -96,7 +77,7 @@ export default function ChapterMapPage() {
         }
       }
 
-      // 3. Fetch from centralized curriculum config
+      // 2. Fetch from centralized curriculum config
       const configChapters = getChaptersForStandardAndSubject(resolvedStdId, resolvedSubjId);
 
       if (backendChapters && backendChapters.length >= configChapters.length) {
@@ -125,24 +106,7 @@ export default function ChapterMapPage() {
     let foundCurrent = false;
 
     const statuses = chapters.map((ch, idx) => {
-      const fallbackStatus = getChapterStatus(ch, idx, chapters, completedRooms, userProgressList);
-      const serverStatus = serverUnlockedMap[ch.id] || serverUnlockedMap[`num_${ch.chapterNumber || idx + 1}`];
-
-      // Merge server status with local fallback
-      const isCompleted = serverStatus ? Boolean(serverStatus.isCompleted) : fallbackStatus.isCompleted;
-      const isUnlocked = serverStatus ? Boolean(serverStatus.unlocked) : fallbackStatus.isUnlocked;
-      const statusText = serverStatus?.status || (isCompleted ? 'COMPLETED' : isUnlocked ? (fallbackStatus.status || 'UNLOCKED') : 'LOCKED');
-      const progressVal = isCompleted ? 100 : (serverStatus?.progress ?? fallbackStatus.progress ?? 0);
-
-      const status = {
-        ...fallbackStatus,
-        status: statusText,
-        isCompleted,
-        isUnlocked,
-        progress: progressVal,
-        stars: serverStatus?.stars ?? fallbackStatus.stars ?? (isCompleted ? 3 : 0),
-      };
-
+      const status = getChapterStatus(ch, idx, chapters, completedRooms, userProgressList);
       if (status.isCompleted) {
         compCount++;
         starsCount += (status.stars || 3);
@@ -163,7 +127,7 @@ export default function ChapterMapPage() {
       currentChapterIndex: nextIdx,
       overallPercentage: overallPct,
     };
-  }, [chapters, completedRooms, userProgressList, serverUnlockedMap]);
+  }, [chapters, completedRooms, userProgressList]);
 
   // ── Handle chapter selection ─────────────────────────────────────────────────
   const handleSelectChapter = useCallback((chapter) => {

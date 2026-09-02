@@ -120,19 +120,8 @@ export function NavigationProvider({ children }) {
     setCurrentRoomRaw(roomObj);
   }, []);
 
-  // ── User-specific progress (starts from scoped storage / API) ──
-  const [completedRooms, setCompletedRooms] = useState(() => {
-    try {
-      const userRaw = localStorage.getItem('chemescape_user');
-      const u = userRaw ? JSON.parse(userRaw) : null;
-      if (u?.id) {
-        return scopedGetJSON(u.id, 'completedRooms', []);
-      }
-    } catch {
-      /* non-fatal */
-    }
-    return [];
-  });
+  // ── User-specific progress (starts empty — loaded per-user after login) ──
+  const [completedRooms, setCompletedRooms]     = useState([]);
   const [xp, setXp]                             = useState(0);
   const [coins, setCoins]                       = useState(0);
   const [level, setLevel]                       = useState(1);
@@ -254,53 +243,33 @@ export function NavigationProvider({ children }) {
     removeGlobalLegacyKeys();
   }, []);
 
-  const refreshUserStats = useCallback(async (explicitUserId = null) => {
+  const refreshUserStats = useCallback(async (userId = null) => {
     const token = localStorage.getItem('chemescape_token');
     if (!token) return;
 
-    let targetUserId = explicitUserId;
-    if (!targetUserId) {
-      try {
-        const userRaw = localStorage.getItem('chemescape_user');
-        const u = userRaw ? JSON.parse(userRaw) : null;
-        targetUserId = u?.id || null;
-      } catch {
-        /* non-fatal */
-      }
-    }
-
     try {
-      const res = await gameService.getUserProgress();
-      const data = res?.data || res;
+      const data = await gameService.getUserProgress();
       if (!data) return;
 
-      const stats = data.stats || data;
-      setXp(stats.totalXP ?? stats.xp ?? 0);
-      setCoins(stats.totalCoins ?? stats.coins ?? 0);
-      setLevel(stats.currentLevel ?? stats.level ?? 1);
-      setStreak(stats.currentStreak ?? stats.streak ?? 1);
+      if (data.stats) {
+        setXp(data.stats.totalXP     ?? 0);
+        setCoins(data.stats.totalCoins  ?? 0);
+        setLevel(data.stats.currentLevel ?? 1);
+        setStreak(data.stats.currentStreak ?? 1);
+      }
+      if (Array.isArray(data.badges))       setUserBadges(data.badges);
+      if (Array.isArray(data.progress))     setUserProgressList(data.progress);
 
-      if (Array.isArray(data.badges)) setUserBadges(data.badges);
-      
-      const progressArr = Array.isArray(data.progress)
-        ? data.progress
-        : (Array.isArray(data.completedList) ? data.completedList : []);
-      if (progressArr.length > 0) setUserProgressList(progressArr);
-
-      if (Array.isArray(data.completedList) && data.completedList.length > 0) {
+      if (Array.isArray(data.completedList)) {
         const backendRooms = data.completedList
-          .flatMap(p => [p.roomId, p.chapterId, p.room?.id, p.chapter?.id])
+          .map(p => p.roomId || p.room?.id)
           .filter(Boolean);
-
-        setCompletedRooms(prev => {
-          const merged = Array.from(new Set([...prev, ...backendRooms]));
-          if (targetUserId) scopedSetJSON(targetUserId, 'completedRooms', merged);
-          return merged;
-        });
+        setCompletedRooms(backendRooms);
+        if (userId) scopedSetJSON(userId, 'completedRooms', backendRooms);
       }
 
-      if (targetUserId) {
-        const prefs = scopedGetJSON(targetUserId, 'preferences');
+      if (userId) {
+        const prefs = scopedGetJSON(userId, 'preferences');
         if (prefs?.selectedStandardId) {
           setSelectedStandardIdRaw(prefs.selectedStandardId);
           setSelectedStandardRaw(prefs.selectedStandardName || '');
@@ -314,11 +283,6 @@ export function NavigationProvider({ children }) {
       console.warn('[ChemEscape] Failed to refresh user stats:', err.message);
     }
   }, []);
-
-  // Initial refresh on mount
-  useEffect(() => {
-    refreshUserStats();
-  }, [refreshUserStats]);
 
   // ─────────────────────────────────────────────────────────────────────────
   // Navigation

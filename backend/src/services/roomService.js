@@ -233,6 +233,24 @@ const DEFAULT_ROOMS = [
     orderNumber: 1,
     isActive: true,
   },
+  // Standard 4 Tamil Room 2 (பனிமலைப் பயணம்)
+  {
+    id: 'room-tam4-2',
+    chapterId: 'ch-tam4-2',
+    roomNumber: 1,
+    name: 'பனிமலை அரங்கம்',
+    title: 'பனிமலை அரங்கம்',
+    description: 'பனிமலைப் பயணம் கதை நயம், இயற்கை வருணனை, சொல்வளம் மற்றும் இலக்கண வினாடி வினா.',
+    roomType: 'PUZZLE',
+    gameType: 'GENERIC_CHAPTER_QUIZ',
+    gameConfig: { questionCount: 10, timeLimit: 300 },
+    difficulty: 'EASY',
+    estimatedMinutes: 20,
+    xpReward: 450,
+    coinReward: 110,
+    orderNumber: 1,
+    isActive: true,
+  },
   // Standard 4 English Rooms
   {
     id: 'room-eng4-1',

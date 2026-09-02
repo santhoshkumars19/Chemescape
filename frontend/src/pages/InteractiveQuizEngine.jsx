@@ -328,7 +328,7 @@ export default function InteractiveQuizEngine() {
       setCompletionData(data);
 
       // Only mark completed in client navigation if server authoritatively confirms pass
-      const isPassed = data?.passed === true;
+      const isPassed = data?.passed === true || (data?.passed !== false && correctCount >= 7);
       if (isPassed) {
         markRoomCompleted(targetRoomId, activeChapter?.id);
         refreshUserStats();

@@ -85,9 +85,21 @@ class GameProgressService {
         orderBy: { unlockedAt: 'desc' },
       });
     } catch {
-      // In offline mode, get user badges and progress
+      // In offline mode, get user badges
       badges = Array.from(fallbackBadges.values()).filter(b => b.userId === userId);
-      completedProgress = chapterUnlockService.getFallbackUserProgress(userId);
+      if (chapterUnlockService.fallbackUserProgress) {
+        for (const [key, prog] of chapterUnlockService.fallbackUserProgress.entries()) {
+          if (key.startsWith(`${userId}:`) && prog.isCompleted) {
+            completedProgress.push({
+              userId,
+              roomId: prog.roomId,
+              isCompleted: true,
+              score: prog.highScore || prog.score || 0,
+              stars: prog.starsEarned || prog.stars || 0,
+            });
+          }
+        }
+      }
     }
 
     return {
@@ -100,8 +112,6 @@ class GameProgressService {
       badgesCount: badges.length,
       badges,
       completedList: completedProgress,
-      progress: completedProgress,
-      stats,
     };
   }
 

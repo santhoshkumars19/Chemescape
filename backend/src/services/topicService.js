@@ -135,7 +135,41 @@ const DEFAULT_TOPICS = [
     orderNumber: 4,
     isActive: true,
   },
+  // Standard 4 Tamil Chapter 2 Topics (பனிமலைப் பயணம்)
+  {
+    id: 'topic-tam4-2-1',
+    chapterId: 'ch-tam4-2',
+    title: 'கதை வாசிப்பு & பொருள் நயம்',
+    description: 'பனிமலைப் பயணம் கதையின் கதாபாத்திரங்கள், நிகழ்வுகள் மற்றும் பொருள் நயம்.',
+    orderNumber: 1,
+    isActive: true,
+  },
+  {
+    id: 'topic-tam4-2-2',
+    chapterId: 'ch-tam4-2',
+    title: 'இயற்கை வருணனை & சொல்வளம்',
+    description: 'பனி, மலை, காடு, நதி ஆகியவற்றின் வருணனைச் சொற்கள் மற்றும் அகராதிப் பொருள்.',
+    orderNumber: 2,
+    isActive: true,
+  },
+  {
+    id: 'topic-tam4-2-3',
+    chapterId: 'ch-tam4-2',
+    title: 'பெயர்ச்சொல் & வினைச்சொல்',
+    description: 'கதையில் இடம்பெற்றுள்ள பெயர்ச்சொற்கள், வினைச்சொற்கள் மற்றும் அவற்றின் வகைகள்.',
+    orderNumber: 3,
+    isActive: true,
+  },
+  {
+    id: 'topic-tam4-2-4',
+    chapterId: 'ch-tam4-2',
+    title: 'ஒரு மொழி & பல மொழி',
+    description: 'ஒருமை மற்றும் பன்மை வடிவங்கள், படிகள், உறவுமுறைச் சொற்கள்.',
+    orderNumber: 4,
+    isActive: true,
+  },
   // Standard 4 English Chapter 1 Topics (A Feast for Rats)
+
   {
     id: 'topic-eng4-1-1',
     chapterId: 'ch-eng4-1',
