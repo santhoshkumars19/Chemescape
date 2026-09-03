@@ -433,6 +433,39 @@ const DEFAULT_TOPICS = [
     orderNumber: 4,
     isActive: true,
   },
+  // Standard 6 Tamil Chapter 1 Topics (ch-tam6-1)
+  {
+    id: 'topic-tam6-1-1',
+    chapterId: 'ch-tam6-1',
+    title: 'இன்பத்தமிழ் & பாடல் நயம்',
+    description: 'பாரதிதாசனின் இன்பத்தமிழ் பாடல், ஆசிரியர் குறிப்பு, மற்றும் பொருள் நயம் அறிதல்.',
+    orderNumber: 1,
+    isActive: true,
+  },
+  {
+    id: 'topic-tam6-1-2',
+    chapterId: 'ch-tam6-1',
+    title: 'தமிழ்க் கும்மி & கவிதை நயம்',
+    description: 'பெருஞ்சித்திரனாரின் தமிழ்க்கும்மி பாடல், எட்டுத் திசையிலும் தமிழின் பெருமை பரவுதல்.',
+    orderNumber: 2,
+    isActive: true,
+  },
+  {
+    id: 'topic-tam6-1-3',
+    chapterId: 'ch-tam6-1',
+    title: 'வளர்மொழி & தமிழின் தொன்மை',
+    description: 'பாரதியாரின் பாடல் வரிகள் மற்றும் தமிழ் மொழியின் தொன்மையும் சீரிளமையும்.',
+    orderNumber: 3,
+    isActive: true,
+  },
+  {
+    id: 'topic-tam6-1-4',
+    chapterId: 'ch-tam6-1',
+    title: 'தமிழ் எழுத்துகளின் வகை & மாத்திரை அளவு',
+    description: 'குறில், நெடில், மெய் மற்றும் ஆய்த எழுத்துகளின் கால அளவு (மாத்திரை).',
+    orderNumber: 4,
+    isActive: true,
+  },
 ];
 
 class TopicService {

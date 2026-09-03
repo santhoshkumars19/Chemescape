@@ -443,6 +443,26 @@ const DEFAULT_CHAPTERS = [
     subject: { id: 'subj-eng', name: 'English', code: 'ENG', icon: '📖' },
     standard: { id: 'grade-5', name: '5', displayName: '5th Standard' },
   },
+  // Standard 6 Subject Chapters
+  {
+    id: 'ch-tam6-1',
+    standardId: 'grade-6',
+    subjectId: 'subj-tamil',
+    title: 'இன்பத்தமிழ் (Inbathtamil)',
+    description: 'பாரதிதாசனின் இன்பத்தமிழ், பெருஞ்சித்திரனாரின் தமிழ்க்கும்மி, மற்றும் தமிழ் இலக்கணம்',
+    chapterNumber: 1,
+    difficulty: 'EASY',
+    estimatedMinutes: 20,
+    xpReward: 400,
+    coinReward: 100,
+    badgeName: 'Tamil Pioneer',
+    isLocked: false,
+    isActive: true,
+    displayOrder: 1,
+    subject: { id: 'subj-tamil', name: 'Tamil', code: 'TAMIL', icon: '📚' },
+    standard: { id: 'grade-6', name: '6', displayName: '6th Standard' },
+  },
+
   {
     id: 'ch-phy11-1',
     standardId: 'grade-11',
