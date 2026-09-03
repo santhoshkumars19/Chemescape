@@ -399,7 +399,81 @@ const DEFAULT_QUESTIONS = [
   // ───────────────────────────────────────────────────────────────────────────
   // Standard 5 Mathematics Room 1 (10 Questions - room-math5-1)
   // ───────────────────────────────────────────────────────────────────────────
+  ...[
+    { qn: 1,  text: 'What is the sum of 3,450 and 2,550?', hint: 'Add thousands first: 3000+2000=5000, then 450+550=1000. Total = 6,000.', opts: ['5,000', '6,000', '6,100', '5,900'], ans: 1, topic: 'topic-math5-1-1' },
+    { qn: 2,  text: 'Which fraction is equivalent to 3/4?', hint: 'Multiply numerator and denominator of 3/4 by 2 to get an equivalent fraction.', opts: ['6/8', '4/3', '2/3', '5/8'], ans: 0, topic: 'topic-math5-1-2' },
+    { qn: 3,  text: 'What is the product of 25 and 16?', hint: 'Break it down: 25 x 16 = 25 x 4 x 4 = 100 x 4 = 400.', opts: ['350', '375', '400', '425'], ans: 2, topic: 'topic-math5-1-2' },
+    { qn: 4,  text: 'Calculate the perimeter of a rectangle with length 8 cm and breadth 5 cm.', hint: 'Perimeter of rectangle = 2 x (length + breadth) = 2 x (8 + 5).', opts: ['13 cm', '26 cm', '40 cm', '52 cm'], ans: 1, topic: 'topic-math5-1-4' },
+    { qn: 5,  text: 'Find the area of a square with side 7 cm.', hint: 'Area of a square = side x side = 7 x 7.', opts: ['28 sq cm', '42 sq cm', '49 sq cm', '56 sq cm'], ans: 2, topic: 'topic-math5-1-4' },
+    { qn: 6,  text: 'Convert 3.5 kilograms into grams.', hint: '1 kilogram = 1,000 grams. So 3.5 kg = 3.5 x 1000 = 3,500 grams.', opts: ['350 g', '3,000 g', '3,500 g', '35,000 g'], ans: 2, topic: 'topic-math5-1-3' },
+    { qn: 7,  text: 'What is the Least Common Multiple (LCM) of 4 and 6?', hint: 'List multiples: 4 (4,8,12) and 6 (6,12). The smallest common multiple is 12.', opts: ['12', '18', '24', '2'], ans: 0, topic: 'topic-math5-1-2' },
+    { qn: 8,  text: 'What is 15% of 200?', hint: '15% means 15 out of 100. Multiply: 200 x 15 and divide by 100 = 30.', opts: ['20', '25', '30', '35'], ans: 2, topic: 'topic-math5-1-3' },
+    { qn: 9,  text: 'How many right angles are there inside a rectangle?', hint: 'Every corner of a rectangle measures exactly 90 degrees, which is a right angle.', opts: ['2', '3', '4', '6'], ans: 2, topic: 'topic-math5-1-4' },
+    { qn: 10, text: 'Solve using BODMAS: (12 + 8) / 4 * 3', hint: 'Step 1: Brackets (12+8=20). Step 2: Divide 20/4=5. Step 3: Multiply 5x3=15.', opts: ['10', '15', '20', '25'], ans: 1, topic: 'topic-math5-1-4' },
+  ].map((item) => ({
+    id: `q-math5-r1-${item.qn}`,
+    chapterId: 'ch-math5-1',
+    roomId: 'room-math5-1',
+    topicId: item.topic,
+    questionNumber: item.qn,
+    displayOrder: item.qn,
+    questionType: 'MCQ',
+    questionText: item.text,
+    description: `Standard 5 Mathematics Question ${item.qn}`,
+    difficulty: item.qn <= 3 ? 'EASY' : item.qn <= 7 ? 'MEDIUM' : 'HARD',
+    points: 100,
+    timeLimit: 60,
+    hint: item.hint,
+    status: 'PUBLISHED',
+    isActive: true,
+    options: item.opts.map((opt, idx) => ({
+      id: `opt-math5-${item.qn}-${idx + 1}`,
+      optionKey: String.fromCharCode(65 + idx),
+      optionText: opt,
+      isCorrect: idx === item.ans,
+      orderNumber: idx + 1,
+    })),
+  })),
+
+  // ───────────────────────────────────────────────────────────────────────────
   // Standard 5 Science Room 1 (10 Questions - room-sci5-1)
+  // ───────────────────────────────────────────────────────────────────────────
+  ...[
+    { qn: 1,  text: 'Which state of matter has a definite volume but no fixed shape?', hint: 'Think of water — it takes the shape of its container but keeps the same volume.', opts: ['Solid', 'Liquid', 'Gas', 'Plasma'], ans: 1, topic: 'topic-sci5-1-1' },
+    { qn: 2,  text: 'What is the process called when a liquid changes into a gas?', hint: 'When water is heated, it converts to steam through this process.', opts: ['Condensation', 'Evaporation', 'Freezing', 'Melting'], ans: 1, topic: 'topic-sci5-1-1' },
+    { qn: 3,  text: 'What is the boiling point of pure water at sea level?', hint: 'This is the standard temperature at which water turns into steam (in Celsius).', opts: ['0°C', '50°C', '100°C', '150°C'], ans: 2, topic: 'topic-sci5-1-1' },
+    { qn: 4,  text: 'Which simple machine uses a wheel with a rope running around its groove?', hint: 'This machine is commonly used to draw water from wells or lift heavy loads.', opts: ['Lever', 'Pulley', 'Inclined Plane', 'Screw'], ans: 1, topic: 'topic-sci5-1-4' },
+    { qn: 5,  text: 'Which of the following is a renewable source of energy?', hint: 'This energy comes from the sun and will never run out.', opts: ['Coal', 'Petroleum', 'Solar Energy', 'Natural Gas'], ans: 2, topic: 'topic-sci5-1-4' },
+    { qn: 6,  text: 'What gas do green plants absorb from the atmosphere during photosynthesis?', hint: 'Plants take in this gas and release oxygen as a by-product.', opts: ['Oxygen', 'Nitrogen', 'Carbon Dioxide', 'Hydrogen'], ans: 2, topic: 'topic-sci5-1-2' },
+    { qn: 7,  text: 'Which part of the plant absorbs water and minerals from the soil?', hint: 'This underground structure anchors the plant and absorbs nutrients.', opts: ['Stem', 'Leaves', 'Flower', 'Roots'], ans: 3, topic: 'topic-sci5-1-2' },
+    { qn: 8,  text: 'Which organ in the human body pumps blood throughout the body?', hint: 'This muscular organ is located in the chest cavity and beats continuously.', opts: ['Lungs', 'Stomach', 'Heart', 'Kidney'], ans: 2, topic: 'topic-sci5-1-3' },
+    { qn: 9,  text: 'What is the force that pulls objects toward the center of the Earth?', hint: 'Sir Isaac Newton discovered this force when an apple fell from a tree.', opts: ['Friction', 'Gravity', 'Magnetism', 'Buoyancy'], ans: 1, topic: 'topic-sci5-1-3' },
+    { qn: 10, text: 'Which vitamin is produced in the human skin upon exposure to sunlight?', hint: 'This vitamin is often called the Sunshine Vitamin and is essential for strong bones.', opts: ['Vitamin A', 'Vitamin B', 'Vitamin C', 'Vitamin D'], ans: 3, topic: 'topic-sci5-1-3' },
+  ].map((item) => ({
+    id: `q-sci5-r1-${item.qn}`,
+    chapterId: 'ch-sci5-1',
+    roomId: 'room-sci5-1',
+    topicId: item.topic,
+    questionNumber: item.qn,
+    displayOrder: item.qn,
+    questionType: 'MCQ',
+    questionText: item.text,
+    description: `Standard 5 Science Question ${item.qn}`,
+    difficulty: item.qn <= 3 ? 'EASY' : item.qn <= 7 ? 'MEDIUM' : 'HARD',
+    points: 100,
+    timeLimit: 60,
+    hint: item.hint,
+    status: 'PUBLISHED',
+    isActive: true,
+    options: item.opts.map((opt, idx) => ({
+      id: `opt-sci5-${item.qn}-${idx + 1}`,
+      optionKey: String.fromCharCode(65 + idx),
+      optionText: opt,
+      isCorrect: idx === item.ans,
+      orderNumber: idx + 1,
+    })),
+  })),
+
   // ───────────────────────────────────────────────────────────────────────────
   // Standard 5 Social Science Room 1 (10 Questions - room-soc5-1)
   // ───────────────────────────────────────────────────────────────────────────
@@ -621,6 +695,44 @@ const DEFAULT_QUESTIONS = [
     isActive: true,
     options: item.opts.map((opt, idx) => ({
       id: `opt-eng6-${item.qn}-${idx + 1}`,
+      optionKey: String.fromCharCode(65 + idx),
+      optionText: opt,
+      isCorrect: idx === item.ans,
+      orderNumber: idx + 1,
+    })),
+  })),
+  // ───────────────────────────────────────────────────────────────────────────
+  // Standard 6 Mathematics Room 1 (10 Questions - room-math6-1)
+  // ───────────────────────────────────────────────────────────────────────────
+  ...[
+    { qn: 1, text: 'In the Indian place value system, how is the number 1,00,00,000 (1 followed by 7 zeros) named?', hint: '100 lakhs make this large unit in the Indian system.', opts: ['One Million', 'Ten Lakhs', 'One Crore', 'Ten Crores'], ans: 2, topic: 'topic-math6-1-1' },
+    { qn: 2, text: 'In the International place value system, 1 million is equal to how many lakhs in the Indian system?', hint: '1 Million = 1,000,000. In Indian numbering: 10,00,000.', opts: ['1 Lakh', '10 Lakhs', '100 Lakhs', '1 Crore'], ans: 1, topic: 'topic-math6-1-1' },
+    { qn: 3, text: 'What is the place value of the digit 7 in the number 5,74,320?', hint: 'Count the place from the right: Units, Tens, Hundreds, Thousands, Ten Thousands.', opts: ['700', '7,000', '70,000', '7,00,000'], ans: 2, topic: 'topic-math6-1-1' },
+    { qn: 4, text: 'What is the predecessor of the smallest 6-digit number?', hint: 'Smallest 6-digit number is 1,00,000. Predecessor means subtracting 1.', opts: ['9,999', '99,999', '1,00,001', '90,000'], ans: 1, topic: 'topic-math6-1-2' },
+    { qn: 5, text: 'Round off the number 8,765 to the nearest hundred.', hint: 'Look at the tens digit (6). Since 6 >= 5, round up the hundreds digit from 7 to 8.', opts: ['8,700', '8,760', '8,800', '9,000'], ans: 2, topic: 'topic-math6-1-2' },
+    { qn: 6, text: 'Evaluate using the BODMAS rule: 20 + [8 × 2 - (6 ÷ 2)]', hint: 'Step 1: Inner brackets (6 ÷ 2 = 3). Step 2: Multiply (8 × 2 = 16). Step 3: (16 - 3 = 13). Step 4: 20 + 13.', opts: ['23', '33', '38', '43'], ans: 1, topic: 'topic-math6-1-3' },
+    { qn: 7, text: 'Simplify the numerical expression: 100 - 3 × (10 + 4)', hint: 'Solve parentheses first: (10 + 4 = 14). Then multiply: 3 × 14 = 42. Finally subtract: 100 - 42.', opts: ['58', '62', '1358', '86'], ans: 0, topic: 'topic-math6-1-3' },
+    { qn: 8, text: 'Which whole number is known as the Additive Identity?', hint: 'Adding this number to any number leaves the original number unchanged (a + 0 = a).', opts: ['0', '1', '-1', '10'], ans: 0, topic: 'topic-math6-1-4' },
+    { qn: 9, text: 'Which whole number is known as the Multiplicative Identity?', hint: 'Multiplying any whole number by this number gives the same number (a × 1 = a).', opts: ['0', '1', '2', '10'], ans: 1, topic: 'topic-math6-1-4' },
+    { qn: 10, text: 'Which property of whole numbers is represented by: 5 × (10 + 4) = (5 × 10) + (5 × 4)?', hint: 'Multiplication distributes over addition.', opts: ['Closure property', 'Commutative property', 'Associative property', 'Distributive property'], ans: 3, topic: 'topic-math6-1-4' },
+  ].map((item) => ({
+    id: `q-math6-r1-${item.qn}`,
+    chapterId: 'ch-math6-1',
+    roomId: 'room-math6-1',
+    topicId: item.topic,
+    questionNumber: item.qn,
+    displayOrder: item.qn,
+    questionType: 'MCQ',
+    questionText: item.text,
+    description: `Standard 6 Mathematics Question ${item.qn}`,
+    difficulty: item.qn <= 3 ? 'EASY' : item.qn <= 7 ? 'MEDIUM' : 'HARD',
+    points: 100,
+    timeLimit: 60,
+    hint: item.hint,
+    status: 'PUBLISHED',
+    isActive: true,
+    options: item.opts.map((opt, idx) => ({
+      id: `opt-math6-${item.qn}-${idx + 1}`,
       optionKey: String.fromCharCode(65 + idx),
       optionText: opt,
       isCorrect: idx === item.ans,

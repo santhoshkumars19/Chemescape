@@ -499,6 +499,39 @@ const DEFAULT_TOPICS = [
     orderNumber: 4,
     isActive: true,
   },
+  // Standard 6 Mathematics Chapter 1 Topics (ch-math6-1)
+  {
+    id: 'topic-math6-1-1',
+    chapterId: 'ch-math6-1',
+    title: 'Large Numbers & Place Value Systems',
+    description: 'Indian system (lakhs, crores) and International system (millions, billions), place values, and number expansion.',
+    orderNumber: 1,
+    isActive: true,
+  },
+  {
+    id: 'topic-math6-1-2',
+    chapterId: 'ch-math6-1',
+    title: 'Comparison, Ordering & Estimation',
+    description: 'Successor, predecessor, ascending/descending order, and rounding off numbers to nearest tens/hundreds.',
+    orderNumber: 2,
+    isActive: true,
+  },
+  {
+    id: 'topic-math6-1-3',
+    chapterId: 'ch-math6-1',
+    title: 'Order of Operations & BODMAS',
+    description: 'Use of brackets, BODMAS / BIDMAS rules, and multi-operation arithmetic expressions.',
+    orderNumber: 3,
+    isActive: true,
+  },
+  {
+    id: 'topic-math6-1-4',
+    chapterId: 'ch-math6-1',
+    title: 'Whole Numbers & Their Properties',
+    description: 'Whole numbers on number line, commutative, associative, identity (0 and 1), and distributive properties.',
+    orderNumber: 4,
+    isActive: true,
+  },
 ];
 
 class TopicService {

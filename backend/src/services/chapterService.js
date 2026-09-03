@@ -483,6 +483,25 @@ const DEFAULT_CHAPTERS = [
   },
 
   {
+    id: 'ch-math6-1',
+    standardId: 'grade-6',
+    subjectId: 'subj-math',
+    title: 'Numbers & Number Operations',
+    description: 'Large numbers, Indian & International place value systems, estimation, BODMAS, and whole numbers',
+    chapterNumber: 1,
+    difficulty: 'EASY',
+    estimatedMinutes: 20,
+    xpReward: 400,
+    coinReward: 100,
+    badgeName: 'Math Pioneer',
+    isLocked: false,
+    isActive: true,
+    displayOrder: 1,
+    subject: { id: 'subj-math', name: 'Mathematics', code: 'MATH', icon: '📐' },
+    standard: { id: 'grade-6', name: '6', displayName: '6th Standard' },
+  },
+
+  {
     id: 'ch-phy11-1',
     standardId: 'grade-11',
     subjectId: 'subj-phy',
