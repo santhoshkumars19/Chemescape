@@ -301,6 +301,39 @@ const DEFAULT_TOPICS = [
     orderNumber: 4,
     isActive: true,
   },
+  // Standard 5 English Chapter 1 Topics (ch-eng5-1)
+  {
+    id: 'topic-eng5-1-1',
+    chapterId: 'ch-eng5-1',
+    title: 'Parts of Speech: Nouns, Verbs & Adjectives',
+    description: 'Identifying nouns (person/place/thing), action verbs, and descriptive adjectives in sentences.',
+    orderNumber: 1,
+    isActive: true,
+  },
+  {
+    id: 'topic-eng5-1-2',
+    chapterId: 'ch-eng5-1',
+    title: 'Vocabulary: Plurals, Antonyms & Word Meanings',
+    description: 'Irregular plural forms, antonyms (opposites), and contextual vocabulary building.',
+    orderNumber: 2,
+    isActive: true,
+  },
+  {
+    id: 'topic-eng5-1-3',
+    chapterId: 'ch-eng5-1',
+    title: 'Articles, Prepositions & Conjunctions',
+    description: 'Using a/an/the correctly, prepositions of place, and conjunctions joining clauses.',
+    orderNumber: 3,
+    isActive: true,
+  },
+  {
+    id: 'topic-eng5-1-4',
+    chapterId: 'ch-eng5-1',
+    title: 'Tenses & Sentence Punctuation',
+    description: 'Irregular past tense forms, correct end punctuation (. ! ?), and sentence structure.',
+    orderNumber: 4,
+    isActive: true,
+  },
 ];
 
 class TopicService {

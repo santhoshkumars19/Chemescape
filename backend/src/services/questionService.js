@@ -514,20 +514,21 @@ const DEFAULT_QUESTIONS = [
   // Standard 5 English Room 1 (10 Questions - room-eng5-1)
   // ─────────────────────────────────────────────────────────────────────────
   ...[
-    { qn: 1, text: 'Identify the noun in the sentence: "The brave astronaut explored the galaxy."', hint: 'A noun is a person, place, or thing.', opts: ['brave', 'astronaut', 'explored', 'the'], ans: 1 },
-    { qn: 2, text: 'Choose the correct plural form of the word "Child".', hint: 'An irregular plural form.', opts: ['Childs', 'Children', 'Childrens', 'Childes'], ans: 1 },
-    { qn: 3, text: 'Identify the verb in: "The swift cheetah ran across the savannah."', hint: 'A verb represents an action word.', opts: ['swift', 'cheetah', 'ran', 'across'], ans: 2 },
-    { qn: 4, text: 'What is the antonym (opposite) of the word "Ancient"?', hint: 'Something belonging to present times.', opts: ['Old', 'Historic', 'Modern', 'Antique'], ans: 2 },
-    { qn: 5, text: 'Fill in the blank with the correct article: "She saw ___ eagle soaring high in the sky."', hint: 'Use "an" before vowel sounds.', opts: ['a', 'an', 'the', 'no article'], ans: 1 },
-    { qn: 6, text: 'Which adjective describes color or appearance in: "The crimson rose bloomed beautifully."', hint: 'An adjective describes a noun.', opts: ['crimson', 'bloomed', 'rose', 'beautifully'], ans: 0 },
-    { qn: 7, text: 'Choose the correct preposition: "The book is placed ___ the wooden table."', hint: 'Position on top of a surface.', opts: ['at', 'on', 'in', 'underneath'], ans: 1 },
-    { qn: 8, text: 'What is the past tense of the irregular verb "Write"?', hint: 'Past tense of write.', opts: ['Writed', 'Wrote', 'Written', 'Writing'], ans: 1 },
-    { qn: 9, text: 'Identify the conjunction in: "I wanted to play outside, but it began to rain."', hint: 'A conjunction connects two clauses.', opts: ['wanted', 'outside', 'but', 'began'], ans: 2 },
-    { qn: 10, text: 'Which sentence has the correct punctuation?', hint: 'A question must end with a question mark.', opts: ['Where are you going.', 'Where are you going!', 'Where are you going?', 'Where are you going,'], ans: 2 },
+    { qn: 1, text: 'Identify the noun in the sentence: "The brave astronaut explored the galaxy."', hint: 'A noun is a person, place, or thing — look for what the sentence is about.', opts: ['brave', 'astronaut', 'explored', 'galaxy'], ans: 1, topic: 'topic-eng5-1-1' },
+    { qn: 2, text: 'Identify the verb (action word) in: "The swift cheetah ran across the savannah."', hint: 'A verb shows what someone or something does.', opts: ['swift', 'cheetah', 'ran', 'savannah'], ans: 2, topic: 'topic-eng5-1-1' },
+    { qn: 3, text: 'Which word is an adjective in: "The crimson rose bloomed beautifully in the garden."?', hint: 'An adjective describes or tells more about a noun.', opts: ['bloomed', 'rose', 'crimson', 'beautifully'], ans: 2, topic: 'topic-eng5-1-1' },
+    { qn: 4, text: 'Choose the correct plural form of the word "Child".', hint: 'Some English words change their spelling entirely in the plural form.', opts: ['Childs', 'Children', 'Childrens', 'Childes'], ans: 1, topic: 'topic-eng5-1-2' },
+    { qn: 5, text: 'What is the antonym (opposite) of the word "Ancient"?', hint: 'Think of something belonging to present or recent times.', opts: ['Old', 'Historic', 'Modern', 'Antique'], ans: 2, topic: 'topic-eng5-1-2' },
+    { qn: 6, text: 'Fill in the blank with the correct article: "She saw ___ eagle soaring high in the sky."', hint: 'Use "an" before words that begin with a vowel sound (a, e, i, o, u).', opts: ['a', 'an', 'the', 'no article needed'], ans: 1, topic: 'topic-eng5-1-3' },
+    { qn: 7, text: 'Choose the correct preposition to complete the sentence: "The book is placed ___ the wooden table."', hint: 'Which preposition means resting on top of a surface?', opts: ['at', 'on', 'in', 'underneath'], ans: 1, topic: 'topic-eng5-1-3' },
+    { qn: 8, text: 'Identify the conjunction in: "I wanted to play outside, but it began to rain."', hint: 'A conjunction is a joining word that connects two ideas or clauses.', opts: ['wanted', 'outside', 'but', 'began'], ans: 2, topic: 'topic-eng5-1-3' },
+    { qn: 9, text: 'What is the past tense of the irregular verb "Write"?', hint: 'This is an irregular verb — it does not simply add -ed.', opts: ['Writed', 'Wrote', 'Written', 'Writing'], ans: 1, topic: 'topic-eng5-1-4' },
+    { qn: 10, text: 'Which sentence has the correct end punctuation?', hint: 'A question always ends with a question mark (?).', opts: ['Where are you going.', 'Where are you going!', 'Where are you going?', 'Where are you going,'], ans: 2, topic: 'topic-eng5-1-4' },
   ].map((item) => ({
     id: `q-eng5-r1-${item.qn}`,
     chapterId: 'ch-eng5-1',
     roomId: 'room-eng5-1',
+    topicId: item.topic,
     questionNumber: item.qn,
     displayOrder: item.qn,
     questionType: 'MCQ',
@@ -548,8 +549,7 @@ const DEFAULT_QUESTIONS = [
     })),
   })),
 
-  // ───────────────────────────────────────────────────────────────────────────
-  // Standard 5 Tamil Room 2 (10 Questions - room-tam5-2)
+    // Standard 5 Tamil Room 2 (10 Questions - room-tam5-2)
   // ───────────────────────────────────────────────────────────────────────────
   ...[
     { qn: 1, text: 'முத்தமிழின் மூன்று பிரிவுகள் யாவை?', hint: 'இயல், இசை, ...', opts: ['இயல், இசை, நாடகம்', 'உயிர், மெய், ஆய்தம்', 'அகம், புறம், நீதி', 'குறிஞ்சி, முல்லை, மருதம்'], ans: 0 },
