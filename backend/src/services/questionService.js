@@ -1,5 +1,6 @@
 const prisma = require('../config/db');
 const roomService = require('./roomService');
+const chapterService = require('./chapterService');
 const topicService = require('./topicService');
 
 // Authoritative default questions for fallback / offline resilience
@@ -1444,7 +1445,11 @@ class QuestionService {
     // 2. Validate Curriculum Hierarchy Context if supplied
     if (context.chapterId) {
       const normRoomCh = String(room.chapterId || '').toLowerCase().trim();
-      const normCtxCh = String(context.chapterId || '').toLowerCase().trim();
+      let normCtxCh = String(context.chapterId || '').toLowerCase().trim();
+      try {
+        const chObj = await chapterService.getChapterById(context.chapterId);
+        if (chObj) normCtxCh = chObj.id.toLowerCase().trim();
+      } catch {}
       const isAliasMatch = (normRoomCh === 'ch-tam4-2' && normCtxCh === 'g4-tam-2') || (normRoomCh === 'g4-tam-2' && normCtxCh === 'ch-tam4-2');
       if (normRoomCh && normCtxCh && normRoomCh !== normCtxCh && !isAliasMatch) {
         const error = new Error('Invalid curriculum context: Room does not belong to specified chapter');

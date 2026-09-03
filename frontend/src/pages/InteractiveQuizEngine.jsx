@@ -151,6 +151,27 @@ export default function InteractiveQuizEngine() {
           targetRoomId = activeChapter.id.replace('ch-', 'room-');
         }
 
+        // 4. Universal Fallback by Standard + Subject + Chapter Number (e.g. grade-7-tamil-1 -> room-tam7-1)
+        if (!targetRoomId) {
+          const stdNum = String(resolvedStdId).replace(/[^0-9]/g, '') || '4';
+          const subjCodeMap = {
+            tamil: 'tam',
+            tam: 'tam',
+            english: 'eng',
+            eng: 'eng',
+            mathematics: 'math',
+            math: 'math',
+            science: 'sci',
+            sci: 'sci',
+            'social-science': 'soc',
+            social: 'soc',
+            soc: 'soc',
+          };
+          const code = subjCodeMap[resolvedSubjId] || String(resolvedSubjId).slice(0, 3);
+          const chNum = activeChapter?.chapterNumber || 1;
+          targetRoomId = `room-${code}${stdNum}-${chNum}`;
+        }
+
         if (!targetRoomId) {
           if (isMounted) {
             setQuestions([]);
@@ -163,12 +184,23 @@ export default function InteractiveQuizEngine() {
           setLoadedRoomId(targetRoomId);
         }
 
-        const qRes = await roomService.getQuestionsByRoom(targetRoomId, {
+        let qRes = await roomService.getQuestionsByRoom(targetRoomId, {
           standardId: resolvedStdId,
           subjectId: resolvedSubjId,
           chapterId: activeChapter?.id,
         });
-        const rawList = qRes?.data?.questions || qRes?.questions || (Array.isArray(qRes) ? qRes : []);
+        let rawList = qRes?.data?.questions || qRes?.questions || (Array.isArray(qRes) ? qRes : []);
+
+        // If rawList is empty, retry without the optional chapterId filter to avoid alias mismatch
+        if ((!rawList || rawList.length === 0) && targetRoomId) {
+          try {
+            qRes = await roomService.getQuestionsByRoom(targetRoomId, {
+              standardId: resolvedStdId,
+              subjectId: resolvedSubjId,
+            });
+            rawList = qRes?.data?.questions || qRes?.questions || (Array.isArray(qRes) ? qRes : []);
+          } catch {}
+        }
 
         if (isMounted) {
           if (Array.isArray(rawList) && rawList.length > 0) {

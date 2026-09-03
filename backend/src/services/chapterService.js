@@ -945,6 +945,33 @@ class ChapterService {
       chapter = DEFAULT_CHAPTERS.find(ch => ch.id === chapterId || (chapterId === 'g4-tam-2' && ch.id === 'ch-tam4-2'));
     }
 
+    // Dynamic alias resolution for fallback IDs like grade-7-tamil-1, g7-tam-1, ch-tam-7-1
+    if (!chapter && typeof chapterId === 'string') {
+      const match = chapterId.match(/grade-(\d+)-([a-z-]+)-(\d+)/i) || chapterId.match(/g(\d+)-([a-z]+)-(\d+)/i);
+      if (match) {
+        const gradeNum = match[1];
+        const rawSubj = match[2].toLowerCase();
+        const chNum = parseInt(match[3], 10);
+        const subjCodeMap = {
+          tamil: 'tam',
+          tam: 'tam',
+          english: 'eng',
+          eng: 'eng',
+          mathematics: 'math',
+          math: 'math',
+          science: 'sci',
+          sci: 'sci',
+          'social-science': 'soc',
+          social: 'soc',
+          soc: 'soc',
+        };
+        const subjCode = subjCodeMap[rawSubj] || rawSubj.slice(0, 3);
+        const standardId = `grade-${gradeNum}`;
+        const targetId = `ch-${subjCode}${gradeNum}-${chNum}`;
+        chapter = DEFAULT_CHAPTERS.find(ch => ch.id === targetId || (ch.standardId === standardId && ch.chapterNumber === chNum && (ch.subjectId === `subj-${rawSubj}` || ch.subjectId === `subj-${subjCode}` || ch.subject?.code?.toLowerCase() === subjCode)));
+      }
+    }
+
     if (!chapter) {
       const error = new Error('Chapter not found');
       error.statusCode = 404;

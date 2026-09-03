@@ -882,9 +882,16 @@ class RoomService {
 
     // Context validation if chapterId provided
     if (options.chapterId && room.chapterId !== options.chapterId) {
-      const error = new Error('Room does not belong to the specified chapter');
-      error.statusCode = 400;
-      throw error;
+      let resolvedChapterId = options.chapterId;
+      try {
+        const chObj = await chapterService.getChapterById(options.chapterId);
+        if (chObj) resolvedChapterId = chObj.id;
+      } catch {}
+      if (room.chapterId !== resolvedChapterId) {
+        const error = new Error('Room does not belong to the specified chapter');
+        error.statusCode = 400;
+        throw error;
+      }
     }
 
     return this.sanitizeRoom(room, options.includeInactive);

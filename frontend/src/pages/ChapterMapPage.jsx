@@ -62,19 +62,33 @@ export default function ChapterMapPage() {
     setLoading(true);
     setError(null);
     try {
-      // 1. Check if backend provides chapters for standard 11 or other standards
+      // 1. Check if backend provides chapters for current standard & subject
       let backendChapters = null;
-      if (resolvedStdId === 'grade-11' && (resolvedSubjId === 'chemistry' || !resolvedSubjId)) {
-        try {
-          const apiData = await chapterService.getChaptersByStandard(resolvedStdId);
-          if (Array.isArray(apiData) && apiData.length > 0) {
-            backendChapters = apiData;
-          } else if (apiData?.chapters && Array.isArray(apiData.chapters)) {
-            backendChapters = apiData.chapters;
+      try {
+        const apiData = await chapterService.getChaptersByStandard(resolvedStdId);
+        const rawList = Array.isArray(apiData) ? apiData : (apiData?.chapters || apiData?.data?.chapters || []);
+        if (rawList.length > 0) {
+          const targetSubj = (resolvedSubjId || '').toLowerCase().replace(/^(subj-|subject-)/, '');
+          const filtered = rawList.filter(ch => {
+            const chSubj = String(ch.subjectId || ch.subject?.code || ch.subject?.name || '').toLowerCase().replace(/^(subj-|subject-)/, '');
+            if (!targetSubj) return true;
+            if (chSubj === targetSubj) return true;
+            if ((targetSubj === 'social-science' || targetSubj === 'social') && (chSubj === 'social' || chSubj === 'social-science')) return true;
+            if ((targetSubj === 'mathematics' || targetSubj === 'math') && (chSubj === 'math' || chSubj === 'mathematics')) return true;
+            if ((targetSubj === 'english' || targetSubj === 'eng') && (chSubj === 'eng' || chSubj === 'english')) return true;
+            if ((targetSubj === 'tamil' || targetSubj === 'tam') && (chSubj === 'tam' || chSubj === 'tamil')) return true;
+            if ((targetSubj === 'science' || targetSubj === 'sci') && (chSubj === 'sci' || chSubj === 'science')) return true;
+            return false;
+          });
+          if (filtered.length > 0) {
+            backendChapters = filtered.map(ch => ({
+              ...ch,
+              gameType: ch.gameType || 'Interactive Quiz Engine',
+            }));
           }
-        } catch {
-          // Backend API is optional — fallback gracefully
         }
+      } catch {
+        // Backend API is optional — fallback gracefully
       }
 
       // 2. Fetch from centralized curriculum config
