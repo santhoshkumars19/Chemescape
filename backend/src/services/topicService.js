@@ -367,6 +367,39 @@ const DEFAULT_TOPICS = [
     orderNumber: 4,
     isActive: true,
   },
+  // Standard 5 Science Chapter 1 Topics (ch-sci5-1)
+  {
+    id: 'topic-sci5-1-1',
+    chapterId: 'ch-sci5-1',
+    title: 'States of Matter & Changes',
+    description: 'Solid, liquid, gas properties; evaporation, condensation, boiling point of water.',
+    orderNumber: 1,
+    isActive: true,
+  },
+  {
+    id: 'topic-sci5-1-2',
+    chapterId: 'ch-sci5-1',
+    title: 'Plants: Photosynthesis & Parts',
+    description: 'Role of CO2 in photosynthesis, root functions, and plant nutrition.',
+    orderNumber: 2,
+    isActive: true,
+  },
+  {
+    id: 'topic-sci5-1-3',
+    chapterId: 'ch-sci5-1',
+    title: 'Human Body & Health',
+    description: 'Heart function, gravity, Vitamin D synthesis, and personal health.',
+    orderNumber: 3,
+    isActive: true,
+  },
+  {
+    id: 'topic-sci5-1-4',
+    chapterId: 'ch-sci5-1',
+    title: 'Simple Machines & Energy',
+    description: 'Pulley, lever, inclined plane; renewable vs non-renewable energy sources.',
+    orderNumber: 4,
+    isActive: true,
+  },
 ];
 
 class TopicService {
