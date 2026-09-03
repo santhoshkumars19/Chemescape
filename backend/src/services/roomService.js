@@ -511,6 +511,24 @@ const DEFAULT_ROOMS = [
   },
 
   {
+    id: 'room-eng6-1',
+    chapterId: 'ch-eng6-1',
+    roomNumber: 1,
+    name: 'Marine & Grammar Chamber',
+    title: 'Marine & Grammar Chamber',
+    description: 'Explore marine life reading comprehension, vocabulary, and grammar rules.',
+    roomType: 'PUZZLE',
+    gameType: 'GENERIC_CHAPTER_QUIZ',
+    gameConfig: { timeLimit: 300 },
+    difficulty: 'EASY',
+    estimatedMinutes: 15,
+    xpReward: 400,
+    coinReward: 100,
+    orderNumber: 1,
+    isActive: true,
+  },
+
+  {
     id: 'room-phy11-1',
     chapterId: 'ch-phy11-1',
     roomNumber: 1,

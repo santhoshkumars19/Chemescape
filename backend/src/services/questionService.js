@@ -589,6 +589,44 @@ const DEFAULT_QUESTIONS = [
       orderNumber: idx + 1,
     })),
   })),
+  // ───────────────────────────────────────────────────────────────────────────
+  // Standard 6 English Room 1 (10 Questions - room-eng6-1)
+  // ───────────────────────────────────────────────────────────────────────────
+  ...[
+    { qn: 1, text: 'According to the lesson "Sea Turtles", why do female sea turtles come ashore onto the beach?', hint: 'Female turtles only visit the sandy land to ensure their species continues by laying eggs.', opts: ['To hunt for food', 'To lay their eggs', 'To sleep during the night', 'To bask in the sunlight'], ans: 1, topic: 'topic-eng6-1-1' },
+    { qn: 2, text: 'What is the mass nesting phenomenon of Olive Ridley sea turtles on coastal beaches called?', hint: 'This Spanish word means "arrival" and refers to thousands of turtles nesting together.', opts: ['Arribada', 'Aquaria', 'Archipelago', 'Migration'], ans: 0, topic: 'topic-eng6-1-1' },
+    { qn: 3, text: 'Which physical adaptation helps sea turtles swim gracefully and navigate ocean currents?', hint: 'Their limbs are modified into paddle-like structures.', opts: ['Webbed toes', 'Flippers', 'Claws', 'Wings'], ans: 1, topic: 'topic-eng6-1-1' },
+    { qn: 4, text: 'Who is the poet of the humorous poem "The Crocodile"?', hint: 'He is the famous English author who also wrote "Alice\'s Adventures in Wonderland".', opts: ['William Wordsworth', 'Lewis Carroll', 'Robert Frost', 'Rudyard Kipling'], ans: 1, topic: 'topic-eng6-1-2' },
+    { qn: 5, text: 'In the poem "The Crocodile", how does the little crocodile welcome the little fishes in?', hint: 'The poem says he welcomes little fishes in with gently smiling jaws.', opts: ['With loud roaring', 'With gently smiling jaws', 'With sharp flashing claws', 'With a wagging tail'], ans: 1, topic: 'topic-eng6-1-2' },
+    { qn: 6, text: 'Identify the SUBJECT in the sentence: "The Olive Ridley turtles migrate thousands of kilometers."', hint: 'The subject is the naming part that tells who or what performs the action.', opts: ['migrate', 'thousands of kilometers', 'The Olive Ridley turtles', 'ocean currents'], ans: 2, topic: 'topic-eng6-1-3' },
+    { qn: 7, text: 'Identify the PREDICATE in the sentence: "The marine biologist rescued the injured hatchling."', hint: 'The predicate includes the verb and tells what the subject does.', opts: ['The marine biologist', 'rescued the injured hatchling', 'injured hatchling', 'biologist'], ans: 1, topic: 'topic-eng6-1-3' },
+    { qn: 8, text: 'Which type of sentence is: "Please protect the turtle nests from predators."', hint: 'This sentence gives an instruction, request, or command.', opts: ['Declarative sentence', 'Interrogative sentence', 'Imperative sentence', 'Exclamatory sentence'], ans: 2, topic: 'topic-eng6-1-3' },
+    { qn: 9, text: 'Choose the correct collective noun to fill in the blank: "A ___ of fish was swimming near the coral reef."', hint: 'A group of swimming fish is called a school or shoal.', opts: ['pride', 'school', 'pack', 'herd'], ans: 1, topic: 'topic-eng6-1-4' },
+    { qn: 10, text: 'Choose the correct pair of homophones: "We could ___ the vast blue ___ from the seashore."', hint: 'First word means to view with eyes; second word means the large body of saltwater.', opts: ['sea, see', 'see, sea', 'see, saw', 'seen, sea'], ans: 1, topic: 'topic-eng6-1-4' },
+  ].map((item) => ({
+    id: `q-eng6-r1-${item.qn}`,
+    chapterId: 'ch-eng6-1',
+    roomId: 'room-eng6-1',
+    topicId: item.topic,
+    questionNumber: item.qn,
+    displayOrder: item.qn,
+    questionType: 'MCQ',
+    questionText: item.text,
+    description: `Standard 6 English Question ${item.qn}`,
+    difficulty: item.qn <= 3 ? 'EASY' : item.qn <= 7 ? 'MEDIUM' : 'HARD',
+    points: 100,
+    timeLimit: 60,
+    hint: item.hint,
+    status: 'PUBLISHED',
+    isActive: true,
+    options: item.opts.map((opt, idx) => ({
+      id: `opt-eng6-${item.qn}-${idx + 1}`,
+      optionKey: String.fromCharCode(65 + idx),
+      optionText: opt,
+      isCorrect: idx === item.ans,
+      orderNumber: idx + 1,
+    })),
+  })),
 ];
 
 class QuestionService {

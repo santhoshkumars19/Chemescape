@@ -464,6 +464,25 @@ const DEFAULT_CHAPTERS = [
   },
 
   {
+    id: 'ch-eng6-1',
+    standardId: 'grade-6',
+    subjectId: 'subj-eng',
+    title: 'Sea Turtles (Prose & Grammar)',
+    description: 'Marine life conservation, prose comprehension, subject-predicate, and sentence types',
+    chapterNumber: 1,
+    difficulty: 'EASY',
+    estimatedMinutes: 20,
+    xpReward: 400,
+    coinReward: 100,
+    badgeName: 'English Navigator',
+    isLocked: false,
+    isActive: true,
+    displayOrder: 1,
+    subject: { id: 'subj-eng', name: 'English', code: 'ENG', icon: '📖' },
+    standard: { id: 'grade-6', name: '6', displayName: '6th Standard' },
+  },
+
+  {
     id: 'ch-phy11-1',
     standardId: 'grade-11',
     subjectId: 'subj-phy',

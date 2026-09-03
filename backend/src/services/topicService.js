@@ -466,6 +466,39 @@ const DEFAULT_TOPICS = [
     orderNumber: 4,
     isActive: true,
   },
+  // Standard 6 English Chapter 1 Topics (ch-eng6-1)
+  {
+    id: 'topic-eng6-1-1',
+    chapterId: 'ch-eng6-1',
+    title: 'Reading Comprehension: Sea Turtles',
+    description: 'Biological facts, nesting habits (Arribada), Olive Ridley, and marine conservation.',
+    orderNumber: 1,
+    isActive: true,
+  },
+  {
+    id: 'topic-eng6-1-2',
+    chapterId: 'ch-eng6-1',
+    title: 'Poetry: The Crocodile & Nature',
+    description: 'Lewis Carroll poem, rhyming schemes, poetic imagery, and predator behavior.',
+    orderNumber: 2,
+    isActive: true,
+  },
+  {
+    id: 'topic-eng6-1-3',
+    chapterId: 'ch-eng6-1',
+    title: 'Grammar: Subject, Predicate & Sentence Types',
+    description: 'Identifying subjects and predicates; declarative, interrogative, imperative, and exclamatory sentences.',
+    orderNumber: 3,
+    isActive: true,
+  },
+  {
+    id: 'topic-eng6-1-4',
+    chapterId: 'ch-eng6-1',
+    title: 'Vocabulary: Collective Nouns & Homophones',
+    description: 'Marine collective nouns (school/shoal of fish), homophones (see/sea), and contextual vocabulary.',
+    orderNumber: 4,
+    isActive: true,
+  },
 ];
 
 class TopicService {
