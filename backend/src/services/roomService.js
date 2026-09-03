@@ -565,6 +565,24 @@ const DEFAULT_ROOMS = [
   },
 
   {
+    id: 'room-soc6-1',
+    chapterId: 'ch-soc6-1',
+    roomNumber: 1,
+    name: 'Historical Archives & Relics Hall',
+    title: 'Historical Archives & Relics Hall',
+    description: 'Uncover stone age rock paintings, historical sources, and the legacy of Emperor Ashoka.',
+    roomType: 'PUZZLE',
+    gameType: 'GENERIC_CHAPTER_QUIZ',
+    gameConfig: { timeLimit: 300 },
+    difficulty: 'EASY',
+    estimatedMinutes: 15,
+    xpReward: 400,
+    coinReward: 100,
+    orderNumber: 1,
+    isActive: true,
+  },
+
+  {
     id: 'room-phy11-1',
     chapterId: 'ch-phy11-1',
     roomNumber: 1,

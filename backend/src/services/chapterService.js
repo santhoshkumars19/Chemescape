@@ -521,6 +521,25 @@ const DEFAULT_CHAPTERS = [
   },
 
   {
+    id: 'ch-soc6-1',
+    standardId: 'grade-6',
+    subjectId: 'subj-social',
+    title: 'What is History?',
+    description: 'Prehistory, sources of history, rock paintings, Emperor Ashoka, and archaeological evidence',
+    chapterNumber: 1,
+    difficulty: 'EASY',
+    estimatedMinutes: 20,
+    xpReward: 400,
+    coinReward: 100,
+    badgeName: 'History Scholar',
+    isLocked: false,
+    isActive: true,
+    displayOrder: 1,
+    subject: { id: 'subj-social', name: 'Social Science', code: 'SOCIAL', icon: '🌍' },
+    standard: { id: 'grade-6', name: '6', displayName: '6th Standard' },
+  },
+
+  {
     id: 'ch-phy11-1',
     standardId: 'grade-11',
     subjectId: 'subj-phy',

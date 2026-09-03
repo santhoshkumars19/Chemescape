@@ -777,6 +777,44 @@ const DEFAULT_QUESTIONS = [
       orderNumber: idx + 1,
     })),
   })),
+  // ───────────────────────────────────────────────────────────────────────────
+  // Standard 6 Social Science Room 1 (10 Questions - room-soc6-1)
+  // ───────────────────────────────────────────────────────────────────────────
+  ...[
+    { qn: 1, text: 'The term "History" is derived from which Greek word meaning "learning by inquiry"?', hint: 'The Greek word literally translates to learning or knowledge acquired by investigation.', opts: ['Polis', 'Historia', 'Chronos', 'Demokratia'], ans: 1, topic: 'topic-soc6-1-1' },
+    { qn: 2, text: 'What is the period between the use of the first stone tools and the invention of writing systems called?', hint: 'It is the era before written historical documentation existed.', opts: ['Ancient History', 'Prehistory', 'Medieval Period', 'Modern History'], ans: 1, topic: 'topic-soc6-1-1' },
+    { qn: 3, text: 'Which was the first animal to be domesticated by early humans to assist them in hunting and protection?', hint: 'This loyal companion used its sharp sense of smell to track animals and warn against wild beasts.', opts: ['Horse', 'Cow', 'Dog', 'Cat'], ans: 2, topic: 'topic-soc6-1-2' },
+    { qn: 4, text: 'Why did prehistoric humans draw paintings on the walls of caves and rock shelters?', hint: 'To document their hunting adventures and share them with community members who stayed back.', opts: ['To sell them to merchants', 'To record their hunting activities and daily events', 'To teach reading and writing', 'To build permanent monuments'], ans: 1, topic: 'topic-soc6-1-2' },
+    { qn: 5, text: 'What is the branch of historical science that deals with the study of inscriptions called?', hint: 'Inscriptions on stone walls, copper plates, and pillars are analyzed under this field.', opts: ['Numismatics', 'Epigraphy', 'Archaeology', 'Anthropology'], ans: 1, topic: 'topic-soc6-1-3' },
+    { qn: 6, text: 'What is the study of coins and coinage systems called?', hint: 'This field investigates ancient metallic currencies, dynasties, and economic history.', opts: ['Numismatics', 'Epigraphy', 'Palaeontology', 'Geology'], ans: 0, topic: 'topic-soc6-1-3' },
+    { qn: 7, text: 'Which ancient Indian emperor gave up war after witnessing the horrors of the Kalinga War and embraced Buddhism?', hint: 'He was the most renowned ruler of the Mauryan Empire.', opts: ['Chandragupta Maurya', 'Emperor Ashoka', 'Samudragupta', 'Harsha'], ans: 1, topic: 'topic-soc6-1-4' },
+    { qn: 8, text: 'The Ashoka Chakra with 24 spokes in India’s National Flag was adopted from which historical monument?', hint: 'The pillar located in Uttar Pradesh topped with four back-to-back lions.', opts: ['Sanchi Stupa', 'Sarnath Pillar of Ashoka', 'Qutb Minar', 'Ajanta Caves'], ans: 1, topic: 'topic-soc6-1-4' },
+    { qn: 9, text: 'Who wrote the book "The Search for India’s Lost Emperor" that brought Emperor Ashoka’s greatness to light?', hint: 'An English author and historian whose work reconstructed Ashoka from historical records.', opts: ['James Prinsep', 'Charles Allen', 'Alexander Cunningham', 'William Jones'], ans: 1, topic: 'topic-soc6-1-4' },
+    { qn: 10, text: 'Which of the following is an example of an archaeological source of history?', hint: 'Physical material remains left behind by past human cultures.', opts: ['The Ramayana epic', 'Travel accounts of foreign travelers', 'Temple inscriptions and ancient coins', 'Folk songs and ballads'], ans: 2, topic: 'topic-soc6-1-3' },
+  ].map((item) => ({
+    id: `q-soc6-r1-${item.qn}`,
+    chapterId: 'ch-soc6-1',
+    roomId: 'room-soc6-1',
+    topicId: item.topic,
+    questionNumber: item.qn,
+    displayOrder: item.qn,
+    questionType: 'MCQ',
+    questionText: item.text,
+    description: `Standard 6 Social Science Question ${item.qn}`,
+    difficulty: item.qn <= 3 ? 'EASY' : item.qn <= 7 ? 'MEDIUM' : 'HARD',
+    points: 100,
+    timeLimit: 60,
+    hint: item.hint,
+    status: 'PUBLISHED',
+    isActive: true,
+    options: item.opts.map((opt, idx) => ({
+      id: `opt-soc6-${item.qn}-${idx + 1}`,
+      optionKey: String.fromCharCode(65 + idx),
+      optionText: opt,
+      isCorrect: idx === item.ans,
+      orderNumber: idx + 1,
+    })),
+  })),
 ];
 
 class QuestionService {

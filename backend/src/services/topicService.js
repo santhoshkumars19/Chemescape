@@ -565,6 +565,39 @@ const DEFAULT_TOPICS = [
     orderNumber: 4,
     isActive: true,
   },
+  // Standard 6 Social Science Chapter 1 Topics (ch-soc6-1)
+  {
+    id: 'topic-soc6-1-1',
+    chapterId: 'ch-soc6-1',
+    title: 'Concept & Meaning of History',
+    description: 'Origin from Greek word Historia (learning by inquiry), timeline, BCE/CE dating, and importance of historical study.',
+    orderNumber: 1,
+    isActive: true,
+  },
+  {
+    id: 'topic-soc6-1-2',
+    chapterId: 'ch-soc6-1',
+    title: 'Prehistoric Period & Cave Art',
+    description: 'Stone Age lifestyle, rock paintings, hunter-gatherer existence, and early animal domestication (dogs).',
+    orderNumber: 2,
+    isActive: true,
+  },
+  {
+    id: 'topic-soc6-1-3',
+    chapterId: 'ch-soc6-1',
+    title: 'Sources of History: Artefacts & Inscriptions',
+    description: 'Archaeological sources (monuments, coins, artefacts), literary sources (religious/secular), epigraphy, and numismatics.',
+    orderNumber: 3,
+    isActive: true,
+  },
+  {
+    id: 'topic-soc6-1-4',
+    chapterId: 'ch-soc6-1',
+    title: 'Emperor Ashoka & Historical Legacy',
+    description: 'Kalinga war transformation, propagation of Buddhism, Ashoka Chakra on National Flag, and Lion Capital of Sarnath.',
+    orderNumber: 4,
+    isActive: true,
+  },
 ];
 
 class TopicService {
