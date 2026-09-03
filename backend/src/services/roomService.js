@@ -547,6 +547,24 @@ const DEFAULT_ROOMS = [
   },
 
   {
+    id: 'room-sci6-1',
+    chapterId: 'ch-sci6-1',
+    roomNumber: 1,
+    name: 'Measurement & Physics Lab',
+    title: 'Measurement & Physics Lab',
+    description: 'Explore SI units, measuring devices, volume calculation, and parallax error prevention.',
+    roomType: 'PUZZLE',
+    gameType: 'GENERIC_CHAPTER_QUIZ',
+    gameConfig: { timeLimit: 300 },
+    difficulty: 'EASY',
+    estimatedMinutes: 15,
+    xpReward: 400,
+    coinReward: 100,
+    orderNumber: 1,
+    isActive: true,
+  },
+
+  {
     id: 'room-phy11-1',
     chapterId: 'ch-phy11-1',
     roomNumber: 1,

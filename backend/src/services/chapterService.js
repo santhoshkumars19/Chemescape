@@ -502,6 +502,25 @@ const DEFAULT_CHAPTERS = [
   },
 
   {
+    id: 'ch-sci6-1',
+    standardId: 'grade-6',
+    subjectId: 'subj-sci',
+    title: 'Measurements & Motion',
+    description: 'SI units, measuring instruments, length, mass, time, volume, and parallax errors',
+    chapterNumber: 1,
+    difficulty: 'EASY',
+    estimatedMinutes: 20,
+    xpReward: 400,
+    coinReward: 100,
+    badgeName: 'Science Explorer',
+    isLocked: false,
+    isActive: true,
+    displayOrder: 1,
+    subject: { id: 'subj-sci', name: 'Science', code: 'SCI', icon: '🔬' },
+    standard: { id: 'grade-6', name: '6', displayName: '6th Standard' },
+  },
+
+  {
     id: 'ch-phy11-1',
     standardId: 'grade-11',
     subjectId: 'subj-phy',

@@ -532,6 +532,39 @@ const DEFAULT_TOPICS = [
     orderNumber: 4,
     isActive: true,
   },
+  // Standard 6 Science Chapter 1 Topics (ch-sci6-1)
+  {
+    id: 'topic-sci6-1-1',
+    chapterId: 'ch-sci6-1',
+    title: 'SI Units & Fundamental Quantities',
+    description: 'Length (metre), mass (kilogram), time (second), temperature (Kelvin), and unit multiples.',
+    orderNumber: 1,
+    isActive: true,
+  },
+  {
+    id: 'topic-sci6-1-2',
+    chapterId: 'ch-sci6-1',
+    title: 'Measuring Devices & Instruments',
+    description: 'Metre scale, measuring tape, stop clock, and beam/electronic balance.',
+    orderNumber: 2,
+    isActive: true,
+  },
+  {
+    id: 'topic-sci6-1-3',
+    chapterId: 'ch-sci6-1',
+    title: 'Volume of Liquids & Irregular Solids',
+    description: 'Litre, millilitre, measuring cylinders, and water displacement method for irregular objects.',
+    orderNumber: 3,
+    isActive: true,
+  },
+  {
+    id: 'topic-sci6-1-4',
+    chapterId: 'ch-sci6-1',
+    title: 'Measurement Accuracy & Parallax Errors',
+    description: 'Correct eye alignment, vertical reading, zero error prevention, and accuracy in measurements.',
+    orderNumber: 4,
+    isActive: true,
+  },
 ];
 
 class TopicService {

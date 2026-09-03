@@ -739,6 +739,44 @@ const DEFAULT_QUESTIONS = [
       orderNumber: idx + 1,
     })),
   })),
+  // ───────────────────────────────────────────────────────────────────────────
+  // Standard 6 Science Room 1 (10 Questions - room-sci6-1)
+  // ───────────────────────────────────────────────────────────────────────────
+  ...[
+    { qn: 1, text: 'What is the standard International (SI) unit of length?', hint: 'This unit is denoted by the lowercase letter "m".', opts: ['Centimetre', 'Metre', 'Kilometre', 'Millimetre'], ans: 1, topic: 'topic-sci6-1-1' },
+    { qn: 2, text: 'What is the SI unit of mass?', hint: 'This unit equals 1,000 grams and is symbolized as "kg".', opts: ['Gram', 'Milligram', 'Kilogram', 'Pound'], ans: 2, topic: 'topic-sci6-1-1' },
+    { qn: 3, text: 'How many millimetres are equal to 1 centimetre (1 cm)?', hint: 'Look closely at a standard school ruler — between 0 and 1 cm there are 10 small divisions.', opts: ['5 mm', '10 mm', '100 mm', '1000 mm'], ans: 1, topic: 'topic-sci6-1-1' },
+    { qn: 4, text: 'How many metres make 1 kilometre (1 km)?', hint: 'The prefix "kilo" represents a thousand (10^3).', opts: ['10 m', '100 m', '1,000 m', '10,000 m'], ans: 2, topic: 'topic-sci6-1-1' },
+    { qn: 5, text: 'Which instrument is most suitable to measure the girth (thickness) of a tree trunk?', hint: 'This flexible measuring tool can curve smoothly around circular objects.', opts: ['Metre scale', 'Measuring tape', 'Beam balance', 'Stop clock'], ans: 1, topic: 'topic-sci6-1-2' },
+    { qn: 6, text: 'Which balance is commonly used in laboratories and jewellery shops for highly accurate mass measurements?', hint: 'This modern digital balance runs on electrical sensors to give exact decimal readings.', opts: ['Beam balance', 'Spring balance', 'Electronic balance', 'Physical balance'], ans: 2, topic: 'topic-sci6-1-2' },
+    { qn: 7, text: 'What is the SI unit used to measure temperature?', hint: 'Named after Lord Kelvin and symbolized by the uppercase letter "K".', opts: ['Celsius', 'Fahrenheit', 'Kelvin', 'Joule'], ans: 2, topic: 'topic-sci6-1-1' },
+    { qn: 8, text: 'Which method is used to determine the volume of an irregular solid object like an irregular stone?', hint: 'When submerged in a measuring cylinder, the solid displaces water equal to its own volume.', opts: ['Length x Breadth x Height formula', 'Water displacement method', 'Using a beam balance', 'Measuring tape winding'], ans: 1, topic: 'topic-sci6-1-3' },
+    { qn: 9, text: '1 Litre of liquid is equal to how many millilitres (mL)?', hint: 'The prefix "milli" means one-thousandth part.', opts: ['10 mL', '100 mL', '1,000 mL', '10,000 mL'], ans: 2, topic: 'topic-sci6-1-3' },
+    { qn: 10, text: 'What is the error called that occurs when the observer’s eye is not vertically above the scale reading mark?', hint: 'Viewing from an angle causes an apparent shift known as parallax.', opts: ['Zero error', 'Parallax error', 'Random error', 'Instrumental error'], ans: 1, topic: 'topic-sci6-1-4' },
+  ].map((item) => ({
+    id: `q-sci6-r1-${item.qn}`,
+    chapterId: 'ch-sci6-1',
+    roomId: 'room-sci6-1',
+    topicId: item.topic,
+    questionNumber: item.qn,
+    displayOrder: item.qn,
+    questionType: 'MCQ',
+    questionText: item.text,
+    description: `Standard 6 Science Question ${item.qn}`,
+    difficulty: item.qn <= 3 ? 'EASY' : item.qn <= 7 ? 'MEDIUM' : 'HARD',
+    points: 100,
+    timeLimit: 60,
+    hint: item.hint,
+    status: 'PUBLISHED',
+    isActive: true,
+    options: item.opts.map((opt, idx) => ({
+      id: `opt-sci6-${item.qn}-${idx + 1}`,
+      optionKey: String.fromCharCode(65 + idx),
+      optionText: opt,
+      isCorrect: idx === item.ans,
+      orderNumber: idx + 1,
+    })),
+  })),
 ];
 
 class QuestionService {
