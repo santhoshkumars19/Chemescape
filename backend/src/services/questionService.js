@@ -401,59 +401,24 @@ const DEFAULT_QUESTIONS = [
   // ───────────────────────────────────────────────────────────────────────────
   // Standard 5 Science Room 1 (10 Questions - room-sci5-1)
   // ───────────────────────────────────────────────────────────────────────────
+  // Standard 5 Social Science Room 1 (10 Questions - room-soc5-1)
+  // ───────────────────────────────────────────────────────────────────────────
   ...[
-    { qn: 1,  text: 'Which state of matter has a definite volume but no fixed shape?', hint: 'Think of water — it takes the shape of its container but keeps the same volume.', opts: ['Solid', 'Liquid', 'Gas', 'Plasma'], ans: 1, topic: 'topic-sci5-1-1' },
-    { qn: 2,  text: 'What is the process called when a liquid changes into a gas?', hint: 'When water is heated, it converts to steam through this process.', opts: ['Condensation', 'Evaporation', 'Freezing', 'Melting'], ans: 1, topic: 'topic-sci5-1-1' },
-    { qn: 3,  text: 'What is the boiling point of pure water at sea level?', hint: 'This is the standard temperature at which water turns into steam (in Celsius).', opts: ['0°C', '50°C', '100°C', '150°C'], ans: 2, topic: 'topic-sci5-1-1' },
-    { qn: 4,  text: 'Which simple machine uses a wheel with a rope running around its groove?', hint: 'This machine is commonly used to draw water from wells or lift heavy loads.', opts: ['Lever', 'Pulley', 'Inclined Plane', 'Screw'], ans: 1, topic: 'topic-sci5-1-4' },
-    { qn: 5,  text: 'Which of the following is a renewable source of energy?', hint: 'This energy comes from the sun and will never run out.', opts: ['Coal', 'Petroleum', 'Solar Energy', 'Natural Gas'], ans: 2, topic: 'topic-sci5-1-4' },
-    { qn: 6,  text: 'What gas do green plants absorb from the atmosphere during photosynthesis?', hint: 'Plants take in this gas and release oxygen as a by-product.', opts: ['Oxygen', 'Nitrogen', 'Carbon Dioxide', 'Hydrogen'], ans: 2, topic: 'topic-sci5-1-2' },
-    { qn: 7,  text: 'Which part of the plant absorbs water and minerals from the soil?', hint: 'This underground structure anchors the plant and absorbs nutrients.', opts: ['Stem', 'Leaves', 'Flower', 'Roots'], ans: 3, topic: 'topic-sci5-1-2' },
-    { qn: 8,  text: 'Which organ in the human body pumps blood throughout the body?', hint: 'This muscular organ is located in the chest cavity and beats continuously.', opts: ['Lungs', 'Stomach', 'Heart', 'Kidney'], ans: 2, topic: 'topic-sci5-1-3' },
-    { qn: 9,  text: 'What is the force that pulls objects toward the center of the Earth?', hint: 'Sir Isaac Newton discovered this force when an apple fell from a tree.', opts: ['Friction', 'Gravity', 'Magnetism', 'Buoyancy'], ans: 1, topic: 'topic-sci5-1-3' },
-    { qn: 10, text: 'Which vitamin is produced in the human skin upon exposure to sunlight?', hint: 'This vitamin is often called the Sunshine Vitamin and is essential for strong bones.', opts: ['Vitamin A', 'Vitamin B', 'Vitamin C', 'Vitamin D'], ans: 3, topic: 'topic-sci5-1-3' },
-  ].map((item) => ({
-    id: `q-sci5-r1-${item.qn}`,
-    chapterId: 'ch-sci5-1',
-    roomId: 'room-sci5-1',
-    topicId: item.topic,
-    questionNumber: item.qn,
-    displayOrder: item.qn,
-    questionType: 'MCQ',
-    questionText: item.text,
-    description: `Standard 5 Science Question ${item.qn}`,
-    difficulty: item.qn <= 3 ? 'EASY' : item.qn <= 7 ? 'MEDIUM' : 'HARD',
-    points: 100,
-    timeLimit: 60,
-    hint: item.hint,
-    status: 'PUBLISHED',
-    isActive: true,
-    options: item.opts.map((opt, idx) => ({
-      id: `opt-sci5-${item.qn}-${idx + 1}`,
-      optionKey: String.fromCharCode(65 + idx),
-      optionText: opt,
-      isCorrect: idx === item.ans,
-      orderNumber: idx + 1,
-    })),
-  })),
-
-    // Standard 5 Social Science Room 1 (10 Questions - room-soc5-1)
-  // ─────────────────────────────────────────────────────────────────────────
-  ...[
-    { qn: 1, text: 'How many continents are there on Earth?', hint: 'Asia, Africa, North America, South America, Antarctica, Europe, Australia.', opts: ['5', '6', '7', '8'], ans: 2 },
-    { qn: 2, text: 'Which is the largest ocean on Earth?', hint: 'The ocean located between Asia and the Americas.', opts: ['Atlantic Ocean', 'Indian Ocean', 'Pacific Ocean', 'Arctic Ocean'], ans: 2 },
-    { qn: 3, text: 'What is the capital city of India?', hint: 'Located in northern India along the Yamuna River.', opts: ['Mumbai', 'New Delhi', 'Kolkata', 'Chennai'], ans: 1 },
-    { qn: 4, text: 'Who is known as the Father of the Indian Constitution?', hint: 'Dr. B. R. ...', opts: ['Mahatma Gandhi', 'Dr. B. R. Ambedkar', 'Jawaharlal Nehru', 'Sardar Patel'], ans: 1 },
-    { qn: 5, text: 'What is the imaginary line dividing Earth into Northern and Southern Hemispheres?', hint: 'The 0° latitude line.', opts: ['Tropic of Cancer', 'Prime Meridian', 'Equator', 'Tropic of Capricorn'], ans: 2 },
-    { qn: 6, text: 'Which ancient civilization flourished along the Indus River valley?', hint: 'Famous for cities Harappa and Mohenjo-Daro.', opts: ['Egyptian Civilization', 'Indus Valley Civilization', 'Mesopotamian Civilization', 'Chinese Civilization'], ans: 1 },
-    { qn: 7, text: 'What does the blue color represent on physical maps and globes?', hint: 'Bodies of liquid covering Earth.', opts: ['Forests', 'Deserts', 'Water bodies', 'Mountains'], ans: 2 },
-    { qn: 8, text: 'In which year did India gain independence from British rule?', hint: 'The historic 15th August year.', opts: ['1942', '1945', '1947', '1950'], ans: 2 },
-    { qn: 9, text: 'Which is the national animal of India?', hint: 'A majestic striped big cat.', opts: ['Lion', 'Royal Bengal Tiger', 'Elephant', 'Peacock'], ans: 1 },
-    { qn: 10, text: 'How many fundamental rights are guaranteed to Indian citizens by the Constitution?', hint: 'Six primary fundamental rights.', opts: ['4', '5', '6', '7'], ans: 2 },
+    { qn: 1,  text: 'How many continents are there on Earth?', hint: 'Remember: Asia, Africa, North America, South America, Antarctica, Europe, Australia/Oceania.', opts: ['5', '6', '7', '8'], ans: 2, topic: 'topic-soc5-1-1' },
+    { qn: 2,  text: 'Which is the largest ocean on Earth?', hint: 'This ocean lies between Asia and the Americas and covers more than 30% of Earth\'s surface.', opts: ['Atlantic Ocean', 'Indian Ocean', 'Pacific Ocean', 'Arctic Ocean'], ans: 2, topic: 'topic-soc5-1-1' },
+    { qn: 3,  text: 'What is the imaginary line that divides Earth into Northern and Southern Hemispheres?', hint: 'This is the 0° latitude line that runs around the middle of the Earth.', opts: ['Tropic of Cancer', 'Prime Meridian', 'Equator', 'Tropic of Capricorn'], ans: 2, topic: 'topic-soc5-1-1' },
+    { qn: 4,  text: 'What does the blue colour represent on physical maps and globes?', hint: 'Think of the colour of seas, rivers, and lakes on a map.', opts: ['Forests', 'Deserts', 'Water bodies', 'Mountains'], ans: 2, topic: 'topic-soc5-1-1' },
+    { qn: 5,  text: 'What is the capital city of India?', hint: 'This city is located in northern India along the Yamuna River.', opts: ['Mumbai', 'New Delhi', 'Kolkata', 'Chennai'], ans: 1, topic: 'topic-soc5-1-2' },
+    { qn: 6,  text: 'In which year did India gain independence from British rule?', hint: 'India celebrated its first Independence Day on 15th August of this year.', opts: ['1942', '1945', '1947', '1950'], ans: 2, topic: 'topic-soc5-1-2' },
+    { qn: 7,  text: 'Who is known as the Father of the Indian Constitution?', hint: 'He was the chairman of the Drafting Committee of the Indian Constitution.', opts: ['Mahatma Gandhi', 'Dr. B. R. Ambedkar', 'Jawaharlal Nehru', 'Sardar Patel'], ans: 1, topic: 'topic-soc5-1-2' },
+    { qn: 8,  text: 'How many Fundamental Rights are guaranteed to Indian citizens by the Constitution?', hint: 'These rights include the Right to Equality, Right to Freedom, and four others.', opts: ['4', '5', '6', '7'], ans: 2, topic: 'topic-soc5-1-2' },
+    { qn: 9,  text: 'Which ancient civilisation flourished along the Indus River valley?', hint: 'This civilisation built the famous cities of Harappa and Mohenjo-Daro.', opts: ['Egyptian Civilisation', 'Indus Valley Civilisation', 'Mesopotamian Civilisation', 'Chinese Civilisation'], ans: 1, topic: 'topic-soc5-1-3' },
+    { qn: 10, text: 'Which is the national animal of India?', hint: 'This majestic striped big cat is an apex predator found in Indian forests.', opts: ['Lion', 'Royal Bengal Tiger', 'Elephant', 'Peacock'], ans: 1, topic: 'topic-soc5-1-4' },
   ].map((item) => ({
     id: `q-soc5-r1-${item.qn}`,
     chapterId: 'ch-soc5-1',
     roomId: 'room-soc5-1',
+    topicId: item.topic,
     questionNumber: item.qn,
     displayOrder: item.qn,
     questionType: 'MCQ',
@@ -474,8 +439,7 @@ const DEFAULT_QUESTIONS = [
     })),
   })),
 
-  // ───────────────────────────────────────────────────────────────────────────
-  // Standard 5 English Room 1 (10 Questions - room-eng5-1)
+    // Standard 5 English Room 1 (10 Questions - room-eng5-1)
   // ─────────────────────────────────────────────────────────────────────────
   ...[
     { qn: 1, text: 'Identify the noun in the sentence: "The brave astronaut explored the galaxy."', hint: 'A noun is a person, place, or thing — look for what the sentence is about.', opts: ['brave', 'astronaut', 'explored', 'galaxy'], ans: 1, topic: 'topic-eng5-1-1' },

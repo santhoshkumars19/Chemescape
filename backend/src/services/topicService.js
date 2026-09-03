@@ -400,6 +400,39 @@ const DEFAULT_TOPICS = [
     orderNumber: 4,
     isActive: true,
   },
+  // Standard 5 Social Science Chapter 1 Topics (ch-soc5-1)
+  {
+    id: 'topic-soc5-1-1',
+    chapterId: 'ch-soc5-1',
+    title: 'Earth: Continents, Oceans & Globe',
+    description: 'Seven continents, five oceans, equator, hemispheres, and physical map symbols.',
+    orderNumber: 1,
+    isActive: true,
+  },
+  {
+    id: 'topic-soc5-1-2',
+    chapterId: 'ch-soc5-1',
+    title: 'India: Capital, Independence & Constitution',
+    description: 'Capital New Delhi, Independence 1947, Dr. B.R. Ambedkar, and Fundamental Rights.',
+    orderNumber: 2,
+    isActive: true,
+  },
+  {
+    id: 'topic-soc5-1-3',
+    chapterId: 'ch-soc5-1',
+    title: 'Ancient Civilizations & History',
+    description: 'Indus Valley Civilization, Harappa, Mohenjo-Daro, and early Indian history.',
+    orderNumber: 3,
+    isActive: true,
+  },
+  {
+    id: 'topic-soc5-1-4',
+    chapterId: 'ch-soc5-1',
+    title: 'National Symbols of India',
+    description: 'National animal (Royal Bengal Tiger), national bird, national flag, and national emblem.',
+    orderNumber: 4,
+    isActive: true,
+  },
 ];
 
 class TopicService {
