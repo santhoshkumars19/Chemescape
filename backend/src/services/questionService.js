@@ -398,27 +398,28 @@ const DEFAULT_QUESTIONS = [
 
   // ───────────────────────────────────────────────────────────────────────────
   // Standard 5 Mathematics Room 1 (10 Questions - room-math5-1)
-  // ─────────────────────────────────────────────────────────────────────────
+  // ───────────────────────────────────────────────────────────────────────────
   ...[
-    { qn: 1, text: 'What is the sum of 3,450 and 2,550?', hint: 'Add hundreds and thousands systematically: 3450 + 2550.', opts: ['5,000', '6,000', '6,100', '5,900'], ans: 1 },
-    { qn: 2, text: 'Which fraction is equal to 3/4?', hint: 'Multiply both numerator and denominator by 2 or 3.', opts: ['6/8', '4/3', '2/3', '5/8'], ans: 0 },
-    { qn: 3, text: 'Calculate the perimeter of a rectangle with length 8 cm and breadth 5 cm.', hint: 'Perimeter = 2 * (length + breadth).', opts: ['13 cm', '26 cm', '40 cm', '52 cm'], ans: 1 },
-    { qn: 4, text: 'What is the product of 25 and 16?', hint: 'Multiply 25 by 4 first (= 100), then multiply by 4.', opts: ['350', '375', '400', '425'], ans: 2 },
-    { qn: 5, text: 'Find the area of a square with side 7 cm.', hint: 'Area of square = side * side (7 * 7).', opts: ['28 sq cm', '42 sq cm', '49 sq cm', '56 sq cm'], ans: 2 },
-    { qn: 6, text: 'Convert 3.5 kilograms into grams.', hint: '1 kilogram = 1,000 grams.', opts: ['350 g', '3,000 g', '3,500 g', '35,000 g'], ans: 2 },
-    { qn: 7, text: 'What is the Least Common Multiple (LCM) of 4 and 6?', hint: 'Find the smallest positive number that is a multiple of both 4 and 6.', opts: ['12', '18', '24', '2'], ans: 0 },
-    { qn: 8, text: 'What is 15% of 200?', hint: 'Multiply 200 by 15 and divide by 100.', opts: ['20', '25', '30', '35'], ans: 2 },
-    { qn: 9, text: 'How many right angles are inside a rectangle?', hint: 'Every corner of a rectangle is a 90-degree right angle.', opts: ['2', '3', '4', '6'], ans: 2 },
-    { qn: 10, text: 'Solve: (12 + 8) / 4 * 3', hint: 'Follow BODMAS: solve brackets (20), divide by 4 (5), multiply by 3.', opts: ['10', '15', '20', '25'], ans: 1 },
+    { qn: 1,  text: 'What is the sum of 3,450 and 2,550?', hint: 'Add thousands first: 3000+2000=5000, then 450+550=1000. Total = 6,000.', opts: ['5,000', '6,000', '6,100', '5,900'], ans: 1, topic: 'topic-math5-1-1' },
+    { qn: 2,  text: 'Which fraction is equivalent to 3/4?', hint: 'Multiply numerator and denominator of 3/4 by 2 to get an equivalent fraction.', opts: ['6/8', '4/3', '2/3', '5/8'], ans: 0, topic: 'topic-math5-1-2' },
+    { qn: 3,  text: 'What is the product of 25 and 16?', hint: 'Break it down: 25 x 16 = 25 x 4 x 4 = 100 x 4 = 400.', opts: ['350', '375', '400', '425'], ans: 2, topic: 'topic-math5-1-2' },
+    { qn: 4,  text: 'Calculate the perimeter of a rectangle with length 8 cm and breadth 5 cm.', hint: 'Perimeter of rectangle = 2 x (length + breadth) = 2 x (8 + 5).', opts: ['13 cm', '26 cm', '40 cm', '52 cm'], ans: 1, topic: 'topic-math5-1-4' },
+    { qn: 5,  text: 'Find the area of a square with side 7 cm.', hint: 'Area of a square = side x side = 7 x 7.', opts: ['28 sq cm', '42 sq cm', '49 sq cm', '56 sq cm'], ans: 2, topic: 'topic-math5-1-4' },
+    { qn: 6,  text: 'Convert 3.5 kilograms into grams.', hint: '1 kilogram = 1,000 grams. So 3.5 kg = 3.5 x 1000 = 3,500 grams.', opts: ['350 g', '3,000 g', '3,500 g', '35,000 g'], ans: 2, topic: 'topic-math5-1-3' },
+    { qn: 7,  text: 'What is the Least Common Multiple (LCM) of 4 and 6?', hint: 'List multiples: 4 (4,8,12) and 6 (6,12). The smallest common multiple is 12.', opts: ['12', '18', '24', '2'], ans: 0, topic: 'topic-math5-1-2' },
+    { qn: 8,  text: 'What is 15% of 200?', hint: '15% means 15 out of 100. Multiply: 200 x 15 and divide by 100 = 30.', opts: ['20', '25', '30', '35'], ans: 2, topic: 'topic-math5-1-3' },
+    { qn: 9,  text: 'How many right angles are there inside a rectangle?', hint: 'Every corner of a rectangle measures exactly 90 degrees, which is a right angle.', opts: ['2', '3', '4', '6'], ans: 2, topic: 'topic-math5-1-4' },
+    { qn: 10, text: 'Solve using BODMAS: (12 + 8) / 4 * 3', hint: 'Step 1: Brackets (12+8=20). Step 2: Divide 20/4=5. Step 3: Multiply 5x3=15.', opts: ['10', '15', '20', '25'], ans: 1, topic: 'topic-math5-1-4' },
   ].map((item) => ({
     id: `q-math5-r1-${item.qn}`,
     chapterId: 'ch-math5-1',
     roomId: 'room-math5-1',
+    topicId: item.topic,
     questionNumber: item.qn,
     displayOrder: item.qn,
     questionType: 'MCQ',
     questionText: item.text,
-    description: `Standard 5 Math Question ${item.qn}`,
+    description: `Standard 5 Mathematics Question ${item.qn}`,
     difficulty: item.qn <= 3 ? 'EASY' : item.qn <= 7 ? 'MEDIUM' : 'HARD',
     points: 100,
     timeLimit: 60,
@@ -434,8 +435,7 @@ const DEFAULT_QUESTIONS = [
     })),
   })),
 
-  // ───────────────────────────────────────────────────────────────────────────
-  // Standard 5 Science Room 1 (10 Questions - room-sci5-1)
+    // Standard 5 Science Room 1 (10 Questions - room-sci5-1)
   // ─────────────────────────────────────────────────────────────────────────
   ...[
     { qn: 1, text: 'Which state of matter has a definite volume but no fixed shape?', hint: 'Think of water taking the shape of its container.', opts: ['Solid', 'Liquid', 'Gas', 'Plasma'], ans: 1 },

@@ -334,6 +334,39 @@ const DEFAULT_TOPICS = [
     orderNumber: 4,
     isActive: true,
   },
+  // Standard 5 Mathematics Chapter 1 Topics (ch-math5-1)
+  {
+    id: 'topic-math5-1-1',
+    chapterId: 'ch-math5-1',
+    title: 'Large Numbers, Addition & Subtraction',
+    description: 'Adding and subtracting 4-5 digit numbers including sum verification.',
+    orderNumber: 1,
+    isActive: true,
+  },
+  {
+    id: 'topic-math5-1-2',
+    chapterId: 'ch-math5-1',
+    title: 'Multiplication, Division & Fractions',
+    description: 'Multiplying 2-digit numbers, equivalent fractions, and LCM concepts.',
+    orderNumber: 2,
+    isActive: true,
+  },
+  {
+    id: 'topic-math5-1-3',
+    chapterId: 'ch-math5-1',
+    title: 'Measurement: Length, Weight & Capacity',
+    description: 'Unit conversions: kg to g, km to m, litres to mL, and percentages.',
+    orderNumber: 3,
+    isActive: true,
+  },
+  {
+    id: 'topic-math5-1-4',
+    chapterId: 'ch-math5-1',
+    title: 'Geometry: Perimeter, Area & Angles',
+    description: 'Perimeter of rectangles, area of squares, right angles in shapes, BODMAS rule.',
+    orderNumber: 4,
+    isActive: true,
+  },
 ];
 
 class TopicService {
