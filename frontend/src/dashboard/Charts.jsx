@@ -160,7 +160,7 @@ export function StrongTopicsChart() {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// 5. Subject Radar — Chemistry domains
+// 5. Subject Radar — Curriculum domains
 // ─────────────────────────────────────────────────────────────────────────────
 export function RadarChart() {
   const options = {
@@ -186,7 +186,7 @@ export function RadarChart() {
     <DashCard className="p-5 sm:p-6 min-w-0 w-full" delay={0.3} id="chart-radar">
       <SectionHeader
         title="Domain Mastery"
-        subtitle="Chemistry sub-discipline breakdown"
+        subtitle="Subject mastery breakdown"
         icon={Atom}
         color="#67E8F9"
       />

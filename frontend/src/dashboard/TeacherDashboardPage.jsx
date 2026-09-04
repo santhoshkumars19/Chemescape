@@ -13,7 +13,7 @@ import { useNavigation } from '../context/NavigationContext';
 const mockStudents = [];
 
 const unitStats = [
-  { id: 1, name: 'Unit 1: Chem Calculation Heist', topic: 'Basic Concepts of Chemistry', passRate: 96, avgTime: '12m 40s', status: 'UNLOCKED' },
+  { id: 1, name: 'Unit 1: Calculation Quest', topic: 'Core Concepts', passRate: 96, avgTime: '12m 40s', status: 'UNLOCKED' },
   { id: 2, name: 'Unit 2: Quantum Orbital Architect', topic: 'Quantum Mechanical Model of Atom', passRate: 88, avgTime: '15m 10s', status: 'UNLOCKED' },
   { id: 3, name: 'Unit 3: Periodic Grid Reconstruction', topic: 'Periodic Classification of Elements', passRate: 92, avgTime: '11m 05s', status: 'UNLOCKED' },
   { id: 4, name: 'Unit 4: Hydrogen Reactor', topic: 'Hydrogen & Hydrides', passRate: 84, avgTime: '18m 30s', status: 'UNLOCKED' },
@@ -25,7 +25,7 @@ export default function TeacherDashboardPage() {
   const { user } = useAuth();
   const { navigateTo } = useNavigation();
 
-  const [selectedClass, setSelectedClass] = useState('11th Chemistry - Sec A');
+  const [selectedClass, setSelectedClass] = useState('8th Grade - Sec A');
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedStudent, setSelectedStudent] = useState(null);
   const [roomLocks, setRoomLocks] = useState({
@@ -89,10 +89,10 @@ export default function TeacherDashboardPage() {
                 <span className="text-xs font-space text-slate-400">ID: TCH-2026-88</span>
               </div>
               <h1 className="font-orbitron font-black text-2xl sm:text-3xl text-white leading-tight mt-1">
-                {user?.name || 'Prof. Chemistry Teacher'}
+                {user?.name || 'Prof. Teacher'}
               </h1>
               <p className="text-white/40 text-xs sm:text-sm font-inter">
-                Class roster management, room locks & chemistry escape analytics.
+                Class roster management, room locks & curriculum analytics.
               </p>
             </div>
           </div>

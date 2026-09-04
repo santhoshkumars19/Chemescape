@@ -11,7 +11,7 @@ import { useNavigation } from '../context/NavigationContext';
 
 const initialUsers = [
   { id: 'usr-1', name: 'System Administrator', email: 'admin@edunova.com', role: 'ADMIN', status: 'ACTIVE', regDate: '2026-01-01', sessionsCount: 142 },
-  { id: 'usr-2', name: 'Prof. Chemistry Teacher', email: 'teacher@edunova.com', role: 'TEACHER', status: 'ACTIVE', regDate: '2026-01-05', sessionsCount: 88 },
+  { id: 'usr-2', name: 'Prof. Science Teacher', email: 'teacher@edunova.com', role: 'TEACHER', status: 'ACTIVE', regDate: '2026-01-05', sessionsCount: 88 },
   { id: 'usr-3', name: 'Student Agent', email: 'student@edunova.com', role: 'STUDENT', status: 'ACTIVE', regDate: '2026-01-10', sessionsCount: 24 },
 ];
 
@@ -19,7 +19,7 @@ const systemEngines = [
   { id: 'u1', code: 'CALCULATION_HEIST', name: 'Unit 1: Calculation Heist', type: 'Formula Calculator Engine', status: 'ONLINE', plays: 3420 },
   { id: 'u2', code: 'QUANTUM_ARCHITECT', name: 'Unit 2: Quantum Architect', type: 'Orbital Builder Engine', status: 'ONLINE', plays: 2980 },
   { id: 'u3', code: 'GRID_RECONSTRUCTION', name: 'Unit 3: Periodic Grid', type: 'Periodic Matrix Engine', status: 'ONLINE', plays: 2750 },
-  { id: 'u4', code: 'HYDROGEN_REACTOR', name: 'Unit 4: Hydrogen Reactor', type: 'Chemical Balance Engine', status: 'ONLINE', plays: 2410 },
+  { id: 'u4', code: 'HYDROGEN_REACTOR', name: 'Unit 4: Hydrogen Reactor', type: 'Equation Balance Engine', status: 'ONLINE', plays: 2410 },
   { id: 'u5', code: 'ELEMENT_SORTING', name: 'Unit 5: Metal Sorting', type: 'Factory Sorting Engine', status: 'ONLINE', plays: 2190 },
   { id: 'u6', code: 'GAS_SIMULATOR', name: 'Unit 6: Gas Chamber', type: '2D Canvas Kinetic Engine', status: 'ONLINE', plays: 1170 },
 ];
@@ -303,7 +303,7 @@ export default function AdminDashboardPage() {
             {/* Game Engines Registry */}
             <DashCard className="p-5 sm:p-6">
               <h3 className="font-orbitron font-bold text-lg text-white mb-1">Authoritative Game Engines</h3>
-              <p className="text-white/40 text-xs font-space mb-5">Registered Chemistry escape room validation services (Units 1 - 6)</p>
+              <p className="text-white/40 text-xs font-space mb-5">Registered Academic room validation services (Units 1 - 6)</p>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {systemEngines.map(eng => (

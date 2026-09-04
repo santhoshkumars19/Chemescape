@@ -55,7 +55,7 @@ export default function Navbar({ user = null, onLogout }) {
                 >
                   <span className="text-sm">{user.avatar || '⚡'}</span>
                   <span className="text-xs font-orbitron font-bold text-emerald-300 max-w-[120px] truncate">
-                    {user.name || 'Guest Chemist'}
+                    {user.name || 'Guest Scholar'}
                   </span>
                 </button>
                 <motion.button
@@ -73,7 +73,7 @@ export default function Navbar({ user = null, onLogout }) {
               <div className="flex items-center gap-2.5">
                 <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl glass border border-emerald-500/20">
                   <UserCircle className="w-4 h-4 text-emerald-400" />
-                  <span className="text-xs font-orbitron font-bold text-emerald-300">Guest Chemist</span>
+                  <span className="text-xs font-orbitron font-bold text-emerald-300">Guest Scholar</span>
                 </div>
                 <button
                   onClick={() => navigateTo('login')}
@@ -140,7 +140,7 @@ export default function Navbar({ user = null, onLogout }) {
               <div className="flex items-center gap-2 px-3 py-2 rounded-xl glass border border-cyan-500/20">
                 <UserCircle className="w-4 h-4 text-cyan-400" />
                 <span className="text-xs font-orbitron font-bold text-cyan-300">
-                  {user ? user.name : 'Guest Chemist'}
+                  {user ? user.name : 'Guest Scholar'}
                 </span>
               </div>
               {user ? (

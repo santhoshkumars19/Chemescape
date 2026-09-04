@@ -146,7 +146,8 @@ function WelcomeHeader({ isDark }) {
   const hour = new Date().getHours();
   const greeting = hour < 12 ? 'Good Morning' : hour < 17 ? 'Good Afternoon' : 'Good Evening';
 
-  const userName   = user?.name || 'Student';
+  const rawUserName = user?.name || 'Student';
+  const userName = (rawUserName === 'Student Chemist' || rawUserName === 'Student Agent') ? 'Student Scholar' : rawUserName;
   const stdName    = selectedStandard || STANDARD_DISPLAY[selectedStandardId] || '';
   const subjName   = selectedSubject  || '';
 

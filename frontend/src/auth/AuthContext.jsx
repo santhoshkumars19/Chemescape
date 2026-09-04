@@ -5,7 +5,18 @@ const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api
 const AuthContext = createContext(null);
 
 export function AuthProvider({ children }) {
-  const [user, setUser]     = useState(null);
+  const [user, setUser]     = useState(() => {
+    try {
+      const raw = localStorage.getItem('chemescape_user');
+      if (raw) {
+        const u = JSON.parse(raw);
+        if (u.name === 'Student Chemist' || u.name === 'Student Agent') u.name = 'Student Scholar';
+        if (u.avatar === '🧪') u.avatar = '🎓';
+        return u;
+      }
+    } catch {}
+    return null;
+  });
   const [token, setToken]   = useState(() => localStorage.getItem('chemescape_token') || null);
   const [isGuest, setIsGuest] = useState(false);
 
@@ -21,7 +32,7 @@ export function AuthProvider({ children }) {
     progressActionsRef.current = { clearProgressState: clear, refreshUserStats: refresh };
   }, []);
 
-  // ── Keep token in localStorage in sync with state ─────────────────────────
+  // ── Keep token and user in localStorage in sync with state ─────────────────
   useEffect(() => {
     if (token) {
       localStorage.setItem('chemescape_token', token);
@@ -29,6 +40,17 @@ export function AuthProvider({ children }) {
       localStorage.removeItem('chemescape_token');
     }
   }, [token]);
+
+  useEffect(() => {
+    if (user) {
+      const cleanUser = { ...user };
+      if (cleanUser.name === 'Student Chemist' || cleanUser.name === 'Student Agent') cleanUser.name = 'Student Scholar';
+      if (cleanUser.avatar === '🧪') cleanUser.avatar = '🎓';
+      localStorage.setItem('chemescape_user', JSON.stringify(cleanUser));
+    } else {
+      localStorage.removeItem('chemescape_user');
+    }
+  }, [user]);
 
   // ── Listen for session-expiry events fired by apiClient on 401 ───────────
   useEffect(() => {
@@ -38,6 +60,7 @@ export function AuthProvider({ children }) {
       setToken(null);
       setIsGuest(false);
       localStorage.removeItem('chemescape_token');
+      localStorage.removeItem('chemescape_user');
     };
     window.addEventListener('chemescape:session-expired', handleExpiry);
     return () => window.removeEventListener('chemescape:session-expired', handleExpiry);
@@ -62,7 +85,9 @@ export function AuthProvider({ children }) {
         throw new Error(data.message || 'Login failed. Please check credentials.');
       }
 
-      const userObj  = data.data?.user || { name: 'Student Agent', email, role: 'STUDENT' };
+      let userObj  = data.data?.user || { name: 'Student Scholar', email, role: 'STUDENT' };
+      if (userObj.name === 'Student Chemist' || userObj.name === 'Student Agent') userObj = { ...userObj, name: 'Student Scholar' };
+      if (userObj.avatar === '🧪') userObj = { ...userObj, avatar: '🎓' };
       const authToken = data.data?.token;
 
       // Step 2: Set new identity & token
@@ -84,8 +109,8 @@ export function AuthProvider({ children }) {
 
       // Demo / offline fallback
       const lowerEmail = email.toLowerCase();
-      let role = 'STUDENT', name = 'Student Agent', avatar = '🧪';
-      if (lowerEmail.includes('teacher')) { role = 'TEACHER'; name = 'Prof. Chemistry Teacher'; avatar = '👨‍🏫'; }
+      let role = 'STUDENT', name = 'Student Scholar', avatar = '🎓';
+      if (lowerEmail.includes('teacher')) { role = 'TEACHER'; name = 'Prof. Teacher'; avatar = '👨‍🏫'; }
       else if (lowerEmail.includes('admin')) { role = 'ADMIN'; name = 'System Administrator'; avatar = '🛡️'; }
 
       const fallbackUser = { name, email, role, avatar };
@@ -136,7 +161,7 @@ export function AuthProvider({ children }) {
       await login('student@edunova.com', 'Password123');
     } catch {
       progressActionsRef.current.clearProgressState();
-      setUser({ name: 'Guest Chemist', email: 'guest@edunova.com', avatar: '👤' });
+      setUser({ name: 'Guest Scholar', email: 'guest@edunova.com', avatar: '🎓' });
       setIsGuest(true);
     }
   }, [login]);
@@ -150,6 +175,7 @@ export function AuthProvider({ children }) {
     setToken(null);
     setIsGuest(false);
     localStorage.removeItem('chemescape_token');
+    localStorage.removeItem('chemescape_user');
 
     // 2. Clear all in-memory game progress so next user starts clean
     progressActionsRef.current.clearProgressState();

@@ -48,8 +48,10 @@ export default function Sidebar({ collapsed, setCollapsed, mobileOpen, setMobile
     navigateTo('login');
   };
 
-  const displayName = user?.name || (role === 'TEACHER' ? 'Prof. Chem Teacher' : role === 'ADMIN' ? 'System Admin' : mockUser.name);
-  const displayAvatar = user?.avatar || (role === 'TEACHER' ? '👨‍🏫' : role === 'ADMIN' ? '🛡️' : mockUser.avatar);
+  const rawName = user?.name || mockUser.name;
+  const displayName = (rawName === 'Student Chemist' || rawName === 'Student Agent') ? 'Student Scholar' : (role === 'TEACHER' ? 'Prof. Teacher' : role === 'ADMIN' ? 'System Admin' : rawName);
+  const rawAvatar = user?.avatar || mockUser.avatar;
+  const displayAvatar = (rawAvatar === '🧪') ? '🎓' : (role === 'TEACHER' ? '👨‍🏫' : role === 'ADMIN' ? '🛡️' : rawAvatar);
 
   const SidebarContent = () => (
     <div className="flex flex-col h-full">
@@ -62,7 +64,7 @@ export default function Sidebar({ collapsed, setCollapsed, mobileOpen, setMobile
           animate={{ boxShadow: ['0 0 10px rgba(16,185,129,0.2)', '0 0 25px rgba(16,185,129,0.4)', '0 0 10px rgba(16,185,129,0.2)'] }}
           transition={{ duration: 3, repeat: Infinity }}
         >
-          <FlaskConical size={18} style={{ color: '#10B981' }} />
+          <GraduationCap size={18} style={{ color: '#10B981' }} />
         </motion.button>
         <AnimatePresence>
           {!collapsed && (

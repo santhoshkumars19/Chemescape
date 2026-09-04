@@ -1,11 +1,11 @@
 // ─── Real Product & Clean State Data for EduNova Dashboard ───────────
 
 export const mockUser = {
-  name: 'Student Agent',
+  name: 'Student Scholar',
   username: '@student',
-  avatar: '🧪',
+  avatar: '🎓',
   level: 1,
-  title: 'Chemistry Student',
+  title: 'EduNova Scholar',
   xp: 0,
   xpToNext: 1000,
   coins: 0,
@@ -20,7 +20,7 @@ export const mockMission = {
   id: 'mission-periodic-table',
   title: 'Find the Missing Element',
   room: 'Escape Room #1',
-  description: 'Identify elements using atomic number and periodic classification.',
+  description: 'Solve interactive academic puzzles and master curriculum concepts.',
   progress: 0,
   puzzlesTotal: 5,
   puzzlesDone: 0,
@@ -141,11 +141,11 @@ export const dailyChallenge = {
 
 // ─── Subject performance default state ──────────────────────────────────────
 export const subjectPerformance = {
-  labels: ['Organic', 'Inorganic', 'Physical', 'Analytical', 'Nuclear', 'Biochem'],
+  labels: ['Tamil', 'English', 'Mathematics', 'Science', 'Social Science'],
   datasets: [
     {
       label: 'Your Score',
-      data: [0, 0, 0, 0, 0, 0],
+      data: [0, 0, 0, 0, 0],
       backgroundColor: 'rgba(16,185,129,0.14)',
       borderColor: '#10B981',
       borderWidth: 2,

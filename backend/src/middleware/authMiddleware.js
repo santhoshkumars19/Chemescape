@@ -57,7 +57,7 @@ async function authMiddleware(req, res, next) {
       // Safe fallback when remote DB connection is unreachable
       user = {
         id: decoded.userId,
-        name: decoded.name || 'Chemist User',
+        name: decoded.name || 'Student Scholar',
         email: decoded.email || 'user@edunova.com',
         role: decoded.role || 'STUDENT',
       };

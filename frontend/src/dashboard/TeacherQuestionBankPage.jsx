@@ -9,7 +9,7 @@ import { useAuth } from '../auth/AuthContext';
 import { useNavigation } from '../context/NavigationContext';
 
 const unitStats = [
-  { id: 1, name: 'Unit 1: Chem Calculation Heist', topic: 'Basic Concepts of Chemistry', gameType: 'CALCULATION_HEIST' },
+  { id: 1, name: 'Unit 1: Calculation Quest', topic: 'Core Concepts', gameType: 'CALCULATION_HEIST' },
   { id: 2, name: 'Unit 2: Quantum Orbital Architect', topic: 'Quantum Mechanical Model of Atom', gameType: 'QUANTUM_ARCHITECT' },
   { id: 3, name: 'Unit 3: Periodic Grid Reconstruction', topic: 'Periodic Classification of Elements', gameType: 'GRID_RECONSTRUCTION' },
   { id: 4, name: 'Unit 4: Hydrogen Reactor', topic: 'Hydrogen & Hydrides', gameType: 'HYDROGEN_REACTOR' },
@@ -21,7 +21,7 @@ const initialQuestionBank = [
   {
     id: 'q-u1-1',
     chapterNumber: 1,
-    unitName: 'Unit 1: Chem Calculation Heist',
+    unitName: 'Unit 1: Calculation Quest',
     gameType: 'CALCULATION_HEIST',
     stageNumber: 1,
     stageTitle: 'Stage 1: Molar Mass Vault Calculation',
@@ -130,7 +130,7 @@ export default function TeacherQuestionBankPage() {
   const [questionForm, setQuestionForm] = useState({
     id: '',
     chapterNumber: 1,
-    unitName: 'Unit 1: Chem Calculation Heist',
+    unitName: 'Unit 1: Calculation Quest',
     gameType: 'CALCULATION_HEIST',
     stageNumber: 1,
     stageTitle: '',
@@ -176,10 +176,10 @@ export default function TeacherQuestionBankPage() {
       setQuestionForm({
         id: `q-${Date.now()}`,
         chapterNumber: 1,
-        unitName: 'Unit 1: Chem Calculation Heist',
+        unitName: 'Unit 1: Calculation Quest',
         gameType: 'CALCULATION_HEIST',
         stageNumber: 1,
-        stageTitle: 'New Chemistry Stage Question',
+        stageTitle: 'New Curriculum Question',
         questionText: '',
         targetAnswer: '',
         difficulty: 'MEDIUM',
@@ -255,7 +255,7 @@ export default function TeacherQuestionBankPage() {
                 <span className="text-xs font-space text-white/40">Chapters 1 – 15</span>
               </div>
               <h1 className="font-orbitron font-black text-2xl sm:text-3xl text-white leading-tight mt-1">
-                Chemistry Gaming Question Bank
+                Curriculum Question Bank
               </h1>
               <p className="text-white/40 text-xs sm:text-sm font-inter">
                 Create, edit, and configure problem variants, target parameters, formulas & options across all 6 Units.
@@ -410,7 +410,7 @@ export default function TeacherQuestionBankPage() {
                   </div>
                   <div>
                     <h3 className="font-orbitron font-bold text-lg text-white">
-                      {editingQuestion ? 'Edit Game Question & Parameters' : 'Create New Chemistry Question'}
+                      {editingQuestion ? 'Edit Game Question & Parameters' : 'Create New Curriculum Question'}
                     </h3>
                     <p className="text-xs text-white/40 font-space">Configure gaming variants across chapters</p>
                   </div>
@@ -465,7 +465,7 @@ export default function TeacherQuestionBankPage() {
                   <textarea
                     rows={3}
                     required
-                    placeholder="Enter chemistry question text or problem statement..."
+                    placeholder="Enter question text or problem statement..."
                     value={questionForm.questionText}
                     onChange={e => setQuestionForm({ ...questionForm, questionText: e.target.value })}
                     className="w-full p-3 rounded-xl bg-[#040810] border border-white/10 text-white text-xs font-inter outline-none focus:border-cyan-500/40"

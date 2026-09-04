@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Menu, Bell, Search, X, CheckCheck, Trash2, Info, Trophy, Zap, Lock, Star, AlertTriangle, Heart, Clock, Timer } from 'lucide-react';
+import { Menu, Bell, Search, X, CheckCheck, Trash2, Info, Trophy, Zap, Lock, Star, AlertTriangle, Heart, Clock, Timer, GraduationCap } from 'lucide-react';
 import Sidebar from './Sidebar';
 import { useAuth } from '../auth/AuthContext';
 import { useNavigation } from '../context/NavigationContext';
@@ -215,21 +215,7 @@ function Topbar({ onMenuClick }) {
             {pageTitle}
           </h2>
 
-          {/* Lives HUD Widget */}
-          <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-red-950/40 border border-red-500/30 shadow-[0_0_15px_rgba(239,68,68,0.2)]">
-            <div className="flex items-center gap-1">
-              {[1, 2, 3].map((idx) => (
-                <Heart
-                  key={idx}
-                  size={15}
-                  className={idx <= lives ? "text-red-500 fill-red-500 drop-shadow-[0_0_6px_rgba(239,68,68,0.6)]" : "text-slate-600 opacity-40"}
-                />
-              ))}
-            </div>
-            {lives < 3 && (
-              <LifeTimerDisplay nextLifeRegenTime={nextLifeRegenTime} variant="compact" />
-            )}
-          </div>
+
         </div>
 
         {/* Search overlay */}

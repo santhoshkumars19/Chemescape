@@ -78,9 +78,9 @@ export default function ContinueLearningCard() {
   };
 
   // ── Resolve Standard & Subject Context ──────────────────────────────────────
-  const resolvedStdId = selectedStandardId || 'grade-11';
-  const resolvedSubjId = selectedSubjectId || 'chemistry';
-  const stdDisplayName = selectedStandard || STANDARD_NAMES[resolvedStdId] || '11th Standard';
+  const resolvedStdId = selectedStandardId || 'grade-8';
+  const resolvedSubjId = selectedSubjectId || 'science';
+  const stdDisplayName = selectedStandard || STANDARD_NAMES[resolvedStdId] || '8th Standard';
   const subjDisplayName = selectedSubject || (resolvedSubjId.charAt(0).toUpperCase() + resolvedSubjId.slice(1));
 
   // Subject config for colors & icon

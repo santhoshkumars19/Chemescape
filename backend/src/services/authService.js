@@ -63,10 +63,10 @@ class AuthService {
         }
         user = {
           id: 'user-student-1',
-          name: 'Student Chemist',
+          name: 'Student Scholar',
           email: normalizedEmail,
           role: 'STUDENT',
-          avatar: '🧪',
+          avatar: '🎓',
           createdAt: new Date(),
           updatedAt: new Date(),
         };
@@ -78,7 +78,7 @@ class AuthService {
         }
         user = {
           id: 'user-teacher-1',
-          name: 'Dr. Alchemy',
+          name: 'Prof. Teacher',
           email: normalizedEmail,
           role: 'TEACHER',
           avatar: '👨‍🏫',
