@@ -2,6 +2,7 @@ const prisma = require('../config/db');
 const roomService = require('./roomService');
 const chapterUnlockService = require('./chapterUnlockService');
 const GAME_PROGRESS_CONFIG = require('../config/gameProgressConfig');
+const activityReportService = require('./activityReportService');
 
 // Fallback in-memory stores for offline resilience
 const fallbackUserStats = new Map(); // userId -> stats
@@ -17,6 +18,48 @@ class GameProgressService {
   calculateLevel(totalXP) {
     if (!totalXP || totalXP < 0) return 1;
     return Math.floor(totalXP / 1000) + 1;
+  }
+
+  async recordActivityReport({ userId, room, isGenericQuiz, evalResult, score, timeSpentSec, gameState, passed }) {
+    try {
+      let userName = 'Student Scholar';
+      if (userId === 'USER001') userName = 'John';
+      else if (userId === 'USER002') userName = 'Priya Sharma';
+      else if (userId === 'USER003') userName = 'Arun Kumar';
+      else if (userId === 'USER004') userName = 'Divya Nair';
+
+      try {
+        const u = await prisma.user.findUnique({ where: { id: userId }, select: { name: true } });
+        if (u?.name) userName = u.name;
+      } catch {}
+
+      const stdName = room?.chapter?.standard?.displayName || room?.chapter?.standard?.name || '7th';
+      const subjName = room?.chapter?.subject?.name || 'Science';
+      const chTitle = room?.chapter?.title ? `Chapter ${room.chapter.chapterNumber || 1}: ${room.chapter.title}` : (room?.chapterId || 'Chapter 1');
+      const gameQuizTitle = room?.title || room?.name || (isGenericQuiz ? 'Interactive Chapter Quiz' : 'Game Room Challenge');
+
+      const totalQ = evalResult?.totalQuestions || 10;
+      const correctQ = evalResult?.score !== undefined ? evalResult.score : (gameState?.correctAnswers || 0);
+      const wrongQ = Math.max(0, totalQ - correctQ);
+
+      activityReportService.logActivity({
+        userId,
+        name: userName,
+        standard: stdName,
+        subject: subjName,
+        chapter: chTitle,
+        gameOrQuizName: gameQuizTitle,
+        points: score || (correctQ * 10),
+        accuracy: evalResult?.accuracyPercent ? `${evalResult.accuracyPercent}%` : `${Math.round((correctQ / totalQ) * 100)}%`,
+        totalQuestions: totalQ,
+        correctAnswers: correctQ,
+        wrongAnswers: wrongQ,
+        timeSpentSec: timeSpentSec || 0,
+        status: passed ? (isGenericQuiz ? 'PASSED' : 'COMPLETED') : 'FAILED',
+      });
+    } catch (err) {
+      console.warn('[GameProgressService] Activity logging notice:', err.message);
+    }
   }
 
   /**
@@ -413,7 +456,7 @@ class GameProgressService {
 
     try {
       // Execute ATOMIC PRISMA TRANSACTION for safety
-      return await prisma.$transaction(async (tx) => {
+      const txResult = await prisma.$transaction(async (tx) => {
         // 1. Get existing progress
         const existingProgress = await tx.userGameProgress.findUnique({
           where: { userId_roomId: { userId, roomId } },
@@ -640,12 +683,15 @@ class GameProgressService {
           badgeUnlocked: unlockedBadge,
           progress: updatedProgress,
           stats: updatedStats,
-          message: isFirstCompletion
-            ? 'Congratulations! Room completed and rewards unlocked!'
-            : 'Room re-cleared successfully!',
-        };
-      });
-    } catch (err) {
+            message: isFirstCompletion
+              ? 'Congratulations! Room completed and rewards unlocked!'
+              : 'Room re-cleared successfully!',
+          };
+        });
+
+        await this.recordActivityReport({ userId, room, isGenericQuiz, evalResult, score, timeSpentSec, gameState, passed });
+        return txResult;
+      } catch (err) {
       if (err.statusCode) throw err;
       // In offline mode
       const sessionKey = `${userId}:${roomId}`;
@@ -671,6 +717,8 @@ class GameProgressService {
           starsEarned: Math.max(existingFallback?.starsEarned || 0, stars),
           bestTimeSec: timeSpentSec,
         });
+
+        await this.recordActivityReport({ userId, room, isGenericQuiz, evalResult, score, timeSpentSec, gameState, passed: false });
 
         return {
           completed: wasAlreadyCompleted,
@@ -728,6 +776,8 @@ class GameProgressService {
         starsEarned: stars,
         bestTimeSec: timeSpentSec,
       });
+
+      await this.recordActivityReport({ userId, room, isGenericQuiz, evalResult, score, timeSpentSec, gameState, passed: true });
 
       return {
         completed: true,
@@ -811,6 +861,8 @@ class GameProgressService {
         },
       });
 
+      await this.recordActivityReport({ userId, room, isGenericQuiz: true, evalResult: { score, totalQuestions: 10, accuracyPercent: 0 }, score, timeSpentSec, gameState, passed: false });
+
       return {
         status: 'FAILED',
         progress,
@@ -829,6 +881,8 @@ class GameProgressService {
         chapterId: room.chapterId,
         isCompleted: false,
       });
+
+      await this.recordActivityReport({ userId, room, isGenericQuiz: true, evalResult: { score, totalQuestions: 10, accuracyPercent: 0 }, score, timeSpentSec, gameState, passed: false });
 
       return {
         status: 'FAILED',

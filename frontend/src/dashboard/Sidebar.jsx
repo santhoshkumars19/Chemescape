@@ -3,7 +3,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
   LayoutDashboard, Swords, Trophy, Star, UserCircle,
   Settings, LogOut, FlaskConical, ChevronLeft, ChevronRight,
-  Zap, Menu, X, Users, Shield, BookOpen, Terminal, FileText, GraduationCap
+  Zap, Menu, X, Users, Shield, BookOpen, Terminal, FileText, GraduationCap,
+  FileSpreadsheet
 } from 'lucide-react';
 import { useAuth } from '../auth/AuthContext';
 import { useNavigation } from '../context/NavigationContext';
@@ -28,18 +29,20 @@ export default function Sidebar({ collapsed, setCollapsed, mobileOpen, setMobile
 
   if (role === 'TEACHER') {
     navItems = [
-      { label: 'Teacher Console', icon: LayoutDashboard, screen: 'dashboard' },
-      { label: 'Question Bank',   icon: FileText,        screen: 'teacher-questions' },
-      { label: 'Profile',         icon: UserCircle,      screen: 'profile' },
-      { label: 'Settings',        icon: Settings,        screen: 'settings' },
+      { label: 'Teacher Console',  icon: LayoutDashboard, screen: 'dashboard' },
+      { label: 'Question Bank',    icon: FileText,        screen: 'teacher-questions' },
+      { label: 'Activity Reports', icon: FileSpreadsheet, screen: 'reports' },
+      { label: 'Profile',          icon: UserCircle,      screen: 'profile' },
+      { label: 'Settings',         icon: Settings,        screen: 'settings' },
     ];
   } else if (role === 'ADMIN') {
     navItems = [
-      { label: 'Admin Console',  icon: Shield,          screen: 'dashboard' },
-      { label: 'User Management',icon: Users,           screen: 'dashboard' },
-      { label: 'Game Engines',   icon: Swords,          screen: 'standards' },
-      { label: 'Profile',        icon: UserCircle,      screen: 'profile' },
-      { label: 'Settings',       icon: Settings,        screen: 'settings' },
+      { label: 'Admin Console',    icon: Shield,          screen: 'dashboard' },
+      { label: 'User Management',  icon: Users,           screen: 'dashboard' },
+      { label: 'Game Engines',     icon: Swords,          screen: 'standards' },
+      { label: 'Activity Reports', icon: FileSpreadsheet, screen: 'reports' },
+      { label: 'Profile',          icon: UserCircle,      screen: 'profile' },
+      { label: 'Settings',         icon: Settings,        screen: 'settings' },
     ];
   }
 

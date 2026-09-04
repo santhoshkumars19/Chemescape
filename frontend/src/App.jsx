@@ -47,6 +47,7 @@ import DashboardPage from './dashboard/DashboardPage';
 import TeacherDashboardPage from './dashboard/TeacherDashboardPage';
 import TeacherQuestionBankPage from './dashboard/TeacherQuestionBankPage';
 import AdminDashboardPage from './dashboard/AdminDashboardPage';
+import ReportsPage from './dashboard/ReportsPage';
 
 // Pages
 import SyllabusPage from './pages/SyllabusPage';
@@ -93,6 +94,7 @@ function DashboardScreen() {
 // Protected screens that require a logged-in user
 const PROTECTED_SCREENS = [
   'dashboard', 'teacher-questions', 'question-bank', 'questions',
+  'reports', 'activity-reports', 'reports-page',
   'select-standard', 'select-subject', 'standards', 'syllabus', 'chapters', 'mission', 'lab',
   'calculation-heist', 'heist', 'quantum-architect', 'quantum',
   'grid-reconstruction', 'grid', 'periodic-grid',
@@ -133,6 +135,17 @@ function SingleUrlUnifiedApp() {
         return (
           <DashboardLayout>
             <TeacherQuestionBankPage />
+          </DashboardLayout>
+        );
+      case 'reports':
+      case 'activity-reports':
+      case 'reports-page':
+        if (user?.role !== 'TEACHER' && user?.role !== 'ADMIN') {
+          return <DashboardScreen />;
+        }
+        return (
+          <DashboardLayout>
+            <ReportsPage />
           </DashboardLayout>
         );
       case 'select-standard':

@@ -2,6 +2,8 @@ import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigation } from '../context/NavigationContext';
 import { useTheme } from '../context/ThemeContext';
+import { useAuth } from '../auth/AuthContext';
+import { apiClient } from '../services/apiClient';
 import { roomService } from '../services/roomService';
 import { gameService } from '../services/gameService';
 import {
@@ -32,6 +34,7 @@ function HUDCorners({ color = '#10B981', size = 12 }) {
 // MAIN INTERACTIVE QUIZ ENGINE
 // ─────────────────────────────────────────────────────────────────────────────
 export default function InteractiveQuizEngine() {
+  const { user } = useAuth();
   const {
     navigateTo,
     selectedStandardId, selectedStandard,
@@ -366,6 +369,23 @@ export default function InteractiveQuizEngine() {
         refreshUserStats();
       }
 
+      // Explicitly log activity report for permanent Excel tracking and user history
+      apiClient.post('/reports/activity', {
+        name: user?.name || 'Student Scholar',
+        userId: user?.id || 'usr-student-1',
+        standard: stdDisplayName,
+        subject: subjDisplayName,
+        chapter: activeChapter?.title || activeChapter?.name || 'Chapter Quiz',
+        gameOrQuizName: `${subjDisplayName} Chapter Quiz`,
+        points: score,
+        accuracy: `${accuracy}%`,
+        totalQuestions,
+        correctAnswers: correctCount,
+        wrongAnswers: wrongCount,
+        timeSpentSec: timeSpentSeconds,
+        status: isPassed ? 'PASSED' : 'FAILED',
+      }).catch(err => console.warn('[QuizEngine] Activity report notice:', err.message));
+
       setQuizComplete(true);
       setSubmittingCompletion(false);
     } catch (err) {
@@ -387,6 +407,24 @@ export default function InteractiveQuizEngine() {
         awardedXP: isPassed ? score : 0,
         awardedCoins: isPassed ? (accuracy >= 80 ? 100 : 50) : 0,
       });
+
+      // Explicitly log activity report for permanent Excel tracking and user history
+      apiClient.post('/reports/activity', {
+        name: user?.name || 'Student Scholar',
+        userId: user?.id || 'usr-student-1',
+        standard: stdDisplayName,
+        subject: subjDisplayName,
+        chapter: activeChapter?.title || activeChapter?.name || 'Chapter Quiz',
+        gameOrQuizName: `${subjDisplayName} Chapter Quiz`,
+        points: score,
+        accuracy: `${accuracy}%`,
+        totalQuestions,
+        correctAnswers: correctCount,
+        wrongAnswers: wrongCount,
+        timeSpentSec: timeSpentSeconds,
+        status: isPassed ? 'PASSED' : 'FAILED',
+      }).catch(err => console.warn('[QuizEngine] Activity report fallback notice:', err.message));
+
       setQuizComplete(true);
       setSubmittingCompletion(false);
     }

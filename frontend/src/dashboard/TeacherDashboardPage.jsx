@@ -4,7 +4,7 @@ import {
   Users, BookOpen, CheckCircle2, Clock, Award,
   Plus, Search, Lock, Unlock, Download, Send,
   TrendingUp, AlertTriangle, ChevronRight, Eye, Shield,
-  FlaskConical, Zap, BarChart2, Filter, X, FileText, ArrowRight
+  FlaskConical, Zap, BarChart2, Filter, X, FileText, ArrowRight, FileSpreadsheet
 } from 'lucide-react';
 import { DashCard, SectionHeader, AnimatedCounter } from './DashComponents';
 import { useAuth } from '../auth/AuthContext';
@@ -95,6 +95,24 @@ export default function TeacherDashboardPage() {
                 Class roster management, room locks & curriculum analytics.
               </p>
             </div>
+          </div>
+
+          {/* Quick Action Navigation */}
+          <div className="flex items-center gap-3 flex-wrap">
+            <button
+              onClick={() => navigateTo('reports')}
+              className="px-4 py-2.5 rounded-xl font-orbitron font-bold text-xs bg-emerald-500 hover:bg-emerald-400 text-slate-950 flex items-center gap-2 border-0 cursor-pointer shadow-lg shadow-emerald-500/20 transition-all"
+            >
+              <FileSpreadsheet size={16} />
+              <span>Activity Reports & Excel</span>
+            </button>
+            <button
+              onClick={() => navigateTo('teacher-questions')}
+              className="px-4 py-2.5 rounded-xl font-orbitron font-bold text-xs bg-[#0B1512] hover:bg-[#12221c] text-emerald-300 border border-emerald-500/30 flex items-center gap-2 cursor-pointer transition-all"
+            >
+              <FileText size={16} />
+              <span>Question Bank</span>
+            </button>
           </div>
         </div>
 

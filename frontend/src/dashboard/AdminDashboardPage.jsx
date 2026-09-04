@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
   Shield, Users, Database, Server, Activity, AlertCircle,
   Plus, Search, Edit3, Trash2, Key, RefreshCw, CheckCircle2,
-  Lock, Unlock, Terminal, Cpu, HardDrive, Filter, X, Zap
+  Lock, Unlock, Terminal, Cpu, HardDrive, Filter, X, Zap, FileSpreadsheet
 } from 'lucide-react';
 import { DashCard, SectionHeader, AnimatedCounter } from './DashComponents';
 import { useAuth } from '../auth/AuthContext';
@@ -136,6 +136,14 @@ export default function AdminDashboardPage() {
 
           {/* Quick Actions */}
           <div className="flex items-center gap-3 flex-wrap">
+            <button
+              onClick={() => navigateTo('reports')}
+              className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-orbitron font-bold text-xs uppercase tracking-wider shadow-lg shadow-emerald-500/20 cursor-pointer transition-all border-0"
+            >
+              <FileSpreadsheet size={15} />
+              <span>Activity Reports & Excel</span>
+            </button>
+
             <button
               onClick={() => {
                 setToast('Database schema and seeds validated!');
