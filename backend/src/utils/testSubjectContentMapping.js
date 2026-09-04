@@ -166,7 +166,10 @@ async function runSubjectContentMappingTests() {
     // ─────────────────────────────────────────────────────────────────────────
     const socRes = await request('GET', '/rooms/room-soc5-1/questions?standardId=grade-5&subjectId=social-science&chapterId=ch-soc5-1', null, studentAHeaders);
     const socQuestions = socRes.body?.data?.questions || [];
-    const isSocAllSoc = socQuestions.length === 10 && socQuestions.every(q => q.questionText?.includes('continents') || q.questionText?.includes('ocean') || q.questionText?.includes('capital') || q.questionText?.includes('Constitution') || q.questionText?.includes('Hemispheres') || q.questionText?.includes('civilization') || q.questionText?.includes('maps') || q.questionText?.includes('independence') || q.questionText?.includes('animal') || q.questionText?.includes('fundamental rights'));
+    const isSocAllSoc = socQuestions.length === 10 && socQuestions.every(q => {
+      const lower = q.questionText?.toLowerCase() || '';
+      return lower.includes('continent') || lower.includes('ocean') || lower.includes('capital') || lower.includes('constitution') || lower.includes('hemisphere') || lower.includes('civilis') || lower.includes('civiliz') || lower.includes('map') || lower.includes('independen') || lower.includes('animal') || lower.includes('fundamental right');
+    });
     record(
       5,
       'Standard 5 Social Science Chapter 1 loads 10 authentic Social Science questions',

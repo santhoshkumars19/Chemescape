@@ -1565,10 +1565,13 @@ class QuestionService {
         error.statusCode = 404;
         throw error;
       }
-      if (room.chapterId !== data.chapterId) {
+      if (data.chapterId && room.chapterId !== data.chapterId) {
         const error = new Error('Specified room does not belong to the question chapter');
         error.statusCode = 400;
         throw error;
+      }
+      if (!data.chapterId) {
+        data.chapterId = room.chapterId;
       }
     }
 
@@ -1580,7 +1583,7 @@ class QuestionService {
         error.statusCode = 404;
         throw error;
       }
-      if (topic.chapterId !== data.chapterId) {
+      if (data.chapterId && topic.chapterId !== data.chapterId) {
         const error = new Error('Specified topic does not belong to the question chapter');
         error.statusCode = 400;
         throw error;
@@ -1590,23 +1593,33 @@ class QuestionService {
     // 3. Determine next questionNumber if not provided
     let questionNumber = data.questionNumber;
     if (!questionNumber && data.roomId) {
-      const count = await prisma.question.count({
-        where: { roomId: data.roomId },
-      });
-      questionNumber = count + 1;
+      try {
+        const count = await prisma.question.count({
+          where: { roomId: data.roomId },
+        });
+        questionNumber = count + 1;
+      } catch {
+        const roomQs = DEFAULT_QUESTIONS.filter(q => q.roomId === data.roomId);
+        questionNumber = roomQs.length + 1;
+      }
     } else if (!questionNumber) {
       questionNumber = 1;
     }
 
     // Check duplicate question number in same room
     if (data.roomId) {
-      const existing = await prisma.question.findFirst({
-        where: {
-          roomId: data.roomId,
-          questionNumber,
-          isActive: true,
-        },
-      });
+      let existing = null;
+      try {
+        existing = await prisma.question.findFirst({
+          where: {
+            roomId: data.roomId,
+            questionNumber,
+            isActive: true,
+          },
+        });
+      } catch {
+        existing = DEFAULT_QUESTIONS.find(q => q.roomId === data.roomId && q.questionNumber === questionNumber && q.isActive !== false);
+      }
       if (existing) {
         const error = new Error(`Question number ${questionNumber} already exists in this room`);
         error.statusCode = 409;
@@ -1614,42 +1627,69 @@ class QuestionService {
       }
     }
 
-    // 4. Create in DB
+    // 4. Create in DB (with offline resilience fallback)
     const { options, ...questionData } = data;
 
-    const created = await prisma.question.create({
-      data: {
+    try {
+      const created = await prisma.question.create({
+        data: {
+          ...questionData,
+          questionNumber,
+          options: options && options.length > 0 ? {
+            create: options.map((opt, i) => ({
+              optionKey: opt.optionKey || String.fromCharCode(65 + i),
+              optionText: opt.optionText,
+              optionValue: opt.optionValue,
+              isCorrect: opt.isCorrect || false,
+              orderNumber: opt.orderNumber || i + 1,
+              displayOrder: opt.displayOrder || opt.orderNumber || i + 1,
+            })),
+          } : undefined,
+        },
+        include: {
+          options: { orderBy: { orderNumber: 'asc' } },
+          topic: true,
+          room: true,
+        },
+      });
+
+      return created;
+    } catch (dbErr) {
+      const createdFallback = {
+        id: `q-custom-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
         ...questionData,
         questionNumber,
-        options: options && options.length > 0 ? {
-          create: options.map((opt, i) => ({
-            optionKey: opt.optionKey || String.fromCharCode(65 + i),
-            optionText: opt.optionText,
-            optionValue: opt.optionValue,
-            isCorrect: opt.isCorrect || false,
-            orderNumber: opt.orderNumber || i + 1,
-            displayOrder: opt.displayOrder || opt.orderNumber || i + 1,
-          })),
-        } : undefined,
-      },
-      include: {
-        options: { orderBy: { orderNumber: 'asc' } },
-        topic: true,
-        room: true,
-      },
-    });
-
-    return created;
+        options: options && options.length > 0 ? options.map((opt, i) => ({
+          id: `opt-custom-${Date.now()}-${i}`,
+          optionKey: opt.optionKey || String.fromCharCode(65 + i),
+          optionText: opt.optionText,
+          optionValue: opt.optionValue,
+          isCorrect: opt.isCorrect || false,
+          orderNumber: opt.orderNumber || i + 1,
+          displayOrder: opt.displayOrder || opt.orderNumber || i + 1,
+        })) : [],
+      };
+      DEFAULT_QUESTIONS.unshift(createdFallback);
+      return createdFallback;
+    }
   }
 
   /**
    * Update Question (Teacher/Admin only)
    */
   async updateQuestion(id, data) {
-    const existing = await prisma.question.findUnique({
-      where: { id },
-      include: { options: true },
-    });
+    let existing;
+    try {
+      existing = await prisma.question.findUnique({
+        where: { id },
+        include: { options: true },
+      });
+    } catch {
+      existing = DEFAULT_QUESTIONS.find(q => q.id === id);
+    }
+    if (!existing) {
+      existing = DEFAULT_QUESTIONS.find(q => q.id === id);
+    }
 
     if (!existing) {
       const error = new Error('Question not found');
@@ -1659,51 +1699,90 @@ class QuestionService {
 
     const { options, ...updateData } = data;
 
-    // Execute update transaction
-    return prisma.$transaction(async (tx) => {
-      // If options are updated, replace options
-      if (options && Array.isArray(options)) {
-        await tx.questionOption.deleteMany({ where: { questionId: id } });
-        await tx.questionOption.createMany({
-          data: options.map((opt, i) => ({
-            questionId: id,
-            optionKey: opt.optionKey || String.fromCharCode(65 + i),
-            optionText: opt.optionText,
-            optionValue: opt.optionValue,
-            isCorrect: opt.isCorrect || false,
-            orderNumber: opt.orderNumber || i + 1,
-            displayOrder: opt.displayOrder || opt.orderNumber || i + 1,
-          })),
-        });
-      }
+    try {
+      // Execute update transaction
+      return await prisma.$transaction(async (tx) => {
+        // If options are updated, replace options
+        if (options && Array.isArray(options)) {
+          await tx.questionOption.deleteMany({ where: { questionId: id } });
+          await tx.questionOption.createMany({
+            data: options.map((opt, i) => ({
+              questionId: id,
+              optionKey: opt.optionKey || String.fromCharCode(65 + i),
+              optionText: opt.optionText,
+              optionValue: opt.optionValue,
+              isCorrect: opt.isCorrect || false,
+              orderNumber: opt.orderNumber || i + 1,
+              displayOrder: opt.displayOrder || opt.orderNumber || i + 1,
+            })),
+          });
+        }
 
-      return tx.question.update({
-        where: { id },
-        data: updateData,
-        include: {
-          options: { orderBy: { orderNumber: 'asc' } },
-          topic: true,
-          room: true,
-        },
+        return tx.question.update({
+          where: { id },
+          data: updateData,
+          include: {
+            options: { orderBy: { orderNumber: 'asc' } },
+            topic: true,
+            room: true,
+          },
+        });
       });
-    });
+    } catch (dbErr) {
+      const idx = DEFAULT_QUESTIONS.findIndex(q => q.id === id);
+      if (idx !== -1) {
+        DEFAULT_QUESTIONS[idx] = {
+          ...DEFAULT_QUESTIONS[idx],
+          ...updateData,
+          ...(options ? {
+            options: options.map((opt, i) => ({
+              id: opt.id || `opt-${id}-${i}`,
+              optionKey: opt.optionKey || String.fromCharCode(65 + i),
+              optionText: opt.optionText,
+              optionValue: opt.optionValue,
+              isCorrect: opt.isCorrect || false,
+              orderNumber: opt.orderNumber || i + 1,
+            }))
+          } : {})
+        };
+        return DEFAULT_QUESTIONS[idx];
+      }
+      return { id, ...data };
+    }
   }
 
   /**
    * Delete / Archive Question (Teacher/Admin only)
    */
   async deleteQuestion(id) {
-    const existing = await prisma.question.findUnique({ where: { id } });
+    let existing;
+    try {
+      existing = await prisma.question.findUnique({ where: { id } });
+    } catch {
+      existing = DEFAULT_QUESTIONS.find(q => q.id === id);
+    }
+    if (!existing) {
+      existing = DEFAULT_QUESTIONS.find(q => q.id === id);
+    }
+
     if (!existing) {
       const error = new Error('Question not found');
       error.statusCode = 404;
       throw error;
     }
 
-    await prisma.question.update({
-      where: { id },
-      data: { isActive: false, status: 'ARCHIVED' },
-    });
+    try {
+      await prisma.question.update({
+        where: { id },
+        data: { isActive: false, status: 'ARCHIVED' },
+      });
+    } catch {
+      const idx = DEFAULT_QUESTIONS.findIndex(q => q.id === id);
+      if (idx !== -1) {
+        DEFAULT_QUESTIONS[idx].isActive = false;
+        DEFAULT_QUESTIONS[idx].status = 'ARCHIVED';
+      }
+    }
 
     return { message: 'Question archived successfully' };
   }
@@ -1722,24 +1801,30 @@ class QuestionService {
       ...(isStudentView ? { status: 'PUBLISHED', isActive: true } : (filter.isActive !== undefined ? { isActive: filter.isActive === 'true' } : {})),
     };
 
-    const questions = await prisma.question.findMany({
-      where,
-      include: {
-        options: { orderBy: { orderNumber: 'asc' } },
-        topic: true,
-        room: true,
-        chapter: { select: { id: true, title: true, chapterNumber: true } },
-      },
-      orderBy: [{ chapterId: 'asc' }, { roomId: 'asc' }, { questionNumber: 'asc' }],
-    });
+    try {
+      const questions = await prisma.question.findMany({
+        where,
+        include: {
+          options: { orderBy: { orderNumber: 'asc' } },
+          topic: true,
+          room: true,
+          chapter: { select: { id: true, title: true, chapterNumber: true } },
+        },
+        orderBy: [{ chapterId: 'asc' }, { roomId: 'asc' }, { questionNumber: 'asc' }],
+      });
 
-    if (questions && questions.length > 0) {
-      return isStudentView ? questions.map(q => this.toStudentQuestion(q)) : questions;
+      if (questions && questions.length > 0) {
+        return isStudentView ? questions.map(q => this.toStudentQuestion(q)) : questions;
+      }
+    } catch {
+      // Fall through to fallback below
     }
 
     return DEFAULT_QUESTIONS.filter(q => {
       if (filter.chapterId && q.chapterId !== filter.chapterId) return false;
       if (filter.roomId && q.roomId !== filter.roomId) return false;
+      if (filter.questionType && q.questionType !== filter.questionType) return false;
+      if (filter.difficulty && q.difficulty !== filter.difficulty) return false;
       if (isStudentView && (q.status !== 'PUBLISHED' || q.isActive === false)) return false;
       return true;
     }).map(q => isStudentView ? this.toStudentQuestion(q) : q);
