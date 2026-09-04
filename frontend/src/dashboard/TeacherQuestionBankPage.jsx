@@ -511,7 +511,7 @@ export default function TeacherQuestionBankPage() {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-space text-white/70 mb-1">AI Assistant Hint</label>
+                  <label className="block text-xs font-space text-white/70 mb-1">Question Hint</label>
                   <input
                     type="text"
                     placeholder="e.g. Apply ideal gas law PV = nRT"

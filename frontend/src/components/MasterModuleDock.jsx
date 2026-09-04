@@ -23,7 +23,6 @@ const MODULES = [
   { id: 'mission-complete', label: 'Victory Celebration', icon: Trophy, color: '#F59E0B' },
   { id: 'leaderboard', label: 'Leaderboard', icon: Trophy, color: '#F59E0B' },
   { id: 'profile', label: 'Student Profile', icon: User, color: '#67E8F9' },
-  { id: 'ai-assistant', label: 'AI Assistant', icon: Bot, color: '#10B981' },
 ];
 
 export default function MasterModuleDock() {

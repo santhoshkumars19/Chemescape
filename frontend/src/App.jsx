@@ -68,7 +68,6 @@ import MissionCompletePage from './pages/MissionCompletePage';
 import LeaderboardPage from './pages/LeaderboardPage';
 import ProfilePage from './pages/ProfilePage';
 import TeacherProfilePage from './pages/TeacherProfilePage';
-import AiAssistantPage from './pages/AiAssistantPage';
 import StandardSelectionPage from './pages/StandardSelectionPage';
 import SubjectSelectionPage  from './pages/SubjectSelectionPage';
 
@@ -101,7 +100,7 @@ const PROTECTED_SCREENS = [
   'metal-sorting', 'element-sorting', 'sorting-factory',
   'gas-simulator', 'gas', 'gas-chamber',
   'room1', 'room2', 'room3', 'boss',
-  'mission-complete', 'leaderboard', 'profile', 'settings', 'ai-assistant', 'assistant',
+  'mission-complete', 'leaderboard', 'profile', 'settings',
 ];
 
 // ── Single URL Unified Root Application ───────────────────────────────────────
@@ -239,7 +238,7 @@ function SingleUrlUnifiedApp() {
         return <ProfilePage />;
       case 'ai-assistant':
       case 'assistant':
-        return <AiAssistantPage />;
+        return <DashboardScreen />;
       case 'landing':
       default:
         return (

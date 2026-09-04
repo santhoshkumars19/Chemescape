@@ -21,7 +21,6 @@ export default function Sidebar({ collapsed, setCollapsed, mobileOpen, setMobile
     { label: 'My Standard',   icon: GraduationCap,    screen: 'select-standard' },
     { label: 'My Subject',    icon: BookOpen,          screen: 'select-subject' },
     { label: 'Chapter Map',   icon: Swords,            screen: 'chapters' },
-    { label: 'AI Assistant',  icon: Zap,               screen: 'ai-assistant' },
     { label: 'Leaderboard',   icon: Trophy,            screen: 'leaderboard' },
     { label: 'Profile',       icon: UserCircle,        screen: 'profile' },
     { label: 'Settings',      icon: Settings,          screen: 'settings' },

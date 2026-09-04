@@ -43,6 +43,10 @@ export default function AiAssistantPage() {
 
   // Mode: CURRENT_CHAPTER vs FULL_SYLLABUS
   const [mode, setMode] = useState('CURRENT_CHAPTER');
+
+  useEffect(() => {
+    navigateTo('dashboard');
+  }, [navigateTo]);
   const [inputText, setInputText] = useState('');
   const [isTyping, setIsTyping] = useState(false);
 

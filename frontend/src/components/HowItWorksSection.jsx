@@ -25,7 +25,7 @@ const steps = [
     num: '03',
     icon: Zap,
     title: 'Race the Clock',
-    desc: 'Alarms are blaring. Earn bonus XP for speed. Your AI assistant hints are limited — use them wisely.',
+    desc: 'Alarms are blaring. Earn bonus XP for speed. Problem hints are limited — use them wisely.',
     color: '#ec4899',
   },
   {

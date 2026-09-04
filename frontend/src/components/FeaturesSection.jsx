@@ -34,13 +34,13 @@ const features = [
     tag: 'Simulation',
   },
   {
-    id: 'ai-assistant',
-    icon: Bot,
-    title: 'AI Learning Assistant',
-    description: 'Your personal AI lab partner guides you through concepts, explains solutions, and adapts to your learning pace.',
+    id: 'interactive-curriculum',
+    icon: Atom,
+    title: 'Multi-Subject Curriculum',
+    description: 'Master Tamil, English, Mathematics, Science, and Social Science through structured standards, chapters, and topics.',
     color: '#22d3ee',
     glow: 'rgba(34,211,238,0.15)',
-    tag: 'AI Powered',
+    tag: 'All Standards',
   },
   {
     id: 'progress-tracking',
