@@ -104,7 +104,7 @@ export default function ProfilePage() {
             </div>
             <div>
               <span className="font-orbitron font-extrabold text-base tracking-wider gradient-text-emerald">
-                ChemEscape
+                EduNova
               </span>
               <span className="block text-[9px] font-space text-slate-400 tracking-widest uppercase">
                 AAA Gaming Suite

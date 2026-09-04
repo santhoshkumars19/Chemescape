@@ -3,7 +3,7 @@ import React from 'react';
 /**
  * PageContainer — Reusable global container component
  * Ensures consistent 1440px max-width, horizontal centering, responsive padding,
- * and box-sizing across all ChemEscape modules without cutting off vertical overflow.
+ * and box-sizing across all EduNova modules without cutting off vertical overflow.
  */
 export default function PageContainer({ children, className = '', style = {}, id }) {
   return (

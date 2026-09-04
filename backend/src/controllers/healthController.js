@@ -6,7 +6,7 @@ class HealthController {
       const healthDetails = await healthService.getHealthStatus();
       return res.status(200).json({
         success: true,
-        message: "ChemEscape API is running",
+        message: "EduNova API is running",
         data: healthDetails,
       });
     } catch (error) {

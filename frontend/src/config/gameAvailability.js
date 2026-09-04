@@ -1,7 +1,7 @@
 /**
  * gameAvailability.js
  * ─────────────────────────────────────────────────────────────────────────────
- * Centralized Game Availability and Curriculum Validation System for ChemEscape.
+ * Centralized Game Availability and Curriculum Validation System for EduNova.
  * 
  * Strict Single Source of Truth for:
  * 1. Availability states: AVAILABLE, COMING_SOON, NOT_CONFIGURED, UNSUPPORTED, INVALID_CONFIGURATION, ERROR

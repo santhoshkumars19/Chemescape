@@ -28,7 +28,7 @@ export default function Navbar({ user = null, onLogout }) {
               <FlaskConical className="w-5 h-5 text-white" />
             </div>
             <span className="font-orbitron text-base md:text-lg font-black tracking-widest gradient-text-emerald select-none">
-              CHEM<span className="text-white">ESCAPE</span>
+              EDU<span className="text-white">NOVA</span>
             </span>
           </motion.button>
 

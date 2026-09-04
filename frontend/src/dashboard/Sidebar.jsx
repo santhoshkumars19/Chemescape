@@ -75,7 +75,7 @@ export default function Sidebar({ collapsed, setCollapsed, mobileOpen, setMobile
               className="overflow-hidden cursor-pointer"
               onClick={() => navigateTo('landing')}
             >
-              <p className="font-orbitron font-black text-sm tracking-widest gradient-text-emerald whitespace-nowrap">CHEM<span className="text-white">ESCAPE</span></p>
+              <p className="font-orbitron font-black text-sm tracking-widest gradient-text-emerald whitespace-nowrap">EDU<span className="text-white">NOVA</span></p>
               <p className="text-[10px] text-emerald-400/50 font-space tracking-widest">
                 {role === 'TEACHER' ? 'TEACHER PORTAL' : role === 'ADMIN' ? 'ADMIN CONSOLE' : 'STUDENT PORTAL'}
               </p>

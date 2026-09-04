@@ -34,8 +34,8 @@ const TEACHER_PROFILE_INIT = {
   name: 'Prof. Chemistry Teacher',
   subject: 'Chemistry',
   qualification: 'M.Sc. Chemistry, B.Ed.',
-  institution: 'ChemEscape Academy',
-  email: 'teacher@chemescape.com',
+  institution: 'EduNova Academy',
+  email: 'teacher@edunova.com',
   phone: '+91 98765 43210',
   location: 'Chennai, Tamil Nadu',
   joined: 'August 2025',
@@ -59,7 +59,7 @@ const TEACHER_STATS = [
 const CERTIFICATIONS = [
   { title: 'Certified Chemistry Educator', issuer: 'Central Board of Secondary Education', year: '2018', icon: '🎓' },
   { title: 'Advanced Pedagogy in STEM', issuer: 'National Council of Educational Research', year: '2020', icon: '📘' },
-  { title: 'Digital Learning Facilitator', issuer: 'ChemEscape Academy', year: '2025', icon: '💻' },
+  { title: 'Digital Learning Facilitator', issuer: 'EduNova Academy', year: '2025', icon: '💻' },
 ];
 
 const RECENT_ACTIVITY = [

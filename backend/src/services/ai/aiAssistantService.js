@@ -1,5 +1,5 @@
 /**
- * ChemEscape AI Assistant Service
+ * EduNova AI Assistant Service
  * Master orchestrator for syllabus-bound chemistry tutoring:
  * Classification -> Retrieval -> Grounded Prompting -> Gemini LLM / Grounded Engine -> Validation
  */
@@ -102,7 +102,7 @@ class AIAssistantService {
     if (classification === 'OUT_OF_SCOPE') {
       return {
         classification: 'OUT_OF_SCOPE',
-        answer: "I can help only with Chemistry questions from the selected ChemEscape syllabus. Please ask a Chemistry-related question.",
+        answer: "I can help only with Chemistry questions from the selected EduNova syllabus. Please ask a Chemistry-related question.",
         sources: []
       };
     }
@@ -111,7 +111,7 @@ class AIAssistantService {
     if (classification === 'NOT_IN_SYLLABUS') {
       return {
         classification: 'NOT_IN_SYLLABUS',
-        answer: "I can help with the Chemistry topics included in your selected ChemEscape syllabus. This topic is outside the current syllabus content.",
+        answer: "I can help with the Chemistry topics included in your selected EduNova syllabus. This topic is outside the current syllabus content.",
         sources: []
       };
     }
@@ -238,7 +238,7 @@ class AIAssistantService {
     if (!validation.valid) {
       return {
         classification: 'NOT_IN_SYLLABUS',
-        answer: "I couldn't find enough information in the selected ChemEscape syllabus to answer this accurately. Please ask a question from the current chapter or topic.",
+        answer: "I couldn't find enough information in the selected EduNova syllabus to answer this accurately. Please ask a question from the current chapter or topic.",
         sources: []
       };
     }

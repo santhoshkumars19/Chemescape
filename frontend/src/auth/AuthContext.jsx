@@ -80,7 +80,7 @@ export function AuthProvider({ children }) {
 
       return userObj;
     } catch (err) {
-      console.warn('[ChemEscape] Backend login fallback:', err.message);
+      console.warn('[EduNova] Backend login fallback:', err.message);
 
       // Demo / offline fallback
       const lowerEmail = email.toLowerCase();
@@ -133,10 +133,10 @@ export function AuthProvider({ children }) {
 
   const continueAsGuest = useCallback(async () => {
     try {
-      await login('student@chemescape.com', 'Password123');
+      await login('student@edunova.com', 'Password123');
     } catch {
       progressActionsRef.current.clearProgressState();
-      setUser({ name: 'Guest Chemist', email: 'guest@chemescape.com', avatar: '👤' });
+      setUser({ name: 'Guest Chemist', email: 'guest@edunova.com', avatar: '👤' });
       setIsGuest(true);
     }
   }, [login]);

@@ -50,7 +50,7 @@ export default function MasterModuleDock() {
               <div className="flex items-center gap-2">
                 <Sparkles size={16} className="text-emerald-400" />
                 <span className="font-orbitron font-extrabold text-xs text-white tracking-widest uppercase">
-                  ChemEscape Single-URL Controller
+                  EduNova Single-URL Controller
                 </span>
               </div>
               <button

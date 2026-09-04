@@ -123,9 +123,9 @@ export default function LoginPage() {
           >
             <div className="text-cyan-400 font-semibold mb-1">Demo Accounts (Password123):</div>
             <div className="flex flex-col gap-0.5 text-[11px] font-space text-white/70">
-              <div>🧪 <span className="text-cyan-300 font-bold">Student:</span> student@chemescape.com</div>
-              <div>👨‍🏫 <span className="text-purple-300 font-bold">Teacher:</span> teacher@chemescape.com</div>
-              <div>🛡️ <span className="text-amber-300 font-bold">Admin:</span> admin@chemescape.com</div>
+              <div>🧪 <span className="text-cyan-300 font-bold">Student:</span> student@edunova.com</div>
+              <div>👨‍🏫 <span className="text-purple-300 font-bold">Teacher:</span> teacher@edunova.com</div>
+              <div>🛡️ <span className="text-amber-300 font-bold">Admin:</span> admin@edunova.com</div>
             </div>
           </motion.div>
 
@@ -213,7 +213,7 @@ export default function LoginPage() {
             id="back-to-landing-login"
             className="text-xs text-white/20 hover:text-white/50 font-space tracking-widest transition-colors bg-transparent border-0 cursor-pointer"
           >
-            ← Back to ChemEscape
+            ← Back to EduNova
           </button>
         </motion.div>
       </div>

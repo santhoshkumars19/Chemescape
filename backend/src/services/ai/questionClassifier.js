@@ -1,9 +1,9 @@
 /**
- * ChemEscape AI Assistant - Question Classifier
+ * EduNova AI Assistant - Question Classifier
  * Classifies incoming user queries into:
  * - IN_SCOPE: Valid Chemistry query within the syllabus
  * - OUT_OF_SCOPE: Non-chemistry questions (coding, general knowledge, jokes, news, etc.)
- * - NOT_IN_SYLLABUS: Chemistry topic outside 11th/12th ChemEscape syllabus
+ * - NOT_IN_SYLLABUS: Chemistry topic outside 11th/12th EduNova syllabus
  * - AMBIGUOUS: Vague/incomplete query needing clarification
  */
 

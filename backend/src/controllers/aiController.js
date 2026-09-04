@@ -1,5 +1,5 @@
 /**
- * ChemEscape AI Assistant Controller
+ * EduNova AI Assistant Controller
  * Handles POST /api/ai/assistant requests
  * Derives userId strictly from req.user.id (verified JWT)
  */

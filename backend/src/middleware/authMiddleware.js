@@ -58,7 +58,7 @@ async function authMiddleware(req, res, next) {
       user = {
         id: decoded.userId,
         name: decoded.name || 'Chemist User',
-        email: decoded.email || 'user@chemescape.com',
+        email: decoded.email || 'user@edunova.com',
         role: decoded.role || 'STUDENT',
       };
     }

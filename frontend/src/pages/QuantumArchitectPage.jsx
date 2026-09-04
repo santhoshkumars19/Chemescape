@@ -157,7 +157,7 @@ export default function QuantumArchitectPage() {
         const authRes = await fetch(`${API_BASE}/auth/login`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email: 'student@chemescape.com', password: 'Password123' }),
+          body: JSON.stringify({ email: 'student@edunova.com', password: 'Password123' }),
         });
         const authData = await authRes.json();
         if (authData.success && authData.data?.token) {

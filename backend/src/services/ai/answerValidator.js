@@ -1,5 +1,5 @@
 /**
- * ChemEscape AI Assistant - Answer Validator
+ * EduNova AI Assistant - Answer Validator
  * Validates generated AI output against strict safety, scope, and groundness rules.
  */
 
@@ -14,7 +14,7 @@ class AnswerValidator {
 
     // 1. If classification was OUT_OF_SCOPE, verify answer doesn't give non-chemistry info
     if (classification === 'OUT_OF_SCOPE') {
-      const isRefusal = answer.includes('ChemEscape syllabus') || answer.includes('Chemistry questions');
+      const isRefusal = answer.includes('EduNova syllabus') || answer.includes('ChemEscape syllabus') || answer.includes('Chemistry questions');
       if (!isRefusal) {
         return {
           valid: false,

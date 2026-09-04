@@ -55,7 +55,7 @@ class AuthService {
     } catch (dbErr) {
       // Offline mock user credentials
       const normalizedEmail = email.toLowerCase();
-      if (normalizedEmail === 'student@chemescape.com' || normalizedEmail === 'student1@chemescape.com') {
+      if (normalizedEmail === 'student@edunova.com' || normalizedEmail === 'student@chemescape.com' || normalizedEmail === 'student1@chemescape.com') {
         if (password !== 'Password123' && password !== 'Password123!' && password !== 'StudentPass123!') {
           const error = new Error('Invalid email or password');
           error.statusCode = 401;
@@ -70,7 +70,7 @@ class AuthService {
           createdAt: new Date(),
           updatedAt: new Date(),
         };
-      } else if (normalizedEmail === 'teacher@chemescape.com') {
+      } else if (normalizedEmail === 'teacher@edunova.com' || normalizedEmail === 'teacher@chemescape.com') {
         if (password !== 'Password123' && password !== 'Password123!' && password !== 'TeacherPass123!') {
           const error = new Error('Invalid email or password');
           error.statusCode = 401;
@@ -85,7 +85,7 @@ class AuthService {
           createdAt: new Date(),
           updatedAt: new Date(),
         };
-      } else if (normalizedEmail === 'admin@chemescape.com') {
+      } else if (normalizedEmail === 'admin@edunova.com' || normalizedEmail === 'admin@chemescape.com') {
         if (password !== 'Password123!' && password !== 'AdminPass123!') {
           const error = new Error('Invalid email or password');
           error.statusCode = 401;

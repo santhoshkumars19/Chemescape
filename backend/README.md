@@ -1,6 +1,6 @@
-# ChemEscape Backend API
+# EduNova Backend API
 
-Backend foundation for **ChemEscape** – a Gamified Chemistry Learning Platform. Built with Node.js, Express.js, MySQL, Prisma ORM, JWT, and Zod.
+Backend foundation for **EduNova** – a Gamified Chemistry Learning Platform. Built with Node.js, Express.js, MySQL, Prisma ORM, JWT, and Zod.
 
 ---
 

@@ -10,9 +10,9 @@ import { useAuth } from '../auth/AuthContext';
 import { useNavigation } from '../context/NavigationContext';
 
 const initialUsers = [
-  { id: 'usr-1', name: 'System Administrator', email: 'admin@chemescape.com', role: 'ADMIN', status: 'ACTIVE', regDate: '2026-01-01', sessionsCount: 142 },
-  { id: 'usr-2', name: 'Prof. Chemistry Teacher', email: 'teacher@chemescape.com', role: 'TEACHER', status: 'ACTIVE', regDate: '2026-01-05', sessionsCount: 88 },
-  { id: 'usr-3', name: 'Student Agent', email: 'student@chemescape.com', role: 'STUDENT', status: 'ACTIVE', regDate: '2026-01-10', sessionsCount: 24 },
+  { id: 'usr-1', name: 'System Administrator', email: 'admin@edunova.com', role: 'ADMIN', status: 'ACTIVE', regDate: '2026-01-01', sessionsCount: 142 },
+  { id: 'usr-2', name: 'Prof. Chemistry Teacher', email: 'teacher@edunova.com', role: 'TEACHER', status: 'ACTIVE', regDate: '2026-01-05', sessionsCount: 88 },
+  { id: 'usr-3', name: 'Student Agent', email: 'student@edunova.com', role: 'STUDENT', status: 'ACTIVE', regDate: '2026-01-10', sessionsCount: 24 },
 ];
 
 const systemEngines = [
@@ -25,10 +25,10 @@ const systemEngines = [
 ];
 
 const auditLogs = [
-  { id: 'log-1', event: 'USER_LOGIN', user: 'teacher@chemescape.com', role: 'TEACHER', time: 'Just now', ip: '127.0.0.1', status: 'SUCCESS' },
-  { id: 'log-2', event: 'GAME_SESSION_COMPLETE', user: 'student@chemescape.com', role: 'STUDENT', time: '2 mins ago', ip: '127.0.0.1', status: 'SUCCESS' },
+  { id: 'log-1', event: 'USER_LOGIN', user: 'teacher@edunova.com', role: 'TEACHER', time: 'Just now', ip: '127.0.0.1', status: 'SUCCESS' },
+  { id: 'log-2', event: 'GAME_SESSION_COMPLETE', user: 'student@edunova.com', role: 'STUDENT', time: '2 mins ago', ip: '127.0.0.1', status: 'SUCCESS' },
   { id: 'log-3', event: 'DATABASE_SEED', user: 'SYSTEM', role: 'SYSTEM', time: '15 mins ago', ip: '127.0.0.1', status: 'SUCCESS' },
-  { id: 'log-4', event: 'ANTI_CHEAT_VERIFY', user: 'student@chemescape.com', role: 'STUDENT', time: '1 hour ago', ip: '127.0.0.1', status: 'CLEARED' },
+  { id: 'log-4', event: 'ANTI_CHEAT_VERIFY', user: 'student@edunova.com', role: 'STUDENT', time: '1 hour ago', ip: '127.0.0.1', status: 'CLEARED' },
 ];
 
 export default function AdminDashboardPage() {
@@ -419,7 +419,7 @@ export default function AdminDashboardPage() {
                   <input
                     type="email"
                     required
-                    placeholder="user@chemescape.com"
+                    placeholder="user@edunova.com"
                     value={newUserForm.email}
                     onChange={e => setNewUserForm({ ...newUserForm, email: e.target.value })}
                     className="w-full p-2.5 rounded-xl bg-[#040810] border border-white/10 text-white text-xs font-inter outline-none focus:border-amber-500/40"

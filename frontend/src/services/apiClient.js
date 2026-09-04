@@ -1,7 +1,7 @@
 const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api';
 
 /**
- * Reusable HTTP API Client for ChemEscape
+ * Reusable HTTP API Client for EduNova
  *
  * Security: On 401 (token expired / invalid) this client fires a custom DOM
  * event — 'chemescape:session-expired' — so AuthContext can immediately clear

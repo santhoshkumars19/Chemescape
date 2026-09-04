@@ -46,7 +46,7 @@ export default function LeaderboardPage() {
             </div>
             <div>
               <span className="font-orbitron font-extrabold text-base tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-purple-400">
-                ChemEscape
+                EduNova
               </span>
               <span className="block text-[9px] font-space text-slate-400 tracking-widest uppercase">
                 AAA Gaming Suite

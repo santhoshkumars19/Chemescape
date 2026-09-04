@@ -1,5 +1,5 @@
 /**
- * ChemEscape AI Assistant Routes
+ * EduNova AI Assistant Routes
  * Mounted at /api/ai
  */
 

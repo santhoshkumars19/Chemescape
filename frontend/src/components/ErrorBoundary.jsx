@@ -11,7 +11,7 @@ export class ErrorBoundary extends React.Component {
   }
 
   componentDidCatch(error, errorInfo) {
-    console.error('[ChemEscape ErrorBoundary caught runtime exception]:', error, errorInfo);
+    console.error('[EduNova ErrorBoundary caught runtime exception]:', error, errorInfo);
   }
 
   handleRetry = () => {
@@ -28,10 +28,10 @@ export class ErrorBoundary extends React.Component {
               🧪
             </div>
             <h2 className="text-xl font-orbitron font-extrabold text-red-500 mb-2 tracking-wider">
-              ChemEscape System Recovery
+              EduNova System Recovery
             </h2>
             <p className="text-xs text-slate-300 font-space mb-6 leading-relaxed">
-              ChemEscape could not load this screen due to a transient runtime execution issue.
+              EduNova could not load this screen due to a transient runtime execution issue.
             </p>
             {this.state.error?.message && (
               <div className="bg-slate-950 border border-red-500/30 rounded-xl p-3 mb-6 text-[11px] font-mono text-red-300 text-left overflow-x-auto">

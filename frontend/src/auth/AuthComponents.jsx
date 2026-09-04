@@ -309,9 +309,9 @@ export function AuthBrand() {
 
       <div className="text-center">
         <h1 className="font-orbitron font-black text-xl tracking-[0.15em] gradient-text-emerald">
-          CHEMESCAPE
+          EDUNOVA
         </h1>
-        <p className="text-xs text-emerald-400/50 font-space tracking-widest mt-0.5">ESCAPE THE LAB</p>
+        <p className="text-xs text-emerald-400/50 font-space tracking-widest mt-0.5">GAMIFIED LEARNING PLATFORM</p>
       </div>
     </div>
   );

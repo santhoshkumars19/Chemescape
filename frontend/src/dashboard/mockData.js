@@ -1,4 +1,4 @@
-// ─── Real Product & Clean State Data for ChemEscape Dashboard ───────────
+// ─── Real Product & Clean State Data for EduNova Dashboard ───────────
 
 export const mockUser = {
   name: 'Student Agent',

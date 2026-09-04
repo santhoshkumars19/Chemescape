@@ -22,7 +22,7 @@ const INITIAL_WELCOME = (userName = 'Chemist') => ([
   {
     id: 1,
     sender: 'bot',
-    text: `Hello ${userName}! I am **ChemEscape AI Tutor**, your strict syllabus-grounded Chemistry assistant. ⚛️\n\nI answer questions derived directly from your 11th & 12th Chemistry syllabus content. Ask me about periodic trends, atomic structure, stoichiometry calculations, or chapter concepts!`,
+    text: `Hello ${userName}! I am **EduNova AI Tutor**, your strict syllabus-grounded Chemistry assistant. ⚛️\n\nI answer questions derived directly from your 11th & 12th Chemistry syllabus content. Ask me about periodic trends, atomic structure, stoichiometry calculations, or chapter concepts!`,
     time: 'Just now',
     classification: 'IN_SCOPE',
     type: 'welcome'
@@ -137,7 +137,7 @@ export default function AiAssistantPage() {
       const errorMsg = {
         id: Date.now() + 1,
         sender: 'bot',
-        text: "I couldn't find enough information in the selected ChemEscape syllabus to answer this accurately. Please ask a question from your current chapter or topic.",
+        text: "I couldn't find enough information in the selected EduNova syllabus to answer this accurately. Please ask a question from your current chapter or topic.",
         classification: 'NOT_IN_SYLLABUS',
         time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
       };
@@ -162,7 +162,7 @@ export default function AiAssistantPage() {
             </div>
             <div>
               <span className="font-orbitron font-extrabold text-base tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-purple-400">
-                ChemEscape
+                EduNova
               </span>
               <span className="block text-[9px] font-space text-slate-400 tracking-widest uppercase">
                 AI Tutor Suite
@@ -355,7 +355,7 @@ export default function AiAssistantPage() {
               <div className={`space-y-1 ${msg.sender === 'user' ? 'text-right' : 'text-left'}`}>
                 <div className="flex items-center gap-2 px-1">
                   <span className="font-orbitron text-[10px] font-bold text-slate-400">
-                    {msg.sender === 'user' ? 'You' : 'ChemEscape AI Tutor'}
+                    {msg.sender === 'user' ? 'You' : 'EduNova AI Tutor'}
                   </span>
                   {msg.classification && msg.sender === 'bot' && (
                     <span className={`text-[9px] font-orbitron font-bold px-2 py-0.2 rounded-full border ${

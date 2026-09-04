@@ -73,7 +73,7 @@ export default function CalculationHeistPage() {
         const authRes = await fetch(`${API_BASE}/auth/login`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email: 'student@chemescape.com', password: 'Password123' }),
+          body: JSON.stringify({ email: 'student@edunova.com', password: 'Password123' }),
         });
         const authData = await authRes.json();
         if (authData.success && authData.data?.token) {
@@ -729,7 +729,7 @@ export default function CalculationHeistPage() {
                 >
                   <HelpCircle size={14} /> {showHint ? 'Hide Hint' : 'Request Hint'}
                 </button>
-                <span className="text-slate-500 font-mono">ChemEscape Vault Engine v1.0</span>
+                <span className="text-slate-500 font-mono">EduNova Vault Engine v1.0</span>
               </div>
             </motion.div>
           )}

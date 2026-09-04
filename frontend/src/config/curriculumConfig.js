@@ -433,7 +433,7 @@ export const CURRICULUM = {
 
 // ─── CHAPTER DEFINITIONS ───────────────────────────────────────────────────────
 // Explicit chapter lists per standard & subject.
-// Standard 11 Chemistry aligns precisely with existing ChemEscape escape room engines.
+// Standard 11 Chemistry aligns precisely with existing EduNova escape room engines.
 
 export const CHAPTERS_STORE = {
   // ── Standard 11 Chemistry (Existing 6 Units) ─────────────────────────────────

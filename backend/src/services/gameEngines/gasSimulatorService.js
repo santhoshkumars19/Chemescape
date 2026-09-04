@@ -215,7 +215,7 @@ class GasSimulatorService {
       finalScore: sessionState.score,
       stars: calculatedStars,
       completionRewards: completionResult,
-      message: 'Gas Chamber Pressure Equalized! ChemEscape Boss Mission Complete.',
+      message: 'Gas Chamber Pressure Equalized! EduNova Boss Mission Complete.',
     };
   }
 }

@@ -280,7 +280,7 @@ export function NavigationProvider({ children }) {
         }
       }
     } catch (err) {
-      console.warn('[ChemEscape] Failed to refresh user stats:', err.message);
+      console.warn('[EduNova] Failed to refresh user stats:', err.message);
     }
   }, []);
 

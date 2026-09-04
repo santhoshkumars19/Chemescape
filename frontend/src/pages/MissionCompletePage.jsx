@@ -126,7 +126,7 @@ function CertificateModal({ isOpen, onClose, studentName, chapterName, standardN
           </div>
 
           <p className="font-orbitron text-[10px] sm:text-xs font-bold text-emerald-400 tracking-widest uppercase mb-1">
-            CHEMESCAPE OFFICIAL DIPLOMA
+            EDUNOVA OFFICIAL DIPLOMA
           </p>
           <h2 className="font-orbitron font-black text-2xl sm:text-3xl mb-2">
             CERTIFICATE OF MASTERY
@@ -362,7 +362,7 @@ export default function MissionCompletePage() {
             style={{ color: accentColor }}
           >
             <Sparkles className="w-4 h-4" />
-            <span>ChemEscape HQ</span>
+            <span>EduNova HQ</span>
           </button>
 
           {/* Standard & Subject chip */}
@@ -640,7 +640,7 @@ export default function MissionCompletePage() {
 
       {/* Footer */}
       <footer className="relative z-20 py-4 text-center font-orbitron text-[10px] tracking-widest uppercase opacity-40">
-        ChemEscape Educational Adventure Suite • Mission Synchronized
+        EduNova Educational Adventure Suite • Mission Synchronized
       </footer>
 
       {/* Certificate Modal */}

@@ -254,7 +254,7 @@ export default function RegisterPage() {
             id="back-to-landing-register"
             className="text-xs text-white/20 hover:text-white/50 font-space tracking-widest transition-colors bg-transparent border-0 cursor-pointer"
           >
-            ← Back to ChemEscape
+            ← Back to EduNova
           </button>
         </motion.div>
       </div>

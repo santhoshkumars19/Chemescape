@@ -1,7 +1,7 @@
 /**
  * gameRegistry.js
  * ─────────────────────────────────────────────────────────────────────────────
- * Authoritative Game Registry for ChemEscape.
+ * Authoritative Game Registry for EduNova.
  * 
  * Maps game types to their respective frontend components and endpoints.
  * Supports registering new unique subject engines without hardcoding subject logic.

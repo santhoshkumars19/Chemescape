@@ -71,7 +71,7 @@ export async function generateCertificatePDF(cert, user = {}) {
             letter-spacing: 4px;
             color: #047857;
             text-transform: uppercase;
-          ">ChemEscape</span>
+          ">EduNova</span>
         </div>
         <p style="
           font-family: 'Orbitron', monospace;
@@ -235,7 +235,7 @@ export async function generateCertificatePDF(cert, user = {}) {
     pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
 
     // 5. Save the single-page A4 PDF file
-    const safeFilename = `ChemEscape_Certificate_${certCode}.pdf`;
+    const safeFilename = `EduNova_Certificate_${certCode}.pdf`;
     pdf.save(safeFilename);
   } finally {
     // Clean up DOM container

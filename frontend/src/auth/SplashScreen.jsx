@@ -142,10 +142,10 @@ export default function SplashScreen({ onDone }) {
             transition={{ delay: 0.3, duration: 0.7 }}
           >
             <h1 className="font-orbitron font-black text-4xl sm:text-5xl gradient-text-cyan-purple tracking-widest mb-2">
-              CHEMESCAPE
+              EDUNOVA
             </h1>
             <p className="font-space text-white/35 tracking-[0.4em] text-xs uppercase">
-              Escape the Lab
+              Gamified Learning Platform
             </p>
           </motion.div>
 

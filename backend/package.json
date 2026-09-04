@@ -1,7 +1,7 @@
 {
   "name": "chemescape-backend",
   "version": "1.0.0",
-  "description": "ChemEscape Gamified Chemistry Platform - Backend API Foundation",
+  "description": "EduNova Gamified Learning Platform - Backend API Foundation",
   "main": "src/server.js",
   "type": "commonjs",
   "scripts": {

@@ -6,7 +6,7 @@ const PORT = process.env.PORT || 5000;
 async function startServer() {
   app.listen(PORT, () => {
     console.log(`==================================================`);
-    console.log(`🚀 ChemEscape API Server is running`);
+    console.log(`🚀 EduNova API Server is running`);
     console.log(`🌐 Server URL: http://localhost:${PORT}`);
     console.log(`🏥 Health Check: http://localhost:${PORT}/api/health`);
     console.log(`==================================================`);

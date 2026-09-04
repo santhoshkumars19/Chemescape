@@ -31,8 +31,8 @@ const corsOptions = {
       return callback(null, true);
     }
 
-    // 2. Allow any Vercel deployment preview / production domain for ChemEscape
-    if (cleanOrigin.endsWith('.vercel.app')) {
+    // 2. Allow any Vercel deployment preview / production domain for EduNova
+    if (/^https:\/\/chemescape.*\.vercel\.app$/.test(origin) || /^https:\/\/edunova.*\.vercel\.app$/.test(origin)) {
       return callback(null, true);
     }
 

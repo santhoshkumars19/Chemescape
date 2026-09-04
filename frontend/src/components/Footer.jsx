@@ -72,12 +72,12 @@ export default function Footer() {
                 <FlaskConical size={20} className="text-white" />
               </div>
               <span className="font-orbitron text-xl font-black tracking-widest gradient-text-emerald">
-                CHEM<span className="text-white">ESCAPE</span>
+                EDU<span className="text-white">NOVA</span>
               </span>
             </div>
 
             <p className="text-slate-400 text-xs md:text-sm font-space leading-relaxed max-w-sm">
-              The ultimate gamified chemistry learning platform. Solve interactive lab puzzles, restore the periodic table, and defeat AI security.
+              The ultimate gamified learning platform. Solve interactive puzzles, master the curriculum, and conquer academic missions.
             </p>
 
             {/* Social Icons */}
@@ -180,7 +180,7 @@ export default function Footer() {
 
         {/* ── COPYRIGHT & STATUS BAR ── */}
         <div className="pt-8 border-t border-emerald-500/10 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs font-space text-slate-500">
-          <p>© 2026 ChemEscape Gamified Learning Suite. All rights reserved.</p>
+          <p>© 2026 EduNova Gamified Learning Suite. All rights reserved.</p>
           <div className="flex items-center gap-2">
             <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
             <span className="font-mono text-[11px] text-emerald-400 font-semibold">ALL SYSTEMS OPERATIONAL</span>
