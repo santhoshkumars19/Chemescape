@@ -27,7 +27,6 @@
   --shadow-card: 0 8px 30px rgba(0, 0, 0, 0.35);
   --shadow-float: 0 16px 40px rgba(0, 0, 0, 0.5);
 
-  /* Legacy chem variables re-routed for Dark Mode */
   --chem-bg: #071510;
   --chem-bg-secondary: #0B1E17;
   --chem-surface: #112820;
@@ -62,13 +61,12 @@ html.light, [data-theme="light"] {
   --border-secondary: #E5EFEA;
 
   --text-main: #0B2219;
-  --text-secondary: #354E43;
-  --text-muted: #647C72;
+  --text-secondary: #2D3748;
+  --text-muted: #64748B;
 
   --shadow-card: 0 4px 20px -2px rgba(12, 59, 46, 0.07), 0 2px 6px -1px rgba(12, 59, 46, 0.04);
   --shadow-float: 0 12px 32px -4px rgba(12, 59, 46, 0.12), 0 4px 12px -2px rgba(12, 59, 46, 0.06);
 
-  /* Legacy chem variables re-routed for Light Mode */
   --chem-bg: #F7F9F7;
   --chem-bg-secondary: #EDF3EF;
   --chem-surface: #FFFFFF;
@@ -80,7 +78,7 @@ html.light, [data-theme="light"] {
   --chem-warning: #D97706;
   --chem-danger: #DC2626;
   --chem-text: #0B2219;
-  --chem-muted: #354E43;
+  --chem-muted: #2D3748;
   --chem-border: #D6E3DC;
 }
 
@@ -103,6 +101,16 @@ html.light, [data-theme="light"] {
   --color-mint-100: #D1FAE5;
   --color-mint-50: #ECFDF5;
   --color-gold: #F59E0B;
+
+  --color-main: var(--text-main);
+  --color-secondary: var(--text-secondary);
+  --color-muted: var(--text-muted);
+  --color-card: var(--bg-card);
+  --color-card-soft: var(--bg-card-soft);
+  --color-card-hover: var(--bg-card-hover);
+  --color-primary: var(--border-primary);
+  --color-border: var(--border-primary);
+  --color-app: var(--bg-app);
 }
 
 *,
@@ -133,6 +141,14 @@ body {
   transition: background-color 0.25s ease, color 0.25s ease;
 }
 
+/* ─── DIRECT THEME COLOR UTILITY CLASSES ──────────────────────────────────── */
+.text-main { color: var(--text-main) !important; }
+.text-secondary { color: var(--text-secondary) !important; }
+.text-muted { color: var(--text-muted) !important; }
+.bg-card { background-color: var(--bg-card) !important; }
+.border-primary { border-color: var(--border-primary) !important; }
+.border-secondary { border-color: var(--border-secondary) !important; }
+
 /* ─── MODERN REUSABLE COMPONENT CLASSES ────────────────────────────────────── */
 
 /* Modern Card with subtle border and soft shadow */
@@ -147,20 +163,24 @@ body {
   border-color: var(--forest-primary);
 }
 
-/* Featured Deep Forest Green Banner (Matches Reference Science Quiz Banner) */
+/* Featured Deep Forest Green Banner */
 .forest-banner {
   background: linear-gradient(135deg, #0C3B2E 0%, #114E3E 65%, #176550 100%);
-  color: #FFFFFF;
+  color: #FFFFFF !important;
   border-radius: 1.5rem;
   box-shadow: 0 16px 36px -6px rgba(12, 59, 46, 0.35);
   position: relative;
   overflow: hidden;
 }
+.forest-banner,
+.forest-banner * {
+  color: #FFFFFF !important;
+}
 
 /* Pill Buttons */
 .pill-btn-forest {
-  background-color: #0C3B2E;
-  color: #FFFFFF;
+  background-color: #0C3B2E !important;
+  color: #FFFFFF !important;
   border-radius: 9999px;
   font-weight: 700;
   padding: 0.625rem 1.25rem;
@@ -172,15 +192,18 @@ body {
   border: 0;
   cursor: pointer;
 }
+.pill-btn-forest * {
+  color: #FFFFFF !important;
+}
 .pill-btn-forest:hover {
-  background-color: #114E3E;
+  background-color: #114E3E !important;
   transform: translateY(-1px);
   box-shadow: 0 6px 16px rgba(12, 59, 46, 0.25);
 }
 
 .pill-btn-mint {
-  background-color: #10B981;
-  color: #071510;
+  background-color: #10B981 !important;
+  color: #071510 !important;
   border-radius: 9999px;
   font-weight: 700;
   padding: 0.625rem 1.25rem;
@@ -192,16 +215,19 @@ body {
   border: 0;
   cursor: pointer;
 }
+.pill-btn-mint * {
+  color: #071510 !important;
+}
 .pill-btn-mint:hover {
-  background-color: #34D399;
+  background-color: #34D399 !important;
   transform: translateY(-1px);
   box-shadow: 0 6px 16px rgba(16, 185, 129, 0.3);
 }
 
 .pill-btn-outline {
-  background-color: transparent;
-  color: var(--text-main);
-  border: 1px solid var(--border-primary);
+  background-color: transparent !important;
+  color: var(--text-main) !important;
+  border: 1px solid var(--border-primary) !important;
   border-radius: 9999px;
   font-weight: 600;
   padding: 0.625rem 1.25rem;
@@ -213,11 +239,11 @@ body {
   cursor: pointer;
 }
 .pill-btn-outline:hover {
-  border-color: var(--forest-primary);
-  background-color: var(--mint-soft);
+  border-color: var(--forest-primary) !important;
+  background-color: var(--mint-soft) !important;
 }
 
-/* Quiz Option Card (Matches Reference Option Card) */
+/* Quiz Option Card */
 .quiz-option-card {
   background-color: var(--bg-card);
   border: 1.5px solid var(--border-primary);
@@ -236,13 +262,22 @@ body {
   background-color: var(--bg-card-hover);
   transform: translateY(-1px);
 }
+.quiz-option-card.active,
 .quiz-option-card.selected {
-  border-color: #10B981;
-  background-color: var(--mint-soft);
+  border-color: #10B981 !important;
+  background-color: var(--mint-soft) !important;
   box-shadow: 0 0 0 1px #10B981;
 }
+.quiz-option-card.correct {
+  border-color: #10B981 !important;
+  background-color: rgba(16, 185, 129, 0.15) !important;
+}
+.quiz-option-card.wrong {
+  border-color: #F43F5E !important;
+  background-color: rgba(244, 63, 94, 0.15) !important;
+}
 
-/* Podium Step Pillar for Leaderboard (Matches Reference Podium) */
+/* Podium Step Pillar for Leaderboard */
 .podium-pillar-1 {
   background: linear-gradient(180deg, #10B981 0%, #0C3B2E 100%);
   border-top-left-radius: 1rem;
@@ -259,8 +294,12 @@ body {
   border-top-left-radius: 1rem;
   border-top-right-radius: 1rem;
 }
+.podium-pillar-1 *,
+.podium-pillar-2 *,
+.podium-pillar-3 * {
+  color: #FFFFFF !important;
+}
 
-/* Striped pattern overlay for podium */
 .pillar-stripes {
   background-image: repeating-linear-gradient(
     90deg,
@@ -271,7 +310,7 @@ body {
   );
 }
 
-/* Glass Compatibility - Adapt legacy .glass classes into clean modern cards */
+/* Glass Compatibility */
 .glass {
   background-color: var(--bg-card);
   backdrop-filter: blur(16px);
@@ -286,6 +325,107 @@ body {
   -webkit-backdrop-filter: blur(20px);
   border: 1px solid var(--border-primary);
   box-shadow: var(--shadow-float);
+}
+
+/* ─── SIDEBAR NAVIGATION ITEMS (100% EXPLICIT CONTRAST) ───────────────────── */
+.sidebar-nav-item {
+  width: 100%;
+  border-radius: 0.75rem;
+  transition: all 0.2s ease;
+}
+
+/* ACTIVE nav item: Deep Forest Green with Crisp White Text */
+.sidebar-nav-active,
+html.light .sidebar-nav-active,
+[data-theme="light"] .sidebar-nav-active,
+html.dark .sidebar-nav-active,
+[data-theme="dark"] .sidebar-nav-active {
+  background-color: #0C3B2E !important;
+  color: #FFFFFF !important;
+  box-shadow: 0 4px 12px rgba(12, 59, 46, 0.25) !important;
+}
+.sidebar-nav-active span,
+.sidebar-nav-active .sidebar-nav-label,
+html.light .sidebar-nav-active span,
+[data-theme="light"] .sidebar-nav-active span {
+  color: #FFFFFF !important;
+  font-weight: 700 !important;
+}
+.sidebar-nav-active svg,
+.sidebar-nav-active .sidebar-nav-icon,
+html.light .sidebar-nav-active svg,
+[data-theme="light"] .sidebar-nav-active svg {
+  color: #34D399 !important;
+}
+
+/* INACTIVE nav item: Transparent background with clear readable text */
+.sidebar-nav-inactive,
+html.light .sidebar-nav-inactive,
+[data-theme="light"] .sidebar-nav-inactive {
+  background-color: transparent !important;
+  color: #1E293B !important;
+}
+html.light .sidebar-nav-inactive span,
+html.light .sidebar-nav-inactive .sidebar-nav-label,
+[data-theme="light"] .sidebar-nav-inactive span,
+[data-theme="light"] .sidebar-nav-inactive .sidebar-nav-label {
+  color: #1E293B !important;
+  font-weight: 600 !important;
+}
+html.light .sidebar-nav-inactive svg,
+html.light .sidebar-nav-inactive .sidebar-nav-icon,
+[data-theme="light"] .sidebar-nav-inactive svg,
+[data-theme="light"] .sidebar-nav-inactive .sidebar-nav-icon {
+  color: #475569 !important;
+}
+
+/* INACTIVE Hover in Light Mode */
+html.light .sidebar-nav-inactive:hover,
+[data-theme="light"] .sidebar-nav-inactive:hover {
+  background-color: #E6F6EE !important;
+  color: #0C3B2E !important;
+}
+html.light .sidebar-nav-inactive:hover span,
+html.light .sidebar-nav-inactive:hover .sidebar-nav-label,
+[data-theme="light"] .sidebar-nav-inactive:hover span,
+[data-theme="light"] .sidebar-nav-inactive:hover .sidebar-nav-label {
+  color: #0C3B2E !important;
+  font-weight: 700 !important;
+}
+html.light .sidebar-nav-inactive:hover svg,
+html.light .sidebar-nav-inactive:hover .sidebar-nav-icon,
+[data-theme="light"] .sidebar-nav-inactive:hover svg,
+[data-theme="light"] .sidebar-nav-inactive:hover .sidebar-nav-icon {
+  color: #0C3B2E !important;
+}
+
+/* Inactive in Dark Mode */
+html.dark .sidebar-nav-inactive,
+[data-theme="dark"] .sidebar-nav-inactive {
+  background-color: transparent !important;
+  color: #CBD5E1 !important;
+}
+html.dark .sidebar-nav-inactive span,
+[data-theme="dark"] .sidebar-nav-inactive span {
+  color: #CBD5E1 !important;
+  font-weight: 500 !important;
+}
+html.dark .sidebar-nav-inactive svg,
+[data-theme="dark"] .sidebar-nav-inactive svg {
+  color: #94A3B8 !important;
+}
+html.dark .sidebar-nav-inactive:hover,
+[data-theme="dark"] .sidebar-nav-inactive:hover {
+  background-color: rgba(52, 211, 153, 0.12) !important;
+  color: #FFFFFF !important;
+}
+html.dark .sidebar-nav-inactive:hover span,
+[data-theme="dark"] .sidebar-nav-inactive:hover span {
+  color: #FFFFFF !important;
+}
+html.dark .sidebar-nav-inactive:hover svg,
+[data-theme="dark"] .sidebar-nav-inactive:hover svg {
+  color: #34D399 !important;
 }
 
 /* ─── DUAL THEME ADAPTATION HELPERS ────────────────────────────────────────── */
@@ -305,165 +445,44 @@ html.dark main,
   color: #F3F7F5 !important;
 }
 
-/* Light mode background overrides */
-html.light [class*="bg-[#050807]"],
-html.light [class*="bg-[#040810]"],
-html.light [class*="bg-[#0B1210]"],
-html.light [class*="bg-[#0F1916]"],
-html.light [class*="bg-[#060d1a]"],
-html.light [class*="bg-[#0a1628]"],
-html.light [class*="bg-slate-950"],
-html.light [class*="bg-slate-900"] {
-  background-color: #FFFFFF !important;
-  color: #0B2219 !important;
-}
-
-/* Dark mode background overrides */
-html.dark [class*="bg-[#050807]"],
-html.dark [class*="bg-[#040810]"],
-html.dark [class*="bg-[#0B1210]"],
-html.dark [class*="bg-[#0F1916]"],
-html.dark [class*="bg-slate-950"] {
-  background-color: #071510 !important;
-}
-
-/* Cards in Light Mode */
-html.light .glass,
-html.light .glass-strong,
-html.light [class*="DashCard"],
-html.light [class*="bg-white/5"],
-html.light [class*="bg-white/10"],
-html.light [class*="bg-[#070D0B]"],
-html.light [class*="bg-[#0A120F]"],
-html.light [class*="bg-[#0B1512]"] {
-  background-color: #FFFFFF !important;
-  border-color: #D6E3DC !important;
-  color: #0B2219 !important;
-  box-shadow: 0 4px 20px -2px rgba(12, 59, 46, 0.07), 0 2px 6px -1px rgba(12, 59, 46, 0.04) !important;
-}
-
-/* Cards in Dark Mode */
-html.dark [class*="DashCard"],
-html.dark [class*="bg-[#070D0B]"],
-html.dark [class*="bg-[#0A120F]"],
-html.dark [class*="bg-[#0B1512]"] {
-  background-color: #112820 !important;
-  border-color: rgba(52, 211, 153, 0.16) !important;
-  color: #F3F7F5 !important;
-}
-
-/* Text readability in Light Mode */
-html.light .text-white,
-html.light .text-slate-100,
-html.light .text-slate-200 {
-  color: #0B2219 !important;
-}
-
-html.light .text-slate-300,
-html.light .text-slate-400,
-html.light [class*="text-white/70"],
-html.light [class*="text-white/60"] {
-  color: #354E43 !important;
-}
-
-html.light .text-slate-500,
-html.light [class*="text-white/50"],
-html.light [class*="text-white/40"],
-html.light [class*="text-white/30"] {
-  color: #647C72 !important;
-}
-
-/* Preserving text-white inside explicit dark buttons and banners in light mode */
-html.light .forest-banner *,
-html.light .forest-banner .text-white,
-html.light .pill-btn-forest,
-html.light .pill-btn-forest *,
-html.light button[class*="bg-emerald-500"] *,
-html.light button[class*="bg-emerald-600"] * {
-  color: #FFFFFF !important;
-}
-
-/* Headings in Light Mode */
-html.light h1,
-html.light h2,
-html.light h3,
-html.light h4,
-html.light .font-orbitron,
-html.light .font-space {
-  color: #0B2219 !important;
-}
-html.light .forest-banner h1,
-html.light .forest-banner h2,
-html.light .forest-banner h3,
-html.light .forest-banner h4,
-html.light .forest-banner p {
-  color: #FFFFFF !important;
-}
-
-/* Accents in Light Mode */
-html.light .text-emerald-400,
-html.light .text-emerald-300,
-html.light .text-mint-400 {
-  color: #0C3B2E !important;
-}
-
-html.light .bg-emerald-500 {
-  background-color: #0C3B2E !important;
-  color: #FFFFFF !important;
-}
-
-html.light [class*="bg-emerald-500/10"],
-html.light [class*="bg-emerald-500/20"] {
-  background-color: #E6F6EE !important;
-  color: #0C3B2E !important;
-  border-color: #B2D8C6 !important;
-}
-
-html.light [class*="border-emerald-500/20"],
-html.light [class*="border-emerald-500/30"],
-html.light [class*="border-emerald-500/40"] {
-  border-color: #D6E3DC !important;
-}
-
 /* Sidebar styling in Light Mode */
-html.light aside {
+html.light aside,
+[data-theme="light"] aside {
   background-color: #FFFFFF !important;
   border-right-color: #D6E3DC !important;
-}
-
-html.light aside nav button {
-  color: #354E43 !important;
-}
-
-html.light aside nav button:hover {
-  background-color: #E6F6EE !important;
-  color: #0C3B2E !important;
 }
 
 /* Inputs in Light Mode */
 html.light input,
 html.light select,
-html.light textarea {
+html.light textarea,
+[data-theme="light"] input,
+[data-theme="light"] select,
+[data-theme="light"] textarea {
   background-color: #FFFFFF !important;
   border-color: #D6E3DC !important;
   color: #0B2219 !important;
 }
 html.light input::placeholder,
-html.light textarea::placeholder {
-  color: #8C9F96 !important;
+html.light textarea::placeholder,
+[data-theme="light"] input::placeholder,
+[data-theme="light"] textarea::placeholder {
+  color: #64748B !important;
 }
 
 /* Tables in Light Mode */
-html.light table th {
+html.light table th,
+[data-theme="light"] table th {
   background-color: #EDF3EF !important;
   color: #0C3B2E !important;
   border-bottom: 2px solid #D6E3DC !important;
 }
-html.light table td {
+html.light table td,
+[data-theme="light"] table td {
   border-bottom-color: #E5EFEA !important;
 }
 
-/* Modern clean scrollbar */
+/* Scrollbar */
 ::-webkit-scrollbar {
   width: 8px;
   height: 8px;

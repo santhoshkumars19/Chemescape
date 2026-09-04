@@ -75,8 +75,8 @@ export function AccuracyChart() {
         <div className="relative flex-shrink-0" style={{ width: 130, height: 130 }}>
           <Doughnut data={accuracyData} options={options} />
           <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-            <span className="font-orbitron font-black text-xl text-white">82%</span>
-            <span className="text-[9px] text-white/30 font-space">accuracy</span>
+            <span className="font-heading font-extrabold text-xl text-[var(--text-main)]">82%</span>
+            <span className="text-[10px] text-[var(--text-muted)] font-medium">accuracy</span>
           </div>
         </div>
         {/* Legend */}
@@ -88,8 +88,8 @@ export function AccuracyChart() {
             <div key={item.label} className="flex items-center gap-3 min-w-0">
               <div className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ background: item.color }} />
               <div className="min-w-0">
-                <p className="text-xs font-space text-white/70 truncate">{item.label}</p>
-                <p className="text-xs text-white/30 font-inter">{item.value} puzzles <span className="text-white/50">({item.pct})</span></p>
+                <p className="text-xs font-sans font-semibold text-[var(--text-main)] truncate">{item.label}</p>
+                <p className="text-xs text-[var(--text-muted)] font-sans">{item.value} puzzles <span className="text-[var(--text-muted)]">({item.pct})</span></p>
               </div>
             </div>
           ))}
