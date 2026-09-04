@@ -1,0 +1,45 @@
+[
+  {
+    "id": "user-student-1",
+    "name": "Student Scholar",
+    "email": "student@edunova.com",
+    "password": "$2b$10$EpRnTzVlqHNP0.fUbXUwSOyvrk6QcWn.8hN0gU4bZ505p3c0v10wK",
+    "plainFallback": "Password123",
+    "role": "STUDENT",
+    "avatar": "🎓",
+    "createdAt": "2026-01-01T00:00:00.000Z",
+    "updatedAt": "2026-01-01T00:00:00.000Z"
+  },
+  {
+    "id": "user-teacher-1",
+    "name": "Prof. Teacher",
+    "email": "teacher@edunova.com",
+    "password": "$2b$10$EpRnTzVlqHNP0.fUbXUwSOyvrk6QcWn.8hN0gU4bZ505p3c0v10wK",
+    "plainFallback": "Password123",
+    "role": "TEACHER",
+    "avatar": "👨‍🏫",
+    "createdAt": "2026-01-01T00:00:00.000Z",
+    "updatedAt": "2026-01-01T00:00:00.000Z"
+  },
+  {
+    "id": "user-admin-1",
+    "name": "System Admin",
+    "email": "admin@edunova.com",
+    "password": "$2b$10$0zCgnU2Xw2B1L6RkWuH2se9PzJcRqv1uX6xL8XvY5g8o2B7z4L9w.",
+    "plainFallback": "Password123!",
+    "role": "ADMIN",
+    "avatar": "🛡️",
+    "createdAt": "2026-01-01T00:00:00.000Z",
+    "updatedAt": "2026-01-01T00:00:00.000Z"
+  },
+  {
+    "id": "usr-1788540535691-6qvhf",
+    "name": "Alex Scholar",
+    "email": "student_1788540535255@edunova.com",
+    "password": "$2b$10$kg8FjtVh81ZH/k15PN1x3.uvJMAH2Qyf3m4KY6/MBMjeUcYVIkZJO",
+    "role": "STUDENT",
+    "avatar": "🎓",
+    "createdAt": "2026-09-04T16:48:55.691Z",
+    "updatedAt": "2026-09-04T16:48:55.692Z"
+  }
+]

@@ -1,5 +1,6 @@
 const { verifyToken } = require('../utils/jwt');
 const prisma = require('../config/db');
+const authService = require('../services/authService');
 
 async function authMiddleware(req, res, next) {
   try {
@@ -55,12 +56,17 @@ async function authMiddleware(req, res, next) {
       });
     } catch (dbErr) {
       // Safe fallback when remote DB connection is unreachable
-      user = {
-        id: decoded.userId,
-        name: decoded.name || 'Student Scholar',
-        email: decoded.email || 'user@edunova.com',
-        role: decoded.role || 'STUDENT',
-      };
+      const localUser = authService.findLocalUserById(decoded.userId);
+      if (localUser) {
+        user = authService.sanitizeUser(localUser);
+      } else {
+        user = {
+          id: decoded.userId,
+          name: decoded.name || 'Student Scholar',
+          email: decoded.email || 'user@edunova.com',
+          role: decoded.role || 'STUDENT',
+        };
+      }
     }
 
     if (!user) {

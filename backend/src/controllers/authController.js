@@ -6,12 +6,15 @@ class AuthController {
    */
   async register(req, res, next) {
     try {
-      const user = await authService.register(req.body);
+      const result = await authService.register(req.body);
+      const user = result.user || result;
+      const token = result.token;
       return res.status(201).json({
         success: true,
         message: 'Registration successful',
         data: {
           user,
+          token,
         },
       });
     } catch (error) {
