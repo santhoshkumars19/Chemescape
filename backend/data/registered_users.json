@@ -41,5 +41,25 @@
     "avatar": "🎓",
     "createdAt": "2026-09-04T16:48:55.691Z",
     "updatedAt": "2026-09-04T16:48:55.692Z"
+  },
+  {
+    "id": "usr-1788540894082-4sekc",
+    "name": "Sandy",
+    "email": "sandy123@gmail.com",
+    "password": "$2b$10$bEJLW3U1PVw/O2EFGX1ghu1c1G1dpwvieGvJRWQEUWxTg5L.Vq8bS",
+    "role": "STUDENT",
+    "avatar": "🎓",
+    "createdAt": "2026-09-04T16:54:54.082Z",
+    "updatedAt": "2026-09-04T16:54:54.082Z"
+  },
+  {
+    "id": "usr-1788543081877-07g4l",
+    "name": "Alex Scholar",
+    "email": "student_1788543081366@edunova.com",
+    "password": "$2b$10$ZXFyhGidXzvH0bLNuw5coOGJrbCP3av1yvy3OwXyMA3ENEDaPUsmO",
+    "role": "STUDENT",
+    "avatar": "🎓",
+    "createdAt": "2026-09-04T17:31:21.877Z",
+    "updatedAt": "2026-09-04T17:31:21.877Z"
   }
 ]

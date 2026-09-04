@@ -253,7 +253,7 @@ export default function StandardSelectionPage() {
             className="font-inter text-sm sm:text-base max-w-xl mx-auto leading-relaxed"
             style={{ color: subColor }}
           >
-            Select your current academic standard to unlock a personalised chemistry curriculum with escape room challenges built for your grade.
+            Select your current academic standard to unlock a personalized curriculum with interactive quizzes and challenges built for your grade.
           </p>
         </motion.div>
 

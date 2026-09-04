@@ -14,21 +14,8 @@ import {
   ArrowLeft, Lightbulb, CheckCircle2, XCircle, Clock,
   Sparkles, Zap, ChevronRight, RotateCcw, Trophy,
   Shield, Heart, Award, AlertTriangle, Check, X, BookOpen,
-  Send, HelpCircle, AlertCircle, Play, Loader2,
+  Send, HelpCircle, AlertCircle, Play, Loader2, ChevronLeft,
 } from 'lucide-react';
-
-// ─── HUD Corner Accents ───────────────────────────────────────────────────────
-function HUDCorners({ color = '#10B981', size = 12 }) {
-  const s = { borderColor: color };
-  return (
-    <>
-      <div className="absolute top-0 left-0 border-t-2 border-l-2 pointer-events-none" style={{ ...s, width: size, height: size }} />
-      <div className="absolute top-0 right-0 border-t-2 border-r-2 pointer-events-none" style={{ ...s, width: size, height: size }} />
-      <div className="absolute bottom-0 left-0 border-b-2 border-l-2 pointer-events-none" style={{ ...s, width: size, height: size }} />
-      <div className="absolute bottom-0 right-0 border-b-2 border-r-2 pointer-events-none" style={{ ...s, width: size, height: size }} />
-    </>
-  );
-}
 
 // ─────────────────────────────────────────────────────────────────────────────
 // MAIN INTERACTIVE QUIZ ENGINE
@@ -49,15 +36,14 @@ export default function InteractiveQuizEngine() {
   const { isDark } = useTheme();
 
   // ── 1. Resolve Context Metadata ─────────────────────────────────────────────
-  const resolvedStdId = selectedStandardId || 'grade-5';
-  const resolvedSubjId = selectedSubjectId || 'tamil';
-  const stdDisplayName = selectedStandard || (resolvedStdId === 'grade-4' ? '4th Standard' : resolvedStdId === 'grade-5' ? '5th Standard' : '11th Standard');
+  const resolvedStdId = selectedStandardId || 'grade-8';
+  const resolvedSubjId = selectedSubjectId || 'science';
+  const stdDisplayName = selectedStandard || (resolvedStdId === 'grade-4' ? '4th Standard' : resolvedStdId === 'grade-5' ? '5th Standard' : '8th Standard');
   const subjDisplayName = selectedSubject || (resolvedSubjId.charAt(0).toUpperCase() + resolvedSubjId.slice(1));
 
   const subjects = useMemo(() => getSubjectsForStandard(resolvedStdId), [resolvedStdId]);
   const subjConfig = useMemo(() => subjects.find(s => s.id === resolvedSubjId), [subjects, resolvedSubjId]);
   const accentColor = subjConfig?.color || '#10B981';
-  const glowColor = `${accentColor}40`;
 
   const chaptersList = useMemo(() => {
     return getChaptersForStandardAndSubject(resolvedStdId, resolvedSubjId);
@@ -74,7 +60,7 @@ export default function InteractiveQuizEngine() {
     return chaptersList[0] || null;
   }, [selectedChapter, selectedChapterId, chaptersList]);
 
-  const chapterTitle = activeChapter?.title || 'Chapter 1';
+  const chapterTitle = activeChapter?.title || 'Chapter Quiz';
 
   // ── 2. Local State Management ───────────────────────────────────────────────
   const [loading, setLoading] = useState(true);
@@ -86,16 +72,15 @@ export default function InteractiveQuizEngine() {
   const [hintVisible, setHintVisible] = useState(false);
   const [hintsUsed, setHintsUsed] = useState(0);
   const [isSubmitted, setIsSubmitted] = useState(false);
-  const [isChecking, setIsChecking] = useState(false);   // true while backend is validating
-  const [feedback, setFeedback] = useState(null);        // null | { isCorrect, message, earnedPoints }
-  const [answerError, setAnswerError] = useState(null);  // API failure message
+  const [isChecking, setIsChecking] = useState(false);
+  const [feedback, setFeedback] = useState(null);
+  const [answerError, setAnswerError] = useState(null);
   const [score, setScore] = useState(0);
   const [correctCount, setCorrectCount] = useState(0);
   const [wrongCount, setWrongCount] = useState(0);
   const [quizComplete, setQuizComplete] = useState(false);
   const [submittingCompletion, setSubmittingCompletion] = useState(false);
   const [completionData, setCompletionData] = useState(null);
-  const [completionError, setCompletionError] = useState(null);
   const [timeSpentSeconds, setTimeSpentSeconds] = useState(0);
   const [loadedRoomId, setLoadedRoomId] = useState(null);
 
@@ -124,7 +109,6 @@ export default function InteractiveQuizEngine() {
       try {
         let targetRoomId = null;
 
-        // 1. Primary: Query authoritative rooms for the active chapter
         if (activeChapter?.id) {
           try {
             const roomRes = await roomService.getRoomsByChapter(activeChapter.id, {
@@ -141,7 +125,6 @@ export default function InteractiveQuizEngine() {
           }
         }
 
-        // 2. Secondary fallback: check selectedRoomId or currentRoom
         if (!targetRoomId) {
           const cand = selectedRoomId || (typeof currentRoom === 'object' ? currentRoom?.id : currentRoom);
           if (cand && typeof cand === 'string' && cand.startsWith('room-')) {
@@ -149,26 +132,18 @@ export default function InteractiveQuizEngine() {
           }
         }
 
-        // 3. Deterministic chapter-to-room convention fallback (e.g. ch-soc4-1 -> room-soc4-1)
         if (!targetRoomId && activeChapter?.id && typeof activeChapter.id === 'string' && activeChapter.id.startsWith('ch-')) {
           targetRoomId = activeChapter.id.replace('ch-', 'room-');
         }
 
-        // 4. Universal Fallback by Standard + Subject + Chapter Number (e.g. grade-7-tamil-1 -> room-tam7-1)
         if (!targetRoomId) {
-          const stdNum = String(resolvedStdId).replace(/[^0-9]/g, '') || '4';
+          const stdNum = String(resolvedStdId).replace(/[^0-9]/g, '') || '8';
           const subjCodeMap = {
             tamil: 'tam',
-            tam: 'tam',
             english: 'eng',
-            eng: 'eng',
             mathematics: 'math',
-            math: 'math',
             science: 'sci',
-            sci: 'sci',
             'social-science': 'soc',
-            social: 'soc',
-            soc: 'soc',
           };
           const code = subjCodeMap[resolvedSubjId] || String(resolvedSubjId).slice(0, 3);
           const chNum = activeChapter?.chapterNumber || 1;
@@ -194,7 +169,6 @@ export default function InteractiveQuizEngine() {
         });
         let rawList = qRes?.data?.questions || qRes?.questions || (Array.isArray(qRes) ? qRes : []);
 
-        // If rawList is empty, retry without the optional chapterId filter to avoid alias mismatch
         if ((!rawList || rawList.length === 0) && targetRoomId) {
           try {
             qRes = await roomService.getQuestionsByRoom(targetRoomId, {
@@ -207,8 +181,7 @@ export default function InteractiveQuizEngine() {
 
         if (isMounted) {
           if (Array.isArray(rawList) && rawList.length > 0) {
-            const capped = rawList.slice(0, 10);
-            setQuestions(capped);
+            setQuestions(rawList.slice(0, 10));
           } else {
             setQuestions([]);
           }
@@ -240,7 +213,6 @@ export default function InteractiveQuizEngine() {
     return () => clearInterval(interval);
   }, [quizComplete, loading, questions.length]);
 
-  // ── 5. Active Question Reference ────────────────────────────────────────────
   const currentQuestion = useMemo(() => {
     if (!questions || questions.length === 0) return null;
     return questions[currentQuestionIndex] || null;
@@ -249,66 +221,44 @@ export default function InteractiveQuizEngine() {
   const totalQuestions = questions.length;
   const progressPercent = totalQuestions > 0 ? ((currentQuestionIndex + 1) / totalQuestions) * 100 : 0;
 
-  // ── 6. Handle Answer Submission — Server-Authoritative ─────────────────────
-  //
-  // Flow:
-  //   1. Guard: no double-submit, no submit while already checking
-  //   2. Determine the answer to submit (optionId or calculation string)
-  //   3. Set isChecking = true (show "Checking answer…" state)
-  //   4. POST to /api/game/questions/:id/answer with { answer, roomId }
-  //   5. Read result.correct from backend response (HTTP 200 ≠ correct)
-  //   6. Set feedback based on result.correct — never infer from "submitted"
-  //   7. Update score/counts
-  //   8. On API failure: show error, allow retry
+  // ── 5. Server-Authoritative Answer Submission ───────────────────────────────
   const handleSubmitAnswer = useCallback(async () => {
     if (!currentQuestion || isSubmitted || isChecking) return;
 
     const qType = currentQuestion.questionType || 'MCQ';
-
-    // Determine the answer string to submit
     let answerToSubmit = null;
-    if (qType === 'MCQ') {
+    if (qType === 'MCQ' || qType === 'SINGLE_CHOICE') {
       if (!selectedOptionId) return;
       answerToSubmit = selectedOptionId;
-    } else if (qType === 'CALCULATION') {
+    } else if (qType === 'CALCULATION' || qType === 'NUMERIC') {
       if (!calculationInput.trim()) return;
       answerToSubmit = calculationInput.trim();
     } else {
-      // Unsupported type: skip
       answerToSubmit = '__SKIP__';
     }
 
     const questionId = currentQuestion.id;
     const roomId = loadedRoomId;
 
-    // Guard: must have a valid roomId to submit against
     if (!roomId || !questionId) {
-      setAnswerError('Cannot validate answer: room context is missing. Please reload.');
+      setAnswerError('Cannot validate answer: room context is missing.');
       return;
     }
 
-    // ── Transition to CHECKING state ──────────────────────────────────────────
     setIsChecking(true);
     setAnswerError(null);
 
     try {
-      // Call the server-authoritative answer validation endpoint
-      // Backend returns: { success, data: { correct: Boolean, points: Number, feedback: String } }
       const result = await gameService.submitAnswer(questionId, roomId, answerToSubmit);
-
-      // result is { correct, points, feedback } (gameService extracts .data)
       const isCorrect = result?.correct === true;
       const earnedPoints = result?.points ?? (isCorrect ? (currentQuestion.points || 100) : 0);
-      const serverFeedback = result?.feedback || (isCorrect ? 'Correct! Well done.' : 'Incorrect. Try again.');
+      const serverFeedback = result?.feedback || (isCorrect ? 'Correct! Excellent job.' : 'Incorrect. Keep going!');
 
-      // ── Transition to SUBMITTED state with authoritative result ────────────
       setIsChecking(false);
       setIsSubmitted(true);
       setFeedback({
         isCorrect,
-        message: isCorrect
-          ? `✓ Correct! ${serverFeedback}`
-          : `✕ Incorrect. ${serverFeedback}`,
+        message: isCorrect ? `✓ ${serverFeedback}` : `✕ ${serverFeedback}`,
         earnedPoints,
       });
 
@@ -319,30 +269,23 @@ export default function InteractiveQuizEngine() {
         setWrongCount(prev => prev + 1);
       }
     } catch (err) {
-      // ── API error state — do NOT infer correct/incorrect ──────────────────
       setIsChecking(false);
-      setAnswerError('Unable to check your answer. Please try again.');
-      // isSubmitted remains false so the student can retry
+      setAnswerError('Unable to check your answer. Please retry.');
     }
   }, [currentQuestion, isSubmitted, isChecking, selectedOptionId, calculationInput, loadedRoomId]);
 
-  // ── 7. Handle Hint Toggle & Usage Tracking ─────────────────────────────────
   const handleToggleHint = useCallback(() => {
-    if (!hintVisible) {
-      setHintsUsed(prev => prev + 1);
-    }
+    if (!hintVisible) setHintsUsed(prev => prev + 1);
     setHintVisible(prev => !prev);
   }, [hintVisible]);
 
-  // ── 8. Server-Authoritative Mission & Chapter Completion ───────────────────
+  // ── 6. Mission Completion ──────────────────────────────────────────────────
   const handleCompleteMission = useCallback(async () => {
     if (submittingCompletion) return;
     setSubmittingCompletion(true);
-    setCompletionError(null);
 
     const accuracy = totalQuestions > 0 ? Math.round((correctCount / totalQuestions) * 100) : 100;
     const calculatedStars = correctCount >= 8 ? 3 : correctCount >= 7 ? 2 : correctCount >= 5 ? 1 : 0;
-
     const targetRoomId = loadedRoomId || selectedRoomId || (activeChapter?.id?.startsWith('ch-') ? activeChapter.id.replace('ch-', 'room-') : (typeof currentRoom === 'object' ? currentRoom?.id : currentRoom));
 
     try {
@@ -362,14 +305,12 @@ export default function InteractiveQuizEngine() {
       const data = res?.data || res;
       setCompletionData(data);
 
-      // Only mark completed in client navigation if server authoritatively confirms pass
       const isPassed = data?.passed === true || (data?.passed !== false && correctCount >= 7);
       if (isPassed) {
         markRoomCompleted(targetRoomId, activeChapter?.id);
         refreshUserStats();
       }
 
-      // Explicitly log activity report for permanent Excel tracking and user history
       apiClient.post('/reports/activity', {
         name: user?.name || 'Student Scholar',
         userId: user?.id || 'usr-student-1',
@@ -390,7 +331,6 @@ export default function InteractiveQuizEngine() {
       setSubmittingCompletion(false);
     } catch (err) {
       console.warn('[QuizEngine] Completion API call returned:', err.message);
-      // In offline fallback, check pass threshold
       const isPassed = correctCount >= 7;
       if (isPassed) {
         markRoomCompleted(targetRoomId, activeChapter?.id);
@@ -408,7 +348,6 @@ export default function InteractiveQuizEngine() {
         awardedCoins: isPassed ? (accuracy >= 80 ? 100 : 50) : 0,
       });
 
-      // Explicitly log activity report for permanent Excel tracking and user history
       apiClient.post('/reports/activity', {
         name: user?.name || 'Student Scholar',
         userId: user?.id || 'usr-student-1',
@@ -431,10 +370,9 @@ export default function InteractiveQuizEngine() {
   }, [
     submittingCompletion, totalQuestions, correctCount, wrongCount, hintsUsed,
     score, timeSpentSeconds, loadedRoomId, selectedRoomId, currentRoom, activeChapter?.id,
-    markRoomCompleted, refreshUserStats
+    markRoomCompleted, refreshUserStats, user, stdDisplayName, subjDisplayName, activeChapter
   ]);
 
-  // ── 9. Handle Advancing to Next Question / Final Completion ────────────────
   const handleNextQuestion = useCallback(() => {
     if (currentQuestionIndex < totalQuestions - 1) {
       setCurrentQuestionIndex(prev => prev + 1);
@@ -450,206 +388,144 @@ export default function InteractiveQuizEngine() {
     }
   }, [currentQuestionIndex, totalQuestions, handleCompleteMission]);
 
-  // ── 10. Format Time ─────────────────────────────────────────────────────────
+  const handlePrevQuestion = useCallback(() => {
+    if (currentQuestionIndex > 0) {
+      setCurrentQuestionIndex(prev => prev - 1);
+      setSelectedOptionId(null);
+      setCalculationInput('');
+      setHintVisible(false);
+      setIsSubmitted(false);
+      setIsChecking(false);
+      setFeedback(null);
+      setAnswerError(null);
+    }
+  }, [currentQuestionIndex]);
+
   const formatTime = (secs) => {
     const m = Math.floor(secs / 60);
     const s = secs % 60;
     return `${m}:${s.toString().padStart(2, '0')}`;
   };
 
-  // ───────────────────────────────────────────────────────────────────────────
-  // RENDER: Loading State
-  // ─────────────────────────────────────────────────────────────────────────
+  // ── LOADING STATE ───────────────────────────────────────────────────────────
   if (loading) {
     return (
-      <div className="relative min-h-screen bg-[#020609] text-white flex flex-col items-center justify-center p-6">
+      <div className="relative min-h-screen bg-[var(--bg-app)] text-[var(--text-main)] flex flex-col items-center justify-center p-6">
         <motion.div
-          className="w-16 h-16 rounded-2xl flex items-center justify-center mb-4 text-3xl"
-          style={{ background: `${accentColor}18`, border: `1px solid ${accentColor}40` }}
-          animate={{ scale: [1, 1.1, 1], rotate: [0, 180, 360] }}
+          className="w-16 h-16 rounded-3xl flex items-center justify-center mb-4 text-3xl shadow-lg"
+          style={{ background: isDark ? '#112820' : '#E8F5E9', border: '1.5px solid #10B981' }}
+          animate={{ scale: [1, 1.08, 1], rotate: [0, 180, 360] }}
           transition={{ duration: 2, repeat: Infinity, ease: 'linear' }}
         >
           ⚡
         </motion.div>
-        <p className="font-orbitron font-bold text-lg text-white mb-1">
-          Loading Mission Intel & Questions...
+        <p className="font-heading font-extrabold text-lg text-[var(--text-main)] mb-1">
+          Loading Quiz Questions...
         </p>
-        <p className="font-space text-xs text-white/50">
+        <p className="text-xs text-[var(--text-muted)] font-medium">
           {stdDisplayName} • {subjDisplayName} • {chapterTitle}
         </p>
       </div>
     );
   }
 
-  // ───────────────────────────────────────────────────────────────────────────
-  // RENDER: Empty / No Questions State (Zero Fallback Safeguard)
-  // ─────────────────────────────────────────────────────────────────────────
+  // ── EMPTY STATE ─────────────────────────────────────────────────────────────
   if (!loading && questions.length === 0) {
     return (
-      <div className="relative min-h-screen bg-[#020609] text-white flex flex-col items-center justify-center p-6">
-        <motion.div
-          className="relative w-full max-w-lg rounded-3xl p-8 text-center"
-          style={{
-            background: 'linear-gradient(135deg, rgba(15,23,42,0.95), rgba(8,14,24,0.98))',
-            border: `1.5px solid ${accentColor}30`,
-            boxShadow: `0 0 50px ${accentColor}15`,
-          }}
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-        >
-          <div
-            className="w-16 h-16 rounded-2xl mx-auto flex items-center justify-center mb-5 text-3xl"
-            style={{ background: `${accentColor}15`, border: `1px solid ${accentColor}30` }}
-          >
+      <div className="relative min-h-screen bg-[var(--bg-app)] text-[var(--text-main)] flex flex-col items-center justify-center p-6">
+        <div className="card-modern max-w-md w-full p-8 text-center">
+          <div className="w-16 h-16 rounded-3xl mx-auto flex items-center justify-center mb-5 text-3xl bg-emerald-500/10 border border-emerald-500/20">
             📋
           </div>
-
-          <span
-            className="inline-block px-3 py-1 rounded-full text-[10px] font-orbitron font-bold tracking-widest uppercase mb-3"
-            style={{ background: `${accentColor}18`, color: accentColor }}
-          >
-            {stdDisplayName} • {subjDisplayName}
-          </span>
-
-          <h2 className="font-orbitron font-black text-xl sm:text-2xl text-white mb-2">
-            No questions are configured for this mission yet.
+          <h2 className="font-heading font-extrabold text-xl text-[var(--text-main)] mb-2">
+            No questions available
           </h2>
-
-          <p className="text-sm font-inter text-white/70 leading-relaxed mb-6">
-            Questions for <strong>{chapterTitle}</strong> have not been published to this room. Please explore other subjects or check back soon.
+          <p className="text-xs sm:text-sm text-[var(--text-muted)] leading-relaxed mb-6">
+            Questions for <strong>{chapterTitle}</strong> are being prepared. Please explore another subject or check back soon!
           </p>
-
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
-            <button
-              type="button"
-              onClick={() => navigateTo('chapters')}
-              className="w-full sm:w-auto px-6 py-3 rounded-xl font-orbitron font-bold text-xs tracking-wider uppercase flex items-center justify-center gap-2 cursor-pointer border-0 transition-transform active:scale-95"
-              style={{ background: 'rgba(255,255,255,0.1)', color: '#fff' }}
-            >
-              <ArrowLeft size={14} />
-              <span>Back to Chapters</span>
-            </button>
-
-            <button
-              type="button"
-              onClick={() => navigateTo('select-subject')}
-              className="w-full sm:w-auto px-6 py-3 rounded-xl font-orbitron font-black text-xs tracking-wider uppercase flex items-center justify-center gap-2 text-slate-950 cursor-pointer border-0 transition-transform active:scale-95"
-              style={{ background: `linear-gradient(135deg, ${accentColor}, ${accentColor}CC)` }}
-            >
-              <Sparkles size={14} />
-              <span>Explore Other Subjects</span>
-            </button>
-          </div>
-        </motion.div>
+          <button
+            type="button"
+            onClick={() => navigateTo('chapters')}
+            className="w-full pill-btn-forest text-xs font-heading font-bold"
+          >
+            Back to Chapters
+          </button>
+        </div>
       </div>
     );
   }
 
-  // ───────────────────────────────────────────────────────────────────────────
-  // RENDER: Mission Complete / Result Screen (Pass >= 7/10 or Fail < 7/10)
-  // ─────────────────────────────────────────────────────────────────────────
+  // ── RESULTS / CELEBRATION STATE ─────────────────────────────────────────────
   if (quizComplete) {
     const isPassed = completionData?.passed === true || (completionData?.passed === undefined && correctCount >= 7);
-    const minPassScore = completionData?.minimumPassScore ?? 7;
     const finalEarnedXP = isPassed ? (completionData?.awardedXP ?? score) : 0;
     const finalEarnedCoins = isPassed ? (completionData?.awardedCoins ?? (correctCount >= 8 ? 100 : 50)) : 0;
 
-    const resultColor = isPassed ? accentColor : '#F43F5E';
-    const resultGlow = isPassed ? `${accentColor}25` : 'rgba(244,63,94,0.25)';
-
     return (
-      <div className="relative min-h-screen bg-[#020609] text-white flex flex-col items-center justify-center p-6">
+      <div className="relative min-h-screen bg-[var(--bg-app)] text-[var(--text-main)] flex flex-col items-center justify-center p-6">
         <motion.div
-          className="relative w-full max-w-xl rounded-3xl p-8 sm:p-10 text-center overflow-hidden"
-          style={{
-            background: 'linear-gradient(135deg, rgba(15,23,42,0.96), rgba(8,14,24,0.98))',
-            border: `2px solid ${resultColor}50`,
-            boxShadow: `0 0 60px ${resultGlow}`,
-          }}
-          initial={{ opacity: 0, scale: 0.9, y: 20 }}
+          className="card-modern relative w-full max-w-lg rounded-3xl p-8 sm:p-10 text-center"
+          initial={{ opacity: 0, scale: 0.95, y: 20 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
           transition={{ duration: 0.4 }}
         >
-          <HUDCorners color={resultColor} size={16} />
-
-          <motion.div
-            className="w-20 h-20 rounded-3xl mx-auto flex items-center justify-center mb-6 text-4xl shadow-xl"
+          <div
+            className="w-20 h-20 rounded-3xl mx-auto flex items-center justify-center mb-5 text-4xl shadow-md"
             style={{
-              background: isPassed ? `${accentColor}25` : 'rgba(244,63,94,0.20)',
-              border: `1.5px solid ${resultColor}50`,
+              background: isPassed ? '#E8F5E9' : '#FFEBEB',
+              border: isPassed ? '2px solid #10B981' : '2px solid #F43F5E',
             }}
-            animate={isPassed ? { scale: [1, 1.1, 1], rotate: [0, 5, -5, 0] } : { scale: [1, 1.05, 1] }}
-            transition={{ duration: 2, repeat: Infinity }}
           >
             {isPassed ? '🏆' : '⚠️'}
-          </motion.div>
+          </div>
 
           <span
-            className="inline-block px-3.5 py-1 rounded-full text-[10px] font-orbitron font-bold tracking-widest uppercase mb-3"
+            className="inline-block px-3.5 py-1 rounded-full text-xs font-heading font-extrabold tracking-wider uppercase mb-2"
             style={{
-              background: isPassed ? `${accentColor}20` : 'rgba(244,63,94,0.18)',
-              color: isPassed ? accentColor : '#F43F5E',
+              background: isPassed ? 'rgba(16,185,129,0.15)' : 'rgba(244,63,94,0.15)',
+              color: isPassed ? '#10B981' : '#F43F5E',
             }}
           >
-            {isPassed ? 'MISSION PASSED • NEXT CHAPTER UNLOCKED' : 'MISSION NOT PASSED • RETRY REQUIRED'}
+            {isPassed ? 'Quiz Completed Successfully' : 'Quiz Not Cleared'}
           </span>
 
-          <h2 className="font-orbitron font-black text-2xl sm:text-3xl text-white mb-2">
-            {isPassed ? 'Chapter Completed!' : 'Chapter Not Passed'}
+          <h2 className="font-heading font-extrabold text-2xl sm:text-3xl text-[var(--text-main)] mb-2">
+            {isPassed ? 'Great Job, Scholar!' : 'Nice Effort! Try Again'}
           </h2>
 
-          <p className="text-sm font-inter text-white/70 mb-8">
+          <p className="text-xs sm:text-sm text-[var(--text-muted)] font-medium mb-6">
             {isPassed ? (
-              <>
-                You successfully passed <strong>{chapterTitle}</strong> ({stdDisplayName} {subjDisplayName}) with{' '}
-                <strong className="text-emerald-400">{correctCount}/{totalQuestions}</strong>. Next chapter is now unlocked!
-              </>
+              <>You scored <strong>{correctCount} / {totalQuestions}</strong> correct answers in <strong>{chapterTitle}</strong>.</>
             ) : (
-              <>
-                You scored <strong className="text-rose-400">{correctCount}/{totalQuestions}</strong>. Complete at least{' '}
-                <strong>{minPassScore}/{totalQuestions}</strong> questions correctly to pass and unlock the next chapter.
-              </>
+              <>You scored <strong>{correctCount} / {totalQuestions}</strong>. You need at least 7 correct answers to pass this chapter.</>
             )}
           </p>
 
-          {/* Stats Grid */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-8">
-            <div
-              className="p-3.5 rounded-2xl"
-              style={{
-                background: isPassed ? `${accentColor}0d` : 'rgba(244,63,94,0.08)',
-                border: `1px solid ${isPassed ? `${accentColor}25` : 'rgba(244,63,94,0.25)'}`,
-              }}
-            >
-              {isPassed ? (
-                <CheckCircle2 size={16} style={{ color: accentColor, marginBottom: 4 }} />
-              ) : (
-                <XCircle size={16} className="text-rose-400 mb-1" />
-              )}
-              <p className="font-orbitron font-black text-lg text-white">{correctCount}/{totalQuestions}</p>
-              <p className="text-[10px] font-space text-white/40 uppercase">Score (Min: {minPassScore})</p>
+          {/* Stats Badges */}
+          <div className="grid grid-cols-3 gap-3 mb-8">
+            <div className="p-3 rounded-2xl bg-emerald-500/10 border border-emerald-500/20">
+              <p className="font-heading font-extrabold text-lg text-emerald-600 dark:text-emerald-400 leading-none">
+                {correctCount}/{totalQuestions}
+              </p>
+              <p className="text-[10px] text-[var(--text-muted)] font-medium mt-1">Score</p>
             </div>
 
-            <div className="p-3.5 rounded-2xl" style={{ background: 'rgba(251,191,36,0.08)', border: '1px solid rgba(251,191,36,0.2)' }}>
-              <Zap size={16} className="text-amber-400 mb-1" />
-              <p className="font-orbitron font-black text-lg text-amber-400">+{finalEarnedXP}</p>
-              <p className="text-[10px] font-space text-white/40 uppercase">XP Earned</p>
+            <div className="p-3 rounded-2xl bg-amber-500/10 border border-amber-500/20">
+              <p className="font-heading font-extrabold text-lg text-amber-500 leading-none">
+                +{finalEarnedXP}
+              </p>
+              <p className="text-[10px] text-[var(--text-muted)] font-medium mt-1">XP Earned</p>
             </div>
 
-            <div className="p-3.5 rounded-2xl" style={{ background: 'rgba(59,130,246,0.08)', border: '1px solid rgba(59,130,246,0.2)' }}>
-              <Award size={16} className="text-blue-400 mb-1" />
-              <p className="font-orbitron font-black text-lg text-blue-400">+{finalEarnedCoins}</p>
-              <p className="text-[10px] font-space text-white/40 uppercase">Coins</p>
-            </div>
-
-            <div className="p-3.5 rounded-2xl" style={{ background: 'rgba(168,85,247,0.08)', border: '1px solid rgba(168,85,247,0.2)' }}>
-              <Clock size={16} className="text-purple-400 mb-1" />
-              <p className="font-orbitron font-black text-lg text-purple-400">{formatTime(timeSpentSeconds)}</p>
-              <p className="text-[10px] font-space text-white/40 uppercase">Time Spent</p>
+            <div className="p-3 rounded-2xl bg-teal-500/10 border border-teal-500/20">
+              <p className="font-heading font-extrabold text-lg text-teal-600 dark:text-teal-400 leading-none">
+                {formatTime(timeSpentSeconds)}
+              </p>
+              <p className="text-[10px] text-[var(--text-muted)] font-medium mt-1">Time</p>
             </div>
           </div>
 
-          {/* Action Buttons */}
+          {/* Buttons */}
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
             <button
               type="button"
@@ -669,28 +545,19 @@ export default function InteractiveQuizEngine() {
                 setTimeSpentSeconds(0);
                 setCompletionData(null);
               }}
-              className="w-full sm:w-auto px-6 py-3.5 rounded-xl font-orbitron font-bold text-xs tracking-wider uppercase flex items-center justify-center gap-2 cursor-pointer border-0 transition-transform active:scale-95"
-              style={{
-                background: !isPassed ? `linear-gradient(135deg, ${accentColor}, ${accentColor}CC)` : 'rgba(255,255,255,0.08)',
-                color: !isPassed ? '#020609' : '#fff',
-                boxShadow: !isPassed ? `0 0 25px ${glowColor}` : 'none',
-              }}
+              className="w-full sm:w-auto pill-btn-outline text-xs font-heading font-bold"
             >
-              <RotateCcw size={14} />
-              <span>{isPassed ? 'Replay' : 'Play Again'}</span>
+              <RotateCcw size={14} className="inline mr-1.5" />
+              <span>Replay Quiz</span>
             </button>
 
             <button
               type="button"
               onClick={() => navigateTo('chapters')}
-              className="w-full sm:w-auto px-6 py-3.5 rounded-xl font-orbitron font-black text-xs tracking-wider uppercase flex items-center justify-center gap-2 cursor-pointer border-0 transition-transform active:scale-95 shadow-lg"
-              style={{
-                background: isPassed ? `linear-gradient(135deg, ${accentColor}, ${accentColor}CC)` : 'rgba(255,255,255,0.08)',
-                color: isPassed ? '#020609' : '#fff',
-              }}
+              className="w-full sm:w-auto pill-btn-forest text-xs font-heading font-bold"
             >
-              <ArrowLeft size={14} />
               <span>Back to Chapters</span>
+              <ChevronRight size={14} className="inline ml-1.5" />
             </button>
           </div>
         </motion.div>
@@ -698,105 +565,75 @@ export default function InteractiveQuizEngine() {
     );
   }
 
-  // ───────────────────────────────────────────────────────────────────────────
-  // RENDER: Active Question Flow
-  // ─────────────────────────────────────────────────────────────────────────
+  // ── ACTIVE QUESTION SCREEN (Direct Match to Reference Image) ────────────────
   const qType = currentQuestion?.questionType || 'MCQ';
   const isMCQ = qType === 'MCQ' || qType === 'SINGLE_CHOICE';
   const isCalculation = qType === 'CALCULATION' || qType === 'NUMERIC';
-  const isUnsupported = !isMCQ && !isCalculation;
 
   return (
-    <div className="relative min-h-screen bg-[#020609] text-white flex flex-col pb-16 overflow-x-hidden">
-      {/* ── TOP NAV BAR ── */}
-      <header className="relative z-20 border-b border-white/10 px-4 sm:px-8 py-4 flex items-center justify-between backdrop-blur-md bg-black/40">
-        <button
-          type="button"
-          onClick={() => navigateTo('chapters')}
-          className="flex items-center gap-2 text-xs font-space font-medium text-white/70 hover:text-white bg-transparent border-0 cursor-pointer transition-colors"
-        >
-          <ArrowLeft size={16} />
-          <span className="hidden sm:inline">Chapter Map</span>
-        </button>
+    <div className="relative min-h-screen bg-[var(--bg-app)] text-[var(--text-main)] flex flex-col transition-colors duration-200">
+      
+      {/* ── TOP HEADER (Reference Design: Back Circle, Title, Progress Pill) ── */}
+      <header className="sticky top-0 z-30 bg-[var(--bg-card)] border-b border-[var(--border-primary)] shadow-sm">
+        <div className="max-w-3xl mx-auto px-4 sm:px-6 py-3.5 flex items-center justify-between gap-4">
+          
+          {/* Left: Circular Back Arrow Button */}
+          <button
+            type="button"
+            onClick={() => navigateTo('chapters')}
+            className="w-10 h-10 rounded-full flex items-center justify-center border border-[var(--border-primary)] bg-[var(--bg-secondary)] text-[var(--text-main)] hover:border-emerald-500 transition-colors cursor-pointer"
+            title="Back to Chapters"
+          >
+            <ArrowLeft size={18} />
+          </button>
 
-        <div className="flex items-center gap-2">
-          <span className="text-[10px] font-orbitron font-bold tracking-widest uppercase px-3 py-1 rounded-full bg-white/5 border border-white/10 text-white/80">
-            {stdDisplayName} • {subjDisplayName}
-          </span>
+          {/* Center: Quiz Title */}
+          <div className="text-center min-w-0">
+            <h1 className="font-heading font-extrabold text-base sm:text-lg text-[var(--text-main)] truncate">
+              {subjDisplayName} Quiz
+            </h1>
+            <p className="text-[11px] text-[var(--text-muted)] font-medium truncate">
+              {chapterTitle}
+            </p>
+          </div>
+
+          {/* Right: Progress Counter Pill (e.g. "7 / 20") */}
+          <div className="px-3.5 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/25 text-emerald-600 dark:text-emerald-400 font-heading font-extrabold text-xs sm:text-sm whitespace-nowrap">
+            {currentQuestionIndex + 1} / {totalQuestions}
+          </div>
+
         </div>
 
-        <div className="flex items-center gap-4 text-xs font-space">
-          <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-400">
-            <Zap size={13} className="fill-amber-400" />
-            <span className="font-orbitron font-bold">{score} XP</span>
-          </div>
-
-          <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-rose-500/10 border border-rose-500/20 text-rose-400">
-            <Heart size={13} className="fill-rose-400" />
-            <span>{lives} / 3</span>
-          </div>
+        {/* Progress Bar Track right below header */}
+        <div className="w-full h-1.5 bg-emerald-500/10 overflow-hidden">
+          <motion.div
+            className="h-full rounded-r-full"
+            style={{ background: 'linear-gradient(90deg, #0C3B2E, #10B981)' }}
+            initial={{ width: `${((currentQuestionIndex) / totalQuestions) * 100}%` }}
+            animate={{ width: `${progressPercent}%` }}
+            transition={{ duration: 0.3 }}
+          />
         </div>
       </header>
 
-      {/* ── MAIN CONTENT CONTAINER ── */}
-      <main className="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 pt-6 sm:pt-8 flex-1 w-full flex flex-col justify-start">
+      {/* ── MAIN QUIZ AREA ── */}
+      <main className="max-w-3xl mx-auto px-4 sm:px-6 py-6 sm:py-8 flex-1 w-full flex flex-col justify-between">
         
-        {/* Progress Bar & Question Counter Header */}
-        <div className="mb-6">
-          <div className="flex items-center justify-between gap-4 mb-2.5">
-            <div className="flex items-center gap-2">
-              <span
-                className="text-[11px] font-orbitron font-bold tracking-widest uppercase px-2.5 py-0.5 rounded-md"
-                style={{ background: `${accentColor}18`, color: accentColor, border: `1px solid ${accentColor}35` }}
-              >
-                Question {currentQuestionIndex + 1} / {totalQuestions}
-              </span>
-              <span className="text-xs font-space text-white/50 truncate">
-                {chapterTitle}
-              </span>
-            </div>
-
-            <div className="flex items-center gap-2 text-xs font-space text-white/50">
-              <Clock size={13} />
-              <span>{formatTime(timeSpentSeconds)}</span>
-            </div>
-          </div>
-
-          {/* Progress Bar Track */}
-          <div className="w-full h-2 rounded-full overflow-hidden bg-white/5 border border-white/10">
-            <motion.div
-              className="h-full rounded-full"
-              style={{ background: `linear-gradient(90deg, ${accentColor}, #22d3ee)` }}
-              initial={{ width: `${((currentQuestionIndex) / totalQuestions) * 100}%` }}
-              animate={{ width: `${progressPercent}%` }}
-              transition={{ duration: 0.3, ease: 'easeOut' }}
-            />
-          </div>
-        </div>
-
-        {/* ── QUESTION CARD ── */}
+        {/* Question Card */}
         <motion.div
           key={currentQuestion.id || currentQuestionIndex}
-          className="relative rounded-3xl p-6 sm:p-8 mb-6 overflow-hidden"
-          style={{
-            background: 'linear-gradient(135deg, rgba(15,23,42,0.92), rgba(8,14,24,0.96))',
-            border: `1.5px solid ${accentColor}30`,
-            boxShadow: `0 0 40px ${glowColor}`,
-            backdropFilter: 'blur(16px)',
-          }}
           initial={{ opacity: 0, y: 15 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.3 }}
+          className="card-modern p-6 sm:p-8 mb-6"
         >
-          <HUDCorners color={accentColor} size={14} />
-
-          {/* Question Metadata Header */}
-          <div className="flex items-center justify-between gap-3 mb-4 flex-wrap">
+          {/* Metadata Row: Difficulty, Points, Hint */}
+          <div className="flex items-center justify-between gap-3 mb-5">
             <div className="flex items-center gap-2">
-              <span className="px-2.5 py-1 rounded-lg text-[10px] font-orbitron font-bold uppercase tracking-wider bg-white/5 border border-white/10 text-white/70">
-                {currentQuestion.difficulty || 'Beginner'}
+              <span className="px-3 py-1 rounded-full text-[10px] font-heading font-extrabold uppercase tracking-wider bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
+                {currentQuestion.difficulty || 'Standard'}
               </span>
-              <span className="px-2.5 py-1 rounded-lg text-[10px] font-orbitron font-bold uppercase tracking-wider bg-amber-500/10 border border-amber-500/20 text-amber-400">
+              <span className="px-3 py-1 rounded-full text-[10px] font-heading font-extrabold uppercase tracking-wider bg-amber-500/10 text-amber-500 border border-amber-500/20">
                 +{currentQuestion.points || 100} XP
               </span>
             </div>
@@ -805,42 +642,33 @@ export default function InteractiveQuizEngine() {
             <button
               type="button"
               onClick={handleToggleHint}
-              className="flex items-center gap-1.5 px-3 py-1 rounded-xl text-xs font-space font-medium cursor-pointer border transition-all"
+              className="flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-heading font-semibold cursor-pointer border transition-all"
               style={{
-                background: hintVisible ? 'rgba(251,191,36,0.15)' : 'rgba(255,255,255,0.05)',
-                borderColor: hintVisible ? 'rgba(251,191,36,0.4)' : 'rgba(255,255,255,0.1)',
-                color: hintVisible ? '#FBBF24' : 'rgba(255,255,255,0.7)',
+                background: hintVisible ? '#FEF3C7' : 'transparent',
+                borderColor: hintVisible ? '#F59E0B' : 'var(--border-primary)',
+                color: hintVisible ? '#B45309' : 'var(--text-muted)',
               }}
             >
-              <Lightbulb size={13} className={hintVisible ? 'fill-amber-400' : ''} />
-              <span>{hintVisible ? 'Hide Hint' : '💡 Hint'}</span>
+              <Lightbulb size={13} className={hintVisible ? 'fill-amber-500 text-amber-500' : ''} />
+              <span>{hintVisible ? 'Hide Hint' : 'Hint'}</span>
             </button>
           </div>
 
-          {/* Question Text */}
-          <h2 className="font-orbitron font-bold text-lg sm:text-xl lg:text-2xl text-white leading-relaxed mb-6">
-            {currentQuestion.questionText}
-          </h2>
-
-          {/* Hint Area (Only for Current Question) */}
+          {/* Hint Dropdown */}
           <AnimatePresence>
             {hintVisible && (
               <motion.div
-                className="rounded-2xl p-4 mb-6 flex items-start gap-3"
-                style={{
-                  background: 'rgba(251,191,36,0.08)',
-                  border: '1px solid rgba(251,191,36,0.3)',
-                }}
+                className="p-4 rounded-2xl mb-6 bg-amber-500/10 border border-amber-500/25 flex items-start gap-3"
                 initial={{ opacity: 0, height: 0 }}
                 animate={{ opacity: 1, height: 'auto' }}
                 exit={{ opacity: 0, height: 0 }}
               >
-                <Lightbulb size={16} className="text-amber-400 flex-shrink-0 mt-0.5" />
+                <Lightbulb size={16} className="text-amber-500 flex-shrink-0 mt-0.5" />
                 <div>
-                  <p className="font-orbitron font-bold text-[11px] text-amber-400 uppercase tracking-wider mb-0.5">
-                    Tactical Hint
+                  <p className="font-heading font-bold text-xs text-amber-500 uppercase tracking-wider mb-0.5">
+                    Helpful Clue
                   </p>
-                  <p className="text-xs sm:text-sm font-inter text-amber-200/90 leading-relaxed">
+                  <p className="text-xs sm:text-sm text-[var(--text-secondary)] font-medium leading-relaxed">
                     {currentQuestion.hint || 'Review the core concepts from the chapter to solve this problem.'}
                   </p>
                 </div>
@@ -848,9 +676,12 @@ export default function InteractiveQuizEngine() {
             )}
           </AnimatePresence>
 
-          {/* ── QUESTION INPUT TYPES ── */}
+          {/* Question Text */}
+          <h2 className="font-heading font-extrabold text-xl sm:text-2xl text-[var(--text-main)] leading-snug mb-6">
+            {currentQuestion.questionText}
+          </h2>
 
-          {/* 1. Multiple Choice Options */}
+          {/* Multiple Choice Options List */}
           {isMCQ && (
             <div className="space-y-3 mb-6">
               {(currentQuestion.options || []).map((opt, i) => {
@@ -858,110 +689,84 @@ export default function InteractiveQuizEngine() {
                 const isSelected = selectedOptionId === optId;
                 const optLetter = opt.optionKey || String.fromCharCode(65 + i);
 
-                // Determine border + background
-                let optBorder, optBg, letterBg, letterColor, showCheck = false, showX = false;
+                let cardClass = 'quiz-option-card';
+                let isCardSelected = isSelected;
+                let showCheck = false;
+                let showX = false;
 
                 if (isSubmitted) {
                   if (isSelected && feedback?.isCorrect) {
-                    // ✅ Selected + backend says CORRECT → green
-                    optBorder = '2px solid #10B981';
-                    optBg = 'rgba(16,185,129,0.18)';
-                    letterBg = '#10B981';
-                    letterColor = '#020609';
+                    cardClass += ' correct';
                     showCheck = true;
                   } else if (isSelected && !feedback?.isCorrect) {
-                    // ❌ Selected + backend says WRONG → red
-                    optBorder = '2px solid #F43F5E';
-                    optBg = 'rgba(244,63,94,0.18)';
-                    letterBg = '#F43F5E';
-                    letterColor = '#fff';
+                    cardClass += ' wrong';
                     showX = true;
-                  } else {
-                    // Neutral non-selected after submission
-                    optBorder = '1px solid rgba(255,255,255,0.06)';
-                    optBg = 'rgba(255,255,255,0.02)';
-                    letterBg = 'rgba(255,255,255,0.05)';
-                    letterColor = 'rgba(255,255,255,0.3)';
                   }
-                } else {
-                  // Before / during submission
-                  optBorder = isSelected ? `2px solid ${accentColor}` : '1px solid rgba(255,255,255,0.08)';
-                  optBg = isSelected ? `${accentColor}18` : 'rgba(255,255,255,0.03)';
-                  letterBg = isSelected ? accentColor : 'rgba(255,255,255,0.06)';
-                  letterColor = isSelected ? '#020609' : '#fff';
+                } else if (isSelected) {
+                  cardClass += ' active';
                 }
 
                 const isInteractive = !isSubmitted && !isChecking;
 
                 return (
-                  <motion.button
+                  <button
                     key={optId}
                     type="button"
                     disabled={!isInteractive}
                     onClick={() => isInteractive && setSelectedOptionId(optId)}
-                    className="w-full p-4 rounded-2xl flex items-center justify-between gap-4 text-left transition-all border-0"
-                    style={{
-                      background: optBg,
-                      border: optBorder,
-                      cursor: isInteractive ? 'pointer' : 'default',
-                    }}
-                    whileHover={isInteractive ? { scale: 1.01 } : {}}
-                    whileTap={isInteractive ? { scale: 0.99 } : {}}
+                    className={`${cardClass} cursor-pointer w-full text-left`}
                   >
-                    <div className="flex items-center gap-3.5">
+                    {/* Left: Option Letter Pill / Circle */}
+                    <div className="flex items-center gap-3.5 min-w-0">
                       <div
-                        className="w-8 h-8 rounded-xl flex items-center justify-center font-orbitron font-black text-xs flex-shrink-0 transition-all"
-                        style={{ background: letterBg, color: letterColor }}
+                        className="w-9 h-9 rounded-xl flex items-center justify-center font-heading font-extrabold text-xs flex-shrink-0 transition-all"
+                        style={{
+                          background: isSelected ? '#0C3B2E' : isDark ? 'rgba(255,255,255,0.06)' : '#F0F4F2',
+                          color: isSelected ? '#34D399' : 'var(--text-secondary)',
+                        }}
                       >
                         {optLetter}
                       </div>
-                      <span
-                        className="font-inter text-sm sm:text-base transition-all"
-                        style={{
-                          color: isSubmitted && !isSelected
-                            ? 'rgba(255,255,255,0.4)'
-                            : 'rgba(255,255,255,0.92)',
-                        }}
-                      >
+
+                      <span className="text-sm sm:text-base font-sans font-medium text-[var(--text-main)]">
                         {opt.optionText}
                       </span>
                     </div>
 
+                    {/* Right: Round Selection Checkmark Circle (Reference Design) */}
                     <div
-                      className="w-5 h-5 rounded-full border flex items-center justify-center flex-shrink-0 transition-all"
+                      className="w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 transition-all ml-2"
                       style={{
-                        borderColor: showCheck
-                          ? '#10B981'
-                          : showX
-                          ? '#F43F5E'
-                          : isSelected
-                          ? accentColor
-                          : 'rgba(255,255,255,0.2)',
                         background: showCheck
                           ? '#10B981'
                           : showX
                           ? '#F43F5E'
                           : isSelected
-                          ? accentColor
+                          ? '#10B981'
                           : 'transparent',
+                        border: showCheck || showX || isSelected
+                          ? 'none'
+                          : '2px solid var(--border-primary)',
                       }}
                     >
-                      {showCheck && <Check size={12} className="text-white stroke-[3]" />}
-                      {showX && <X size={12} className="text-white stroke-[3]" />}
-                      {!showCheck && !showX && isSelected && <Check size={12} className="text-slate-950 stroke-[3]" />}
+                      {(showCheck || (!showX && isSelected)) && (
+                        <Check size={14} className="text-white stroke-[3]" />
+                      )}
+                      {showX && (
+                        <X size={14} className="text-white stroke-[3]" />
+                      )}
                     </div>
-                  </motion.button>
+                  </button>
                 );
-
               })}
             </div>
           )}
 
-          {/* 2. Calculation / Numeric Input */}
+          {/* Numeric / Calculation Input */}
           {isCalculation && (
             <div className="mb-6">
-              <label className="block text-xs font-orbitron font-bold text-white/70 uppercase tracking-wider mb-2">
-                Enter Your Calculated Value
+              <label className="block text-xs font-heading font-bold text-[var(--text-muted)] uppercase tracking-wider mb-2">
+                Enter Your Answer
               </label>
               <div className="relative">
                 <input
@@ -969,13 +774,8 @@ export default function InteractiveQuizEngine() {
                   disabled={isSubmitted}
                   value={calculationInput}
                   onChange={(e) => setCalculationInput(e.target.value)}
-                  placeholder="e.g. 2, 42, or formula"
-                  className="w-full p-4 rounded-2xl bg-black/40 border text-white font-mono text-base sm:text-lg focus:outline-none transition-all"
-                  style={{
-                    borderColor: isSubmitted
-                      ? feedback?.isCorrect ? '#10B981' : '#F43F5E'
-                      : calculationInput.trim() ? accentColor : 'rgba(255,255,255,0.15)',
-                  }}
+                  placeholder="Type numeric answer or formula..."
+                  className="w-full p-4 rounded-2xl bg-[var(--bg-secondary)] border border-[var(--border-primary)] text-[var(--text-main)] font-mono text-base focus:outline-none focus:border-emerald-500 transition-all"
                   onKeyDown={(e) => {
                     if (e.key === 'Enter' && !isSubmitted && calculationInput.trim()) {
                       handleSubmitAnswer();
@@ -983,7 +783,7 @@ export default function InteractiveQuizEngine() {
                   }}
                 />
                 {currentQuestion.puzzleData?.unit && (
-                  <span className="absolute right-4 top-1/2 -translate-y-1/2 px-2.5 py-1 rounded-lg text-xs font-mono bg-white/10 text-white/70">
+                  <span className="absolute right-4 top-1/2 -translate-y-1/2 px-2.5 py-1 rounded-lg text-xs font-mono bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
                     {currentQuestion.puzzleData.unit}
                   </span>
                 )}
@@ -991,158 +791,108 @@ export default function InteractiveQuizEngine() {
             </div>
           )}
 
-          {/* 3. Unsupported Type Notice */}
-          {isUnsupported && (
-            <div
-              className="rounded-2xl p-5 mb-6 flex items-start gap-3.5"
-              style={{ background: 'rgba(251,191,36,0.08)', border: '1px solid rgba(251,191,36,0.25)' }}
-            >
-              <AlertCircle size={18} className="text-amber-400 flex-shrink-0 mt-0.5" />
-              <div>
-                <h4 className="font-orbitron font-bold text-xs text-amber-400 mb-1">
-                  Specialized Question Format
-                </h4>
-                <p className="text-xs font-inter text-white/70 leading-relaxed">
-                  This question type is not supported by this quiz engine yet. You may skip to the next question.
-                </p>
-              </div>
-            </div>
-          )}
-
-          {/* ── Checking State Banner (while awaiting backend response) ── */}
+          {/* Checking Spinner */}
           <AnimatePresence>
             {isChecking && (
               <motion.div
-                className="rounded-2xl p-4 mb-6 flex items-center gap-3"
-                style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.15)' }}
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0 }}
-                role="status"
-                aria-live="polite"
+                className="p-3.5 rounded-2xl mb-4 bg-emerald-500/10 flex items-center gap-2.5 text-emerald-600 dark:text-emerald-400"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
               >
-                <Loader2 size={18} className="text-white/60 animate-spin flex-shrink-0" />
-                <p className="font-orbitron font-bold text-sm text-white/70">Checking answer…</p>
+                <Loader2 size={16} className="animate-spin" />
+                <span className="font-heading font-semibold text-xs">Checking your answer...</span>
               </motion.div>
             )}
           </AnimatePresence>
 
-          {/* ── API Error Banner (validation request failed) ── */}
-          <AnimatePresence>
-            {answerError && !isChecking && (
-              <motion.div
-                className="rounded-2xl p-4 mb-6 flex items-center gap-3"
-                style={{ background: 'rgba(251,191,36,0.10)', border: '1px solid rgba(251,191,36,0.35)' }}
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0 }}
-                role="alert"
-                aria-live="polite"
-              >
-                <AlertCircle size={18} className="text-amber-400 flex-shrink-0" />
-                <p className="font-orbitron font-bold text-sm text-amber-400">{answerError}</p>
-              </motion.div>
-            )}
-          </AnimatePresence>
-
-          {/* ── Feedback Banner After Submit (authoritative result from backend) ── */}
+          {/* Feedback Banner */}
           <AnimatePresence>
             {feedback && !isChecking && (
               <motion.div
-                className="rounded-2xl p-4 mb-6 flex items-center justify-between gap-4"
-                style={{
-                  background: feedback.isCorrect ? 'rgba(16,185,129,0.15)' : 'rgba(244,63,94,0.15)',
-                  border: `1px solid ${feedback.isCorrect ? 'rgba(16,185,129,0.4)' : 'rgba(244,63,94,0.4)'}`,
-                }}
-                initial={{ opacity: 0, y: 10 }}
+                className={`p-4 rounded-2xl mb-4 flex items-center gap-3 ${
+                  feedback.isCorrect ? 'bg-emerald-500/15 border border-emerald-500/30' : 'bg-rose-500/15 border border-rose-500/30'
+                }`}
+                initial={{ opacity: 0, y: 8 }}
                 animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0 }}
-                role="alert"
-                aria-live="polite"
               >
-                <div className="flex items-center gap-3">
-                  {feedback.isCorrect ? (
-                    <CheckCircle2 size={20} className="text-emerald-400 flex-shrink-0" />
-                  ) : (
-                    <XCircle size={20} className="text-rose-400 flex-shrink-0" />
-                  )}
-                  <div>
-                    <p className={`font-orbitron font-bold text-sm ${feedback.isCorrect ? 'text-emerald-400' : 'text-rose-400'}`}>
-                      {feedback.message}
+                {feedback.isCorrect ? (
+                  <CheckCircle2 size={20} className="text-emerald-500 flex-shrink-0" />
+                ) : (
+                  <XCircle size={20} className="text-rose-500 flex-shrink-0" />
+                )}
+                <div>
+                  <p className={`font-heading font-bold text-sm ${feedback.isCorrect ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-500'}`}>
+                    {feedback.message}
+                  </p>
+                  {feedback.isCorrect && (
+                    <p className="text-xs text-[var(--text-muted)] mt-0.5">
+                      +{feedback.earnedPoints} XP awarded!
                     </p>
-                    {feedback.isCorrect && (
-                      <p className="text-xs font-space text-emerald-300/80">
-                        +{feedback.earnedPoints} XP added to session
-                      </p>
-                    )}
-                  </div>
+                  )}
                 </div>
               </motion.div>
             )}
           </AnimatePresence>
 
-          {/* ── Action Buttons ── */}
-          <div className="flex items-center justify-end gap-3 pt-2">
-            {!isSubmitted ? (
-              <motion.button
-                type="button"
-                onClick={handleSubmitAnswer}
-                disabled={
-                  isChecking ||
-                  (isMCQ ? !selectedOptionId : isCalculation ? !calculationInput.trim() : false)
-                }
-                aria-busy={isChecking}
-                className="w-full sm:w-auto px-8 py-4 rounded-2xl font-orbitron font-black text-sm tracking-wider uppercase flex items-center justify-center gap-2 border-0 transition-all shadow-lg"
-                style={{
-                  cursor: isChecking ? 'wait' : ((isMCQ && selectedOptionId) || (isCalculation && calculationInput.trim()) || isUnsupported) ? 'pointer' : 'default',
-                  background: isChecking
-                    ? 'rgba(255,255,255,0.08)'
-                    : (isMCQ && selectedOptionId) || (isCalculation && calculationInput.trim()) || isUnsupported
-                    ? `linear-gradient(135deg, ${accentColor}, ${accentColor}CC)`
-                    : 'rgba(255,255,255,0.08)',
-                  color: isChecking
-                    ? '#94A3B8'
-                    : (isMCQ && selectedOptionId) || (isCalculation && calculationInput.trim()) || isUnsupported
-                    ? '#020609'
-                    : '#94A3B8',
-                  boxShadow: !isChecking && ((isMCQ && selectedOptionId) || (isCalculation && calculationInput.trim()))
-                    ? `0 0 25px ${glowColor}`
-                    : 'none',
-                }}
-                whileHover={!isChecking ? { scale: 1.02 } : {}}
-                whileTap={!isChecking ? { scale: 0.98 } : {}}
-              >
-                {isChecking ? (
-                  <>
-                    <Loader2 size={16} className="animate-spin" />
-                    <span>Checking…</span>
-                  </>
-                ) : (
-                  <>
-                    <Send size={16} />
-                    <span>{isUnsupported ? 'Skip Question' : 'Submit Answer'}</span>
-                  </>
-                )}
-              </motion.button>
-            ) : (
-              <motion.button
-                type="button"
-                onClick={handleNextQuestion}
-                className="w-full sm:w-auto px-8 py-4 rounded-2xl font-orbitron font-black text-sm tracking-wider uppercase flex items-center justify-center gap-2 text-slate-950 cursor-pointer border-0 transition-all shadow-lg"
-                style={{
-                  background: `linear-gradient(135deg, ${accentColor}, ${accentColor}CC)`,
-                  boxShadow: `0 0 30px ${glowColor}`,
-                }}
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-              >
-                <span>{currentQuestionIndex < totalQuestions - 1 ? 'Next Question' : 'Complete Mission'}</span>
-                <ChevronRight size={16} />
-              </motion.button>
-            )}
-          </div>
+          {/* API error banner */}
+          {answerError && (
+            <div className="p-3 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-500 text-xs font-semibold mb-4">
+              {answerError}
+            </div>
+          )}
 
         </motion.div>
+
+        {/* ── FOOTER NAVIGATION (Previous & Next Pill Buttons) ── */}
+        <div className="flex items-center justify-between gap-4 pt-2">
+          
+          {/* Previous Pill Button */}
+          <button
+            type="button"
+            disabled={currentQuestionIndex === 0 || isChecking}
+            onClick={handlePrevQuestion}
+            className={`pill-btn-outline text-xs sm:text-sm font-heading font-bold flex items-center gap-1.5 ${
+              currentQuestionIndex === 0 ? 'opacity-40 cursor-not-allowed' : 'cursor-pointer'
+            }`}
+          >
+            <ChevronLeft size={16} />
+            <span>Previous</span>
+          </button>
+
+          {/* Right Action: Submit Answer OR Next Question */}
+          {!isSubmitted ? (
+            <button
+              type="button"
+              disabled={isChecking || (isMCQ ? !selectedOptionId : !calculationInput.trim())}
+              onClick={handleSubmitAnswer}
+              className={`pill-btn-forest text-xs sm:text-sm font-heading font-extrabold flex items-center gap-2 cursor-pointer shadow-md ${
+                (isMCQ ? !selectedOptionId : !calculationInput.trim()) ? 'opacity-50 cursor-not-allowed' : ''
+              }`}
+            >
+              {isChecking ? (
+                <>
+                  <Loader2 size={16} className="animate-spin" />
+                  <span>Checking...</span>
+                </>
+              ) : (
+                <>
+                  <span>Submit Answer</span>
+                  <ChevronRight size={16} />
+                </>
+              )}
+            </button>
+          ) : (
+            <button
+              type="button"
+              onClick={handleNextQuestion}
+              className="pill-btn-forest text-xs sm:text-sm font-heading font-extrabold flex items-center gap-2 cursor-pointer shadow-md"
+            >
+              <span>{currentQuestionIndex < totalQuestions - 1 ? 'Next Question' : 'Finish Quiz'}</span>
+              <ChevronRight size={16} />
+            </button>
+          )}
+
+        </div>
 
       </main>
     </div>

@@ -1,9 +1,9 @@
 import React, { useMemo, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import {
-  Play, RotateCcw, Trophy, Zap, Coins, Clock,
+  Play, RotateCcw, Trophy, Zap, Clock,
   CheckCircle2, ChevronRight, BookOpen, Sparkles,
-  Flame, Lock, Shield, Star, Rocket, Map,
+  Flame, Lock, Shield, Star, Rocket, Map, ArrowRight,
   FlaskConical, Calculator, Languages, Globe,
   BookText, Leaf, Terminal, Atom, Microscope,
 } from 'lucide-react';
@@ -15,7 +15,6 @@ import {
   getChapterStatus,
   getSubjectsForStandard,
 } from '../config/curriculumConfig';
-import { DashCard } from './DashComponents';
 
 // ── Icon resolver ─────────────────────────────────────────────────────────────
 const ICON_MAP = {
@@ -31,6 +30,53 @@ const STANDARD_NAMES = {
   'grade-10': '10th Standard', 'grade-11': '11th Standard',
   'grade-12': '12th Standard',
 };
+
+// ── Circular Progress Ring Component ──────────────────────────────────────────
+function CircularProgressRing({ progress = 0, size = 88, strokeWidth = 7 }) {
+  const radius = (size - strokeWidth) / 2;
+  const circumference = 2 * Math.PI * radius;
+  const strokeDashoffset = circumference - (progress / 100) * circumference;
+
+  return (
+    <div className="relative flex items-center justify-center flex-shrink-0" style={{ width: size, height: size }}>
+      <svg width={size} height={size} className="transform -rotate-90">
+        {/* Background track circle */}
+        <circle
+          cx={size / 2}
+          cy={size / 2}
+          r={radius}
+          stroke="rgba(255, 255, 255, 0.18)"
+          strokeWidth={strokeWidth}
+          fill="none"
+        />
+        {/* Animated progress ring */}
+        <motion.circle
+          cx={size / 2}
+          cy={size / 2}
+          r={radius}
+          stroke="#34D399"
+          strokeWidth={strokeWidth}
+          strokeDasharray={circumference}
+          strokeDashoffset={strokeDashoffset}
+          strokeLinecap="round"
+          fill="none"
+          initial={{ strokeDashoffset: circumference }}
+          animate={{ strokeDashoffset }}
+          transition={{ duration: 1.2, ease: [0.22, 1, 0.36, 1] }}
+        />
+      </svg>
+      {/* Center Percentage Display */}
+      <div className="absolute inset-0 flex flex-col items-center justify-center">
+        <span className="font-heading font-extrabold text-white text-base leading-none">
+          {progress}%
+        </span>
+        <span className="text-[9px] text-emerald-200/80 font-medium uppercase tracking-wider mt-0.5">
+          Done
+        </span>
+      </div>
+    </div>
+  );
+}
 
 // ── Time helper ───────────────────────────────────────────────────────────────
 function formatLastPlayed(timestamp) {
@@ -97,7 +143,7 @@ export default function ContinueLearningCard() {
   // ── Determine Authoritative Learning Target ─────────────────────────────────
   const learningTarget = useMemo(() => {
     if (!chaptersList || chaptersList.length === 0) {
-      return { type: 'EMPTY', chapter: null };
+      return { type: 'EMPTY', chapter: null, progress: 0 };
     }
 
     // Read user-scoped saved learning context (if any)
@@ -107,7 +153,6 @@ export default function ContinueLearningCard() {
       savedLastPlayed = savedContext.lastPlayedAt;
     }
 
-    // 1. Calculate status for every chapter
     let completedCount = 0;
     let inProgressChapter = null;
     let inProgressStatus = null;
@@ -118,85 +163,71 @@ export default function ContinueLearningCard() {
       const statusInfo = getChapterStatus(ch, idx, chaptersList, completedRooms, userProgressList);
       if (statusInfo.isCompleted) {
         completedCount++;
-      } else if (!inProgressChapter && statusInfo.status === 'IN_PROGRESS') {
-        inProgressChapter = ch;
-        inProgressStatus = statusInfo;
-      } else if (!firstUnlockedIncomplete && statusInfo.isUnlocked) {
-        firstUnlockedIncomplete = ch;
-        firstUnlockedIndex = idx;
+      } else if (statusInfo.isUnlocked && !statusInfo.isCompleted) {
+        if (statusInfo.inProgress && !inProgressChapter) {
+          inProgressChapter = ch;
+          inProgressStatus = statusInfo;
+        }
+        if (!firstUnlockedIncomplete) {
+          firstUnlockedIncomplete = ch;
+          firstUnlockedIndex = idx;
+        }
       }
-      return { chapter: ch, index: idx, statusInfo };
+      return { ...ch, statusInfo };
     });
 
-    // 2. Check if entire subject is mastered
-    if (completedCount === chaptersList.length && chaptersList.length > 0) {
+    const totalChapters = chaptersList.length;
+    const progress = totalChapters > 0 ? Math.round((completedCount / totalChapters) * 100) : 0;
+
+    // Case 1: All chapters completed
+    if (completedCount === totalChapters) {
       return {
         type: 'SUBJECT_MASTERED',
         chapter: chaptersList[chaptersList.length - 1],
+        totalChapters,
         completedCount,
-        totalChapters: chaptersList.length,
         progress: 100,
         lastPlayedAt: savedLastPlayed,
       };
     }
 
-    // 3. Check if there's an IN_PROGRESS chapter
+    // Case 2: Resume in-progress mission
     if (inProgressChapter) {
       return {
         type: 'IN_PROGRESS',
         chapter: inProgressChapter,
         statusInfo: inProgressStatus,
-        progress: inProgressStatus?.progress || 50,
-        stageInfo: 'In Progress',
+        totalChapters,
         completedCount,
-        totalChapters: chaptersList.length,
+        progress: Math.max(progress, 15),
         lastPlayedAt: savedLastPlayed,
       };
     }
 
-    // 4. Check if savedContext points to a valid, unlocked, incomplete chapter
-    if (savedContext?.chapterId) {
-      const matched = evaluatedChapters.find(
-        e => e.chapter.id === savedContext.chapterId && e.statusInfo.isUnlocked && !e.statusInfo.isCompleted
-      );
-      if (matched) {
-        return {
-          type: matched.statusInfo.status === 'IN_PROGRESS' ? 'IN_PROGRESS' : 'NEXT_MISSION',
-          chapter: matched.chapter,
-          statusInfo: matched.statusInfo,
-          progress: matched.statusInfo.progress || 0,
-          completedCount,
-          totalChapters: chaptersList.length,
-          lastPlayedAt: savedLastPlayed,
-        };
-      }
-    }
-
-    // 5. Check first unlocked incomplete chapter
+    // Case 3: First unlocked incomplete chapter
     if (firstUnlockedIncomplete) {
-      const isFirstChapter = firstUnlockedIndex === 0;
-      const isNewUser = isFirstChapter && completedCount === 0 && (xp === 0 || !xp);
-
       return {
-        type: isNewUser ? 'START_JOURNEY' : 'NEXT_MISSION',
+        type: completedCount > 0 ? 'NEXT_CHAPTER' : 'START_JOURNEY',
         chapter: firstUnlockedIncomplete,
+        index: firstUnlockedIndex,
+        totalChapters,
         completedCount,
-        totalChapters: chaptersList.length,
-        progress: 0,
+        progress,
         lastPlayedAt: savedLastPlayed,
       };
     }
 
-    // Fallback: Default to first chapter
+    // Fallback: Chapter 1
     return {
       type: 'START_JOURNEY',
       chapter: chaptersList[0],
+      index: 0,
+      totalChapters,
       completedCount: 0,
-      totalChapters: chaptersList.length,
       progress: 0,
-      lastPlayedAt: null,
+      lastPlayedAt: savedLastPlayed,
     };
-  }, [chaptersList, completedRooms, userProgressList, resolvedStdId, resolvedSubjId, user, xp]);
+  }, [chaptersList, user, resolvedStdId, resolvedSubjId, completedRooms, userProgressList]);
 
   // ── Action: Continue / Start Mission ─────────────────────────────────────────
   const handleLaunchTarget = useCallback(() => {
@@ -207,7 +238,6 @@ export default function ContinueLearningCard() {
 
     const ch = learningTarget.chapter;
 
-    // 1. Save user-scoped learning context
     if (user?.id) {
       scopedSetJSON(user.id, 'learning-context', {
         standardId: resolvedStdId,
@@ -217,15 +247,11 @@ export default function ContinueLearningCard() {
       });
     }
 
-    // 2. Push into navigation context
     setSelectedChapterId(ch.id);
     setSelectedChapter(ch.title);
-
-    // 3. Open Mission Brief screen
     navigateTo('mission', { chapterId: ch.id, chapter: ch });
   }, [learningTarget, user, resolvedStdId, resolvedSubjId, setSelectedChapterId, setSelectedChapter, navigateTo]);
 
-  // ── Action: Explore / Change Subject ─────────────────────────────────────────
   const handleExploreSubjects = useCallback(() => {
     navigateTo('select-subject');
   }, [navigateTo]);
@@ -234,20 +260,13 @@ export default function ContinueLearningCard() {
     navigateTo('chapters');
   }, [navigateTo]);
 
-  // ── Style Tokens ─────────────────────────────────────────────────────────────
-  const cardBg = isDark
-    ? `linear-gradient(135deg, ${accentColor}12 0%, ${accentColor}06 50%, rgba(12,20,17,0.92) 100%)`
-    : `linear-gradient(135deg, ${accentColor}10 0%, #FFFFFF 100%)`;
-
-  const cardBorder = isDark ? `1.5px solid ${accentColor}35` : `1.5px solid ${accentColor}40`;
-  const textHead = isDark ? '#F1F5F4' : '#10201A';
-  const textMuted = isDark ? 'rgba(241,245,244,0.55)' : '#5D6C66';
   const lastPlayedFormatted = formatLastPlayed(learningTarget.lastPlayedAt);
-
   const activeChapter = learningTarget.chapter;
   const isMastered = learningTarget.type === 'SUBJECT_MASTERED';
   const isInProgress = learningTarget.type === 'IN_PROGRESS';
   const isNewJourney = learningTarget.type === 'START_JOURNEY';
+
+  const ringProgress = isMastered ? 100 : Math.max(learningTarget.progress, isInProgress ? 35 : 15);
 
   return (
     <motion.div
@@ -256,52 +275,39 @@ export default function ContinueLearningCard() {
       transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
       className="min-w-0 w-full mb-6"
     >
-      <DashCard
-        id="continue-learning-card"
-        className="p-5 sm:p-7 relative overflow-hidden min-w-0 w-full"
-        style={{
-          background: cardBg,
-          border: cardBorder,
-          boxShadow: isDark
-            ? `0 0 35px ${accentColor}18, 0 8px 30px rgba(0,0,0,0.3)`
-            : `0 4px 24px rgba(15,23,42,0.08)`,
-        }}
-      >
-        {/* Ambient Top Glow */}
+      {/* ── CASE 1: ALL CHAPTERS CONQUERED ── */}
+      {isMastered ? (
         <div
-          className="absolute -top-24 -right-24 w-48 h-48 rounded-full pointer-events-none"
-          style={{ background: `radial-gradient(circle, ${accentColor}25 0%, transparent 70%)` }}
-        />
+          className="forest-banner p-6 sm:p-8 relative overflow-hidden"
+          style={{
+            background: 'linear-gradient(135deg, #0C3B2E 0%, #114E3E 60%, #16654E 100%)',
+          }}
+        >
+          {/* Subtle Background Rings */}
+          <div className="absolute -top-16 -right-16 w-56 h-56 rounded-full border border-white/10 pointer-events-none" />
+          <div className="absolute -bottom-20 -right-8 w-72 h-72 rounded-full border border-white/5 pointer-events-none" />
 
-        {/* ── CASE 1: SUBJECT MASTERED ── */}
-        {isMastered ? (
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 min-w-0">
-            <div className="flex items-start sm:items-center gap-4 min-w-0 flex-1">
-              <div
-                className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl flex items-center justify-center flex-shrink-0 text-3xl shadow-lg"
-                style={{
-                  background: 'linear-gradient(135deg, rgba(245,158,11,0.25), rgba(251,191,36,0.1))',
-                  border: '1.5px solid #F59E0B',
-                }}
-              >
+          <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
+            <div className="flex items-start sm:items-center gap-5 min-w-0 flex-1">
+              <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-amber-400/20 border border-amber-400/40 flex items-center justify-center flex-shrink-0 text-3xl sm:text-4xl shadow-lg">
                 🏆
               </div>
 
               <div className="min-w-0 flex-1">
-                <div className="flex items-center gap-2 mb-1 flex-wrap">
-                  <span className="text-[10px] sm:text-xs font-orbitron font-black text-amber-400 uppercase tracking-widest px-2.5 py-0.5 rounded-full bg-amber-500/15 border border-amber-500/30">
-                    SUBJECT MASTERED
+                <div className="flex items-center gap-2 mb-1.5 flex-wrap">
+                  <span className="text-[11px] font-bold font-heading text-amber-300 uppercase tracking-widest px-3 py-1 rounded-full bg-amber-500/20 border border-amber-400/30">
+                    Subject Mastered
                   </span>
-                  <span className="text-xs font-space" style={{ color: textMuted }}>
+                  <span className="text-xs text-emerald-100/70 font-medium">
                     {stdDisplayName} · {subjDisplayName}
                   </span>
                 </div>
 
-                <h2 className="font-orbitron font-black text-lg sm:text-2xl mb-1 truncate" style={{ color: textHead }}>
+                <h2 className="font-heading font-extrabold text-xl sm:text-2xl text-white mb-1.5">
                   All Chapters Conquered!
                 </h2>
-                <p className="text-xs sm:text-sm font-inter" style={{ color: textMuted }}>
-                  You have completed all {learningTarget.totalChapters} chapters in {subjDisplayName}. Explore another subject or replay chapters for mastery.
+                <p className="text-xs sm:text-sm text-emerald-100/80 leading-relaxed max-w-xl">
+                  You have completed all {learningTarget.totalChapters} chapters in {subjDisplayName}. Explore another subject or replay missions to sharpen your skills.
                 </p>
               </div>
             </div>
@@ -310,174 +316,122 @@ export default function ContinueLearningCard() {
               <button
                 type="button"
                 onClick={handleOpenChapterMap}
-                className="px-5 py-3 rounded-xl font-orbitron font-bold text-xs uppercase tracking-wider cursor-pointer border transition-colors"
-                style={{
-                  background: isDark ? 'rgba(255,255,255,0.04)' : '#EEF5F2',
-                  borderColor: isDark ? 'rgba(255,255,255,0.1)' : '#DDE8E3',
-                  color: isDark ? '#CBD5E1' : '#334155',
-                }}
+                className="px-5 py-3 rounded-full text-xs font-heading font-bold uppercase tracking-wider text-white border border-white/20 hover:bg-white/10 transition-colors cursor-pointer"
               >
                 View Chapter Map
               </button>
-
               <button
                 type="button"
                 onClick={handleExploreSubjects}
-                className="px-6 py-3 rounded-xl font-orbitron font-black text-xs uppercase tracking-widest text-slate-950 flex items-center justify-center gap-2 shadow-lg cursor-pointer border-0"
-                style={{
-                  background: 'linear-gradient(135deg, #F59E0B, #FBBF24)',
-                  boxShadow: '0 0 20px rgba(245,158,11,0.35)',
-                }}
+                className="pill-btn-mint text-xs font-heading font-extrabold uppercase tracking-wider flex items-center justify-center gap-2 cursor-pointer shadow-lg"
               >
                 <BookOpen size={14} />
                 <span>Explore Other Subjects</span>
               </button>
             </div>
           </div>
-        ) : (
-          /* ── CASE 2: ACTIVE CONTINUE / START MISSION ── */
-          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 min-w-0">
+        </div>
+      ) : (
+        /* ── CASE 2: FEATURED CHALLENGE BANNER (Matches Reference Image) ── */
+        <div
+          className="forest-banner p-6 sm:p-8 relative overflow-hidden"
+          style={{
+            background: 'linear-gradient(135deg, #0C3B2E 0%, #114E3E 55%, #16654E 100%)',
+          }}
+        >
+          {/* Subtle Geometric Arcs from the Reference Image */}
+          <div className="absolute -top-16 -right-16 w-56 h-56 rounded-full border border-white/10 pointer-events-none" />
+          <div className="absolute -bottom-24 -right-10 w-72 h-72 rounded-full border border-white/5 pointer-events-none" />
+          <div className="absolute top-1/2 right-40 w-32 h-32 rounded-full bg-emerald-400/5 blur-2xl pointer-events-none" />
 
-            {/* Left Block: Icon + Details */}
-            <div className="flex items-start sm:items-center gap-4 min-w-0 flex-1">
-              {/* Subject Icon with Animated Pulse */}
-              <div className="relative flex-shrink-0">
-                <div
-                  className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl flex items-center justify-center"
-                  style={{
-                    background: `${accentColor}18`,
-                    border: `1.5px solid ${accentColor}40`,
-                    boxShadow: `0 0 24px ${accentColor}20`,
-                  }}
-                >
-                  <SubjIcon size={28} style={{ color: accentColor }} />
-                </div>
-                {isInProgress && (
-                  <div
-                    className="absolute -bottom-1.5 -right-1.5 w-5 h-5 rounded-full flex items-center justify-center text-[9px] bg-cyan-500 text-slate-950 font-black shadow-md animate-pulse"
-                    title="In Progress"
-                  >
-                    ⚡
-                  </div>
+          <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
+            
+            {/* Left Content */}
+            <div className="flex-1 min-w-0">
+              {/* Category Pill / Standard & Subject */}
+              <div className="flex items-center gap-2 mb-2 flex-wrap">
+                <span className="text-[11px] font-heading font-extrabold text-emerald-300 uppercase tracking-wider px-3 py-1 rounded-full bg-white/10 border border-white/15 backdrop-blur-sm">
+                  {subjDisplayName} Quiz
+                </span>
+                <span className="text-xs text-emerald-100/70 font-medium">
+                  {stdDisplayName}
+                </span>
+                {lastPlayedFormatted && (
+                  <span className="flex items-center gap-1 text-[11px] text-emerald-200/60 ml-auto sm:ml-0 font-medium">
+                    <Clock size={11} className="opacity-70" />
+                    {lastPlayedFormatted}
+                  </span>
                 )}
               </div>
 
-              {/* Text Info */}
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2 mb-1.5 flex-wrap">
-                  {/* Badge */}
-                  <span
-                    className="text-[10px] sm:text-xs font-orbitron font-extrabold tracking-widest uppercase px-2.5 py-0.5 rounded-full"
-                    style={{
-                      background: isInProgress ? 'rgba(34,211,238,0.15)' : `${accentColor}18`,
-                      color: isInProgress ? '#22D3EE' : accentColor,
-                      border: isInProgress ? '1px solid rgba(34,211,238,0.35)' : `1px solid ${accentColor}35`,
-                    }}
-                  >
-                    {isInProgress ? 'CONTINUE LEARNING' : isNewJourney ? 'START YOUR JOURNEY' : 'NEXT MISSION'}
-                  </span>
+              {/* Banner Title */}
+              <h2 className="font-heading font-extrabold text-2xl sm:text-3xl text-white mb-2 leading-tight">
+                {activeChapter ? (
+                  <span>Chapter {activeChapter.chapterNumber || 1}: {activeChapter.title}</span>
+                ) : (
+                  <span>Your Next Challenge Awaits!</span>
+                )}
+              </h2>
 
-                  {/* Standard & Subject info */}
-                  <span className="text-xs font-space" style={{ color: textMuted }}>
-                    {stdDisplayName} · {subjDisplayName}
-                  </span>
+              {/* Description */}
+              <p className="text-xs sm:text-sm text-emerald-100/80 leading-relaxed mb-4 max-w-xl line-clamp-2">
+                {activeChapter?.description || `Test your skills and unlock new levels in ${subjDisplayName}. Complete missions to earn XP and climb the leaderboard!`}
+              </p>
 
-                  {/* Last played time */}
-                  {lastPlayedFormatted && (
-                    <span className="flex items-center gap-1 text-[11px] font-space text-slate-400 ml-auto sm:ml-0">
-                      <Clock size={11} className="opacity-70" />
-                      {lastPlayedFormatted}
-                    </span>
-                  )}
-                </div>
-
-                {/* Chapter Title */}
-                <h2
-                  className="font-orbitron font-black text-lg sm:text-2xl mb-1 leading-tight truncate"
-                  style={{ color: textHead }}
+              {/* Action Buttons & Rewards */}
+              <div className="flex items-center gap-3 sm:gap-4 flex-wrap pt-1">
+                <motion.button
+                  id="continue-mission-primary-btn"
+                  onClick={handleLaunchTarget}
+                  className="pill-btn-mint text-xs sm:text-sm font-heading font-extrabold tracking-wide uppercase flex items-center justify-center gap-2 cursor-pointer shadow-lg"
+                  whileHover={{ scale: 1.03 }}
+                  whileTap={{ scale: 0.97 }}
                 >
-                  {activeChapter ? (
-                    <span>
-                      Chapter {activeChapter.chapterNumber || 1} — {activeChapter.title}
-                    </span>
-                  ) : (
-                    <span>Start Learning {subjDisplayName}</span>
-                  )}
-                </h2>
+                  <Play size={15} className="fill-current" />
+                  <span>{isInProgress ? 'Continue Quiz' : isNewJourney ? 'Start Quiz' : 'Continue →'}</span>
+                </motion.button>
 
-                {/* Description or Mission Tag */}
-                <p className="text-xs sm:text-sm font-inter mb-3 line-clamp-2" style={{ color: textMuted }}>
-                  {activeChapter?.description || `Explore fundamental concepts and solve interactive escape rooms in ${subjDisplayName}.`}
-                </p>
+                <button
+                  type="button"
+                  onClick={handleOpenChapterMap}
+                  className="px-4 py-2.5 rounded-full text-xs font-heading font-bold text-white/90 border border-white/20 hover:bg-white/10 transition-colors cursor-pointer"
+                >
+                  View Chapters
+                </button>
 
-                {/* Progress Bar & Stage */}
-                <div>
-                  <div className="flex justify-between text-xs font-space mb-1.5" style={{ color: textMuted }}>
-                    <span aria-label={`Chapter Progress ${learningTarget.progress}%`}>
-                      {isInProgress ? 'Mission in progress' : `${learningTarget.completedCount || 0} of ${learningTarget.totalChapters || 1} chapters solved`}
-                    </span>
-                    <span className="font-orbitron font-bold" style={{ color: accentColor }}>
-                      {learningTarget.progress > 0 ? `${learningTarget.progress}%` : 'Ready to Start'}
-                    </span>
-                  </div>
-
-                  <div
-                    className="h-2 rounded-full overflow-hidden w-full"
-                    style={{ background: isDark ? 'rgba(255,255,255,0.06)' : '#E5EFEA' }}
-                  >
-                    <motion.div
-                      className="h-full rounded-full"
-                      style={{
-                        background: isInProgress
-                          ? `linear-gradient(90deg, #22D3EE, ${accentColor})`
-                          : `linear-gradient(90deg, ${accentColor}, #34D399)`,
-                      }}
-                      initial={{ width: 0 }}
-                      animate={{ width: `${Math.max(learningTarget.progress, 6)}%` }}
-                      transition={{ duration: 1.2, ease: [0.22, 1, 0.36, 1] }}
-                    />
-                  </div>
+                {/* Rewards Badges */}
+                <div className="hidden sm:flex items-center gap-3 ml-2 text-xs font-semibold text-emerald-200">
+                  <span className="flex items-center gap-1 bg-white/10 px-2.5 py-1 rounded-full border border-white/10">
+                    <Zap size={12} className="text-amber-400" />
+                    +{activeChapter?.xpReward || 500} XP
+                  </span>
+                  <span className="flex items-center gap-1 bg-white/10 px-2.5 py-1 rounded-full border border-white/10 text-amber-300">
+                    🪙 +{activeChapter?.coinsReward || 100}
+                  </span>
                 </div>
               </div>
             </div>
 
-            {/* Right Block: Rewards + CTA Button */}
-            <div className="flex flex-col sm:flex-row lg:flex-col items-start sm:items-center lg:items-end justify-between gap-4 flex-shrink-0 min-w-0 pt-3 lg:pt-0 border-t lg:border-t-0 border-white/5">
-              {/* Rewards */}
-              <div className="flex items-center gap-3 text-xs font-space flex-wrap">
-                <div className="flex items-center gap-1.5" style={{ color: accentColor }}>
-                  <Zap size={13} />
-                  <span className="font-bold">+{activeChapter?.xpReward || 500} XP</span>
-                </div>
-                <div className="flex items-center gap-1.5 text-amber-400">
-                  <span>🪙</span>
-                  <span className="font-bold">+{activeChapter?.coinsReward || 100}</span>
-                </div>
+            {/* Right: Circular Progress Ring matching Reference Image */}
+            <div className="flex sm:flex-col items-center justify-between sm:justify-center gap-4 flex-shrink-0 pt-4 sm:pt-0 border-t sm:border-t-0 border-white/10">
+              <CircularProgressRing
+                progress={ringProgress}
+                size={92}
+                strokeWidth={7}
+              />
+              <div className="text-center sm:text-center">
+                <p className="text-xs font-heading font-bold text-white">
+                  {learningTarget.completedCount || 0} / {learningTarget.totalChapters || 1}
+                </p>
+                <p className="text-[10px] text-emerald-200/70 font-medium">
+                  Chapters Cleared
+                </p>
               </div>
-
-              {/* Primary Action Button */}
-              <motion.button
-                id="continue-mission-primary-btn"
-                onClick={handleLaunchTarget}
-                className="flex items-center justify-center gap-2.5 px-6 sm:px-8 py-3.5 rounded-xl font-orbitron font-extrabold text-xs sm:text-sm tracking-wider uppercase text-slate-950 relative overflow-hidden cursor-pointer whitespace-nowrap w-full sm:w-auto border-0 shadow-lg"
-                style={{
-                  background: `linear-gradient(135deg, ${accentColor}, #34D399)`,
-                  boxShadow: `0 0 28px ${accentColor}40`,
-                }}
-                whileHover={{ scale: 1.03, boxShadow: `0 0 40px ${accentColor}60` }}
-                whileTap={{ scale: 0.97 }}
-              >
-                <Play size={15} className="fill-slate-950 relative z-10" />
-                <span className="relative z-10">
-                  {isInProgress ? 'Continue Mission' : isNewJourney ? 'Start Journey' : 'Start Mission'}
-                </span>
-                <ChevronRight size={16} className="relative z-10 opacity-70" />
-              </motion.button>
             </div>
 
           </div>
-        )}
-      </DashCard>
+        </div>
+      )}
     </motion.div>
   );
 }

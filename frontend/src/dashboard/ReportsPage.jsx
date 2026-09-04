@@ -222,7 +222,7 @@ export default function ReportsPage() {
   const totalPages = Math.ceil(totalItems / itemsPerPage) || 1;
 
   return (
-    <div className="relative min-h-screen bg-[#050807] text-white overflow-x-hidden w-full pb-20">
+    <div className="relative min-h-screen bg-[var(--bg-app)] text-[var(--text-main)] overflow-x-hidden w-full pb-20 transition-colors duration-200">
       {/* Ambient background glows */}
       <div
         className="fixed inset-0 pointer-events-none z-0"

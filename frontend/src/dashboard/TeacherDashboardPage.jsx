@@ -50,7 +50,7 @@ export default function TeacherDashboardPage() {
   );
 
   return (
-    <div className="relative min-h-screen bg-[#050807] text-white overflow-x-hidden w-full pb-16">
+    <div className="relative min-h-screen bg-[var(--bg-app)] text-[var(--text-main)] overflow-x-hidden w-full pb-16 transition-colors duration-200">
       {/* Background ambient glows */}
       <div className="fixed inset-0 pointer-events-none z-0"
         style={{ background: 'radial-gradient(ellipse 70% 50% at 50% -10%, rgba(16,185,129,0.12) 0%, transparent 60%)' }} />
@@ -88,10 +88,10 @@ export default function TeacherDashboardPage() {
                 </span>
                 <span className="text-xs font-space text-slate-400">ID: TCH-2026-88</span>
               </div>
-              <h1 className="font-orbitron font-black text-2xl sm:text-3xl text-white leading-tight mt-1">
+              <h1 className="font-heading font-extrabold text-2xl sm:text-3xl text-[var(--text-main)] leading-tight mt-1">
                 {user?.name || 'Prof. Teacher'}
               </h1>
-              <p className="text-white/40 text-xs sm:text-sm font-inter">
+              <p className="text-[var(--text-muted)] text-xs sm:text-sm font-medium">
                 Class roster management, room locks & curriculum analytics.
               </p>
             </div>

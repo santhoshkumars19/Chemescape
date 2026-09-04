@@ -127,7 +127,7 @@ export default function HeroSection() {
         >
           <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
           <Sparkles size={13} className="text-emerald-400" />
-          <span>Gamified Chemistry Platform</span>
+          <span>Gamified Educational Quiz Platform</span>
         </motion.div>
 
         {/* Main Headline */}
@@ -137,8 +137,8 @@ export default function HeroSection() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.4, duration: 0.7 }}
         >
-          ESCAPE THE <br className="hidden sm:inline" />
-          <span className="gradient-text-emerald">LABORATORY</span>
+          MASTER YOUR <br className="hidden sm:inline" />
+          <span className="gradient-text-emerald">CURRICULUM</span>
         </motion.h1>
 
         {/* Subtitle */}
@@ -148,7 +148,7 @@ export default function HeroSection() {
           animate={{ opacity: 1 }}
           transition={{ delay: 0.8, duration: 0.7 }}
         >
-          Master chemical reactions. Crack molecular puzzles. Escape before time runs out.
+          Master curriculum topics, solve interactive chapter quizzes, and climb to the top of the leaderboard.
         </motion.p>
 
         {/* CTA Buttons */}

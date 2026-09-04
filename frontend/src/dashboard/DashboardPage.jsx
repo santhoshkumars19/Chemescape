@@ -1,12 +1,12 @@
 import { motion } from 'framer-motion';
-import { useCallback } from 'react';
+import { useCallback, useState } from 'react';
 import {
   Zap, Flame, Clock, Play,
   CheckCircle2, GraduationCap, BookOpen,
-  RotateCcw, ChevronRight, Sparkles, Trophy,
+  RotateCcw, ChevronRight, Sparkles, Trophy, Star,
   FlaskConical, Calculator, Languages, Globe,
   BookText, Leaf, Terminal, Atom, Microscope,
-  TrendingUp,
+  TrendingUp, Compass, Palette, Award, HelpCircle,
 } from 'lucide-react';
 import { DashCard, SectionHeader, AnimatedCounter } from './DashComponents';
 import { ProgressChart, AccuracyChart } from './Charts';
@@ -68,24 +68,14 @@ function SubjectContextBanner({ onChangeStandard, onChangeSubject, isDark }) {
   const stdName  = selectedStandard || STANDARD_DISPLAY[selectedStandardId] || 'No Standard';
   const subjName = selectedSubject  || 'No Subject';
 
-  // Get subject config for accent color
   const subjects    = getSubjectsForStandard(selectedStandardId);
   const subjConfig  = subjects.find(s => s.id === selectedSubjectId);
   const accentColor = subjConfig?.color || '#10B981';
 
-  const bannerBg     = isDark ? 'rgba(12,20,17,0.82)'   : '#FFFFFF';
-  const bannerBorder = isDark ? 'rgba(167,243,208,0.14)' : '#DDE8E3';
-  const textMuted    = isDark ? 'rgba(241,245,244,0.45)' : '#5D6C66';
-
   return (
     <motion.div
       variants={fadeUp}
-      className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 rounded-2xl mb-5 min-w-0 w-full"
-      style={{
-        background: bannerBg,
-        border: `1px solid ${bannerBorder}`,
-        boxShadow: isDark ? '0 4px 20px rgba(0,0,0,0.3)' : '0 2px 12px rgba(15,23,42,0.07)',
-      }}
+      className="card-modern flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 mb-5 min-w-0 w-full"
     >
       {/* Left: standard + subject chips */}
       <div className="flex items-center gap-2 flex-wrap min-w-0">
@@ -95,19 +85,19 @@ function SubjectContextBanner({ onChangeStandard, onChangeSubject, isDark }) {
           id="dashboard-change-standard-btn"
           onClick={onChangeStandard}
           title="Change standard"
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-space font-semibold cursor-pointer border outline-none transition-all focus-visible:ring-2 focus-visible:ring-emerald-500 whitespace-nowrap"
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-heading font-semibold cursor-pointer border outline-none transition-all hover:scale-105 whitespace-nowrap"
           style={{
-            background: isDark ? 'rgba(16,185,129,0.10)' : '#D1FAE5',
-            borderColor: 'rgba(16,185,129,0.30)',
-            color: isDark ? '#34D399' : '#047857',
+            background: isDark ? 'rgba(16,185,129,0.12)' : '#E8F5E9',
+            borderColor: isDark ? 'rgba(16,185,129,0.25)' : '#C8E6C9',
+            color: isDark ? '#34D399' : '#0C3B2E',
           }}
         >
-          <GraduationCap size={12} />
-          {stdName}
+          <GraduationCap size={13} />
+          <span>{stdName}</span>
           <RotateCcw size={10} className="opacity-60" />
         </button>
 
-        <span style={{ color: textMuted, fontSize: 11 }}>›</span>
+        <span className="text-slate-400 text-xs">›</span>
 
         {/* Subject chip */}
         <button
@@ -115,29 +105,29 @@ function SubjectContextBanner({ onChangeStandard, onChangeSubject, isDark }) {
           id="dashboard-change-subject-btn"
           onClick={onChangeSubject}
           title="Change subject"
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-space font-semibold cursor-pointer border outline-none transition-all focus-visible:ring-2 whitespace-nowrap"
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-heading font-semibold cursor-pointer border outline-none transition-all hover:scale-105 whitespace-nowrap"
           style={{
-            background: `${accentColor}15`,
-            borderColor: `${accentColor}40`,
-            color: accentColor,
+            background: isDark ? `${accentColor}15` : '#F0FDF4',
+            borderColor: isDark ? `${accentColor}30` : '#BBF7D0',
+            color: isDark ? accentColor : '#0C3B2E',
           }}
         >
-          <BookOpen size={12} />
-          {subjName}
+          <BookOpen size={13} />
+          <span>{subjName}</span>
           <RotateCcw size={10} className="opacity-60" />
         </button>
       </div>
 
       {/* Right: label */}
-      <p className="text-[11px] font-inter flex-shrink-0" style={{ color: textMuted }}>
-        Click to change your standard or subject
+      <p className="text-xs text-[var(--text-muted)] font-medium flex-shrink-0">
+        Click chips above to switch standard or subject anytime
       </p>
     </motion.div>
   );
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// WELCOME HEADER — subject-aware
+// WELCOME HEADER — clean typography
 // ─────────────────────────────────────────────────────────────────────────────
 function WelcomeHeader({ isDark }) {
   const { xp, level, streak, selectedStandardId, selectedStandard, selectedSubjectId, selectedSubject } = useNavigation();
@@ -151,37 +141,30 @@ function WelcomeHeader({ isDark }) {
   const stdName    = selectedStandard || STANDARD_DISPLAY[selectedStandardId] || '';
   const subjName   = selectedSubject  || '';
 
-  // Get subject icon and accent
   const subjects    = getSubjectsForStandard(selectedStandardId);
   const subjConfig  = subjects.find(s => s.id === selectedSubjectId);
   const accentColor = subjConfig?.color || '#10B981';
   const SubjIcon    = resolveIcon(subjConfig?.icon);
   const levelTitle  = getLevelTitle(level, subjName);
 
-  const textMuted   = isDark ? 'rgba(241,245,244,0.45)' : '#5D6C66';
-  const textPrimary = isDark ? '#F1F5F4' : '#10201A';
-
   return (
-    <motion.div variants={fadeUp} className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-5 min-w-0 w-full">
+    <motion.div variants={fadeUp} className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 min-w-0 w-full">
       <div className="flex items-center gap-4 min-w-0">
         {/* Avatar with subject icon */}
         <div className="relative flex-shrink-0">
-          <motion.div
-            className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl flex items-center justify-center"
+          <div
+            className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl flex items-center justify-center shadow-md"
             style={{
-              background: `linear-gradient(135deg, ${accentColor}20, ${accentColor}08)`,
-              border: `2px solid ${accentColor}35`,
-              boxShadow: `0 0 30px ${accentColor}18`,
+              background: isDark ? 'linear-gradient(135deg, #112820, #0C3B2E)' : 'linear-gradient(135deg, #E8F5E9, #C8E6C9)',
+              border: isDark ? '1.5px solid rgba(52,211,153,0.25)' : '1.5px solid rgba(12,59,46,0.15)',
             }}
-            animate={{ boxShadow: [`0 0 20px ${accentColor}10`, `0 0 40px ${accentColor}28`, `0 0 20px ${accentColor}10`] }}
-            transition={{ duration: 3, repeat: Infinity }}
           >
-            <SubjIcon size={26} style={{ color: accentColor }} />
-          </motion.div>
+            <SubjIcon size={28} className={isDark ? 'text-emerald-400' : 'text-[#0C3B2E]'} />
+          </div>
           {/* Level badge */}
           <div
-            className="absolute -bottom-2 -right-2 px-2 py-0.5 rounded-full text-[10px] font-orbitron font-extrabold text-slate-950"
-            style={{ background: `linear-gradient(135deg, ${accentColor}, ${accentColor}CC)`, boxShadow: `0 0 12px ${accentColor}50` }}
+            className="absolute -bottom-1.5 -right-1.5 px-2 py-0.5 rounded-full text-[10px] font-heading font-extrabold text-white"
+            style={{ background: '#0C3B2E', border: '1.5px solid #10B981' }}
           >
             Lvl {level}
           </div>
@@ -189,24 +172,25 @@ function WelcomeHeader({ isDark }) {
 
         {/* Name + subject context */}
         <div className="min-w-0">
-          <p className="text-xs sm:text-sm font-inter" style={{ color: textMuted }}>{greeting},</p>
-          <h1
-            className="font-orbitron font-black text-xl sm:text-2xl md:text-3xl leading-tight truncate"
-            style={{ color: textPrimary }}
-          >
+          <p className="text-xs sm:text-sm text-[var(--text-muted)] font-medium">{greeting},</p>
+          <h1 className="font-heading font-extrabold text-xl sm:text-2xl md:text-3xl leading-tight text-[var(--text-main)] truncate">
             {userName}
           </h1>
           <div className="flex items-center gap-2 mt-1 flex-wrap">
             {stdName && (
-              <span className="text-xs font-space" style={{ color: textMuted }}>{stdName}</span>
+              <span className="text-xs text-[var(--text-secondary)] font-medium">{stdName}</span>
             )}
             {stdName && subjName && (
-              <span className="w-1 h-1 rounded-full bg-white/15 hidden sm:inline-block" />
+              <span className="w-1 h-1 rounded-full bg-emerald-500/40 hidden sm:inline-block" />
             )}
             {subjName && (
               <span
-                className="text-[10px] sm:text-xs font-space px-2 py-0.5 rounded-full whitespace-nowrap"
-                style={{ background: `${accentColor}15`, border: `1px solid ${accentColor}30`, color: accentColor }}
+                className="text-[11px] font-heading font-semibold px-2.5 py-0.5 rounded-full whitespace-nowrap"
+                style={{
+                  background: isDark ? 'rgba(52,211,153,0.12)' : '#E8F5E9',
+                  border: isDark ? '1px solid rgba(52,211,153,0.25)' : '1px solid #A7F3D0',
+                  color: isDark ? '#34D399' : '#0C3B2E',
+                }}
               >
                 {levelTitle}
               </span>
@@ -217,27 +201,31 @@ function WelcomeHeader({ isDark }) {
 
       {/* Right: streak + XP */}
       <div className="flex items-center gap-3 flex-wrap flex-shrink-0">
-        <motion.div
-          className="flex items-center gap-2 px-3.5 py-2 rounded-xl"
-          style={{ background: 'rgba(251,146,60,0.10)', border: '1px solid rgba(251,146,60,0.20)' }}
-          animate={{ borderColor: ['rgba(251,146,60,0.2)', 'rgba(251,146,60,0.4)', 'rgba(251,146,60,0.2)'] }}
-          transition={{ duration: 2.5, repeat: Infinity }}
+        <div
+          className="flex items-center gap-2 px-4 py-2.5 rounded-2xl"
+          style={{
+            background: isDark ? 'rgba(249,115,22,0.12)' : '#FFF7ED',
+            border: isDark ? '1px solid rgba(249,115,22,0.25)' : '1px solid #FFEDD5',
+          }}
         >
-          <Flame size={16} className="text-orange-400" />
+          <Flame size={18} className="text-orange-500 fill-orange-500" />
           <div>
-            <p className="font-orbitron font-black text-base sm:text-lg text-orange-400 leading-none">{streak}</p>
-            <p className="text-[9px] sm:text-[10px] text-slate-400 font-space leading-none mt-0.5">Day Streak</p>
+            <p className="font-heading font-extrabold text-base sm:text-lg text-orange-500 leading-none">{streak}</p>
+            <p className="text-[10px] text-[var(--text-muted)] font-medium leading-none mt-0.5">Day Streak</p>
           </div>
-        </motion.div>
+        </div>
 
         <div
-          className="flex items-center gap-2 px-3.5 py-2 rounded-xl"
-          style={{ background: `${accentColor}10`, border: `1px solid ${accentColor}30` }}
+          className="flex items-center gap-2 px-4 py-2.5 rounded-2xl"
+          style={{
+            background: isDark ? 'rgba(16,185,129,0.12)' : '#F0FDF4',
+            border: isDark ? '1px solid rgba(16,185,129,0.25)' : '1px solid #DCFCE7',
+          }}
         >
-          <Zap size={15} style={{ color: accentColor }} />
+          <Zap size={18} className="text-emerald-500 fill-emerald-500" />
           <div>
-            <p className="font-orbitron font-black text-base sm:text-lg leading-none" style={{ color: accentColor }}>{xp} XP</p>
-            <p className="text-[9px] sm:text-[10px] text-slate-400 font-space leading-none mt-0.5">Total XP</p>
+            <p className="font-heading font-extrabold text-base sm:text-lg text-emerald-600 dark:text-emerald-400 leading-none">{xp} XP</p>
+            <p className="text-[10px] text-[var(--text-muted)] font-medium leading-none mt-0.5">Total XP</p>
           </div>
         </div>
       </div>
@@ -246,63 +234,242 @@ function WelcomeHeader({ isDark }) {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// STATS ROW — subject-aware labels
+// STATS ROW — modern rounded cards
 // ─────────────────────────────────────────────────────────────────────────────
 function StatsRow({ isDark }) {
   const { xp, coins, streak, userProgressList, selectedSubjectId, selectedStandardId } = useNavigation();
   const completedCount = userProgressList.filter(p => p.isCompleted).length;
 
-  // Subject accent
-  const subjects    = getSubjectsForStandard(selectedStandardId);
-  const subjConfig  = subjects.find(s => s.id === selectedSubjectId);
-  const accent      = subjConfig?.color || '#10B981';
-
-  const cardBg   = isDark ? undefined : '#FFFFFF';
-  const cardBord = isDark ? undefined : '#DDE8E3';
-
   const stats = [
-    { icon: <Zap size={16} style={{ color: accent }} />,          label: 'Total XP',           value: xp,             color: accent },
-    { icon: <span className="text-amber-400 text-base">🪙</span>,  label: 'Coins',              value: coins,          color: '#F59E0B' },
-    { icon: <Flame size={16} className="text-orange-400" />,       label: 'Day Streak',         value: streak,         color: '#F97316' },
-    { icon: <Clock size={16} className="text-emerald-300" />,      label: 'Study Time',         value: '0h',           color: '#34D399' },
-    { icon: <CheckCircle2 size={16} style={{ color: accent }} />,  label: 'Missions Complete',  value: completedCount, color: accent },
-    { icon: <Trophy size={16} className="text-amber-400" />,       label: 'Rank',               value: '—',            color: '#F59E0B' },
+    { icon: <Zap size={16} className="text-emerald-500" />,         label: 'Total XP',          value: xp,             color: '#10B981' },
+    { icon: <span className="text-amber-500 text-sm">🪙</span>,     label: 'Coins Earned',      value: coins,          color: '#F59E0B' },
+    { icon: <Flame size={16} className="text-orange-500" />,        label: 'Day Streak',        value: streak,         color: '#F97316' },
+    { icon: <Clock size={16} className="text-teal-500" />,          label: 'Study Time',        value: '2.5h',         color: '#14B8A6' },
+    { icon: <CheckCircle2 size={16} className="text-emerald-500" />, label: 'Quizzes Solved',  value: completedCount, color: '#10B981' },
+    { icon: <Trophy size={16} className="text-amber-500" />,        label: 'Global Rank',       value: '#12',          color: '#F59E0B' },
   ];
 
   return (
     <motion.div
       variants={stagger}
-      className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 mb-5 w-full min-w-0"
+      className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 mb-6 w-full min-w-0"
     >
       {stats.map(s => (
         <motion.div key={s.label} variants={fadeUp} className="min-w-0 w-full">
-          <DashCard
-            className="p-3.5 sm:p-4 min-w-0 w-full flex flex-col justify-between"
-            glow={`${s.color}08`}
-            style={cardBg ? { background: cardBg, border: `1px solid ${cardBord}` } : {}}
-          >
-            <div className="flex items-center justify-between mb-2 min-w-0">
-              <div className="w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0"
-                style={{ background: `${s.color}12`, border: `1px solid ${s.color}20` }}>
-                {s.icon}
-              </div>
+          <div className="card-modern p-4 min-w-0 w-full flex flex-col justify-between h-full">
+            <div className="w-8 h-8 rounded-xl flex items-center justify-center mb-2.5 flex-shrink-0"
+              style={{
+                background: isDark ? `${s.color}15` : `${s.color}10`,
+                border: `1px solid ${s.color}30`,
+              }}>
+              {s.icon}
             </div>
-            <p className="font-orbitron font-black text-lg sm:text-xl text-white leading-none truncate">
-              {typeof s.value === 'number'
-                ? <AnimatedCounter value={s.value} duration={1.5} />
-                : s.value}
-            </p>
-            <p className="text-[10px] sm:text-[11px] text-slate-400 font-space mt-1 truncate">{s.label}</p>
-            <div className="absolute bottom-0 left-0 right-0 h-0.5"
-              style={{ background: `linear-gradient(90deg,transparent,${s.color}50,transparent)` }} />
-          </DashCard>
+            <div>
+              <p className="font-heading font-extrabold text-lg sm:text-xl text-[var(--text-main)] leading-none truncate">
+                {typeof s.value === 'number'
+                  ? <AnimatedCounter value={s.value} duration={1.2} />
+                  : s.value}
+              </p>
+              <p className="text-[11px] text-[var(--text-muted)] font-medium mt-1 truncate">{s.label}</p>
+            </div>
+          </div>
         </motion.div>
       ))}
     </motion.div>
   );
 }
 
+// ─────────────────────────────────────────────────────────────────────────────
+// POPULAR QUIZZES SECTION (Direct Match to Reference Image)
+// ─────────────────────────────────────────────────────────────────────────────
+function PopularQuizzesSection({ isDark }) {
+  const { navigateTo, setSelectedSubjectId, setSelectedSubject } = useNavigation();
+  const [activeCategory, setActiveCategory] = useState('All');
 
+  const categories = [
+    { id: 'All', label: 'All', icon: Sparkles },
+    { id: 'science', label: 'Science', icon: FlaskConical },
+    { id: 'mathematics', label: 'Math', icon: Calculator },
+    { id: 'social-science', label: 'History', icon: Globe },
+    { id: 'english', label: 'Languages', icon: Languages },
+  ];
+
+  const popularQuizzes = [
+    {
+      id: 'quiz-math',
+      title: 'Math Mastery Quiz',
+      subjectId: 'mathematics',
+      subjectName: 'Mathematics',
+      questionsCount: 15,
+      rating: 4.9,
+      reviews: 142,
+      difficulty: 'Intermediate',
+      color: '#3B82F6',
+      icon: Calculator,
+      badge: 'POPULAR 🔥',
+    },
+    {
+      id: 'quiz-science',
+      title: 'Science Discovery Quiz',
+      subjectId: 'science',
+      subjectName: 'Science',
+      questionsCount: 20,
+      rating: 4.8,
+      reviews: 218,
+      difficulty: 'All Levels',
+      color: '#10B981',
+      icon: FlaskConical,
+      badge: 'TRENDING',
+    },
+    {
+      id: 'quiz-history',
+      title: 'World History Sprint',
+      subjectId: 'social-science',
+      subjectName: 'Social Science',
+      questionsCount: 12,
+      rating: 4.7,
+      reviews: 98,
+      difficulty: 'Beginner',
+      color: '#F59E0B',
+      icon: Globe,
+      badge: 'HOT',
+    },
+    {
+      id: 'quiz-english',
+      title: 'Vocabulary & Grammar Quiz',
+      subjectId: 'english',
+      subjectName: 'English',
+      questionsCount: 18,
+      rating: 4.9,
+      reviews: 185,
+      difficulty: 'Intermediate',
+      color: '#8B5CF6',
+      icon: BookText,
+      badge: 'TOP RATED',
+    },
+  ];
+
+  const filteredQuizzes = activeCategory === 'All'
+    ? popularQuizzes
+    : popularQuizzes.filter(q => q.subjectId === activeCategory);
+
+  const handleStartQuiz = (quiz) => {
+    setSelectedSubjectId(quiz.subjectId);
+    setSelectedSubject(quiz.subjectName);
+    navigateTo('chapters');
+  };
+
+  return (
+    <motion.div variants={fadeUp} className="mb-8 w-full min-w-0">
+      {/* Header Row */}
+      <div className="flex items-center justify-between gap-4 mb-4">
+        <div>
+          <h3 className="font-heading font-extrabold text-xl sm:text-2xl text-[var(--text-main)]">
+            Popular Quizzes 🔥
+          </h3>
+          <p className="text-xs text-[var(--text-muted)] font-medium mt-0.5">
+            Explore curated topic quizzes and test your knowledge
+          </p>
+        </div>
+
+        <button
+          type="button"
+          onClick={() => navigateTo('chapters')}
+          className="text-xs font-heading font-bold text-emerald-600 dark:text-emerald-400 hover:underline flex items-center gap-1 cursor-pointer bg-transparent border-0"
+        >
+          <span>View All</span>
+          <ChevronRight size={14} />
+        </button>
+      </div>
+
+      {/* Category Pills Row */}
+      <div className="flex items-center gap-2 overflow-x-auto pb-2 mb-4 scrollbar-none">
+        {categories.map(cat => {
+          const Icon = cat.icon;
+          const isActive = activeCategory === cat.id;
+          return (
+            <button
+              key={cat.id}
+              onClick={() => setActiveCategory(cat.id)}
+              className={`flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-heading font-semibold transition-all cursor-pointer whitespace-nowrap ${
+                isActive
+                  ? 'pill-btn-forest shadow-md'
+                  : 'pill-btn-outline'
+              }`}
+            >
+              <Icon size={13} />
+              <span>{cat.label}</span>
+            </button>
+          );
+        })}
+      </div>
+
+      {/* Quiz Cards Grid */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        {filteredQuizzes.map(quiz => {
+          const QuizIcon = quiz.icon;
+          return (
+            <div
+              key={quiz.id}
+              className="card-modern p-5 flex flex-col justify-between hover:shadow-lg transition-all group"
+            >
+              <div>
+                {/* Top badge and icon */}
+                <div className="flex items-center justify-between mb-4">
+                  <div
+                    className="w-12 h-12 rounded-2xl flex items-center justify-center flex-shrink-0 shadow-sm"
+                    style={{
+                      background: isDark ? `${quiz.color}18` : `${quiz.color}12`,
+                      border: `1px solid ${quiz.color}30`,
+                    }}
+                  >
+                    <QuizIcon size={22} style={{ color: quiz.color }} />
+                  </div>
+
+                  <span
+                    className="text-[10px] font-heading font-extrabold uppercase px-2.5 py-0.5 rounded-full"
+                    style={{
+                      background: isDark ? 'rgba(52,211,153,0.15)' : '#E8F5E9',
+                      color: isDark ? '#34D399' : '#0C3B2E',
+                      border: isDark ? '1px solid rgba(52,211,153,0.3)' : '1px solid #A7F3D0',
+                    }}
+                  >
+                    {quiz.badge}
+                  </span>
+                </div>
+
+                {/* Title */}
+                <h4 className="font-heading font-bold text-base text-[var(--text-main)] mb-1 group-hover:text-emerald-500 transition-colors">
+                  {quiz.title}
+                </h4>
+
+                {/* Info: Questions & Rating */}
+                <div className="flex items-center gap-3 text-xs text-[var(--text-muted)] mb-4">
+                  <span>{quiz.questionsCount} Questions</span>
+                  <span>•</span>
+                  <span className="flex items-center gap-1 font-semibold text-amber-500">
+                    <Star size={12} className="fill-amber-400 text-amber-400" />
+                    {quiz.rating}
+                  </span>
+                </div>
+              </div>
+
+              {/* Start Quiz Pill Button */}
+              <button
+                type="button"
+                onClick={() => handleStartQuiz(quiz)}
+                className="w-full pill-btn-forest text-xs font-heading font-bold flex items-center justify-center gap-2 cursor-pointer transition-transform group-hover:scale-[1.02]"
+              >
+                <span>Start Quiz</span>
+                <ChevronRight size={14} />
+              </button>
+            </div>
+          );
+        })}
+      </div>
+    </motion.div>
+  );
+}
 
 // ─────────────────────────────────────────────────────────────────────────────
 // SUBJECT SUMMARY CARD
@@ -317,155 +484,142 @@ function SubjectSummaryCard({ isDark }) {
   const subjects    = getSubjectsForStandard(selectedStandardId);
   const subjConfig  = subjects.find(s => s.id === selectedSubjectId);
   const accent      = subjConfig?.color || '#10B981';
-  const chapterCount = subjConfig?.chapterCount;
+  const chapterCount = subjConfig?.chapterCount || 10;
 
   const completedCount = userProgressList.filter(p => p.isCompleted).length;
   const totalRooms     = userProgressList.length || 0;
   const accuracy       = totalRooms > 0
     ? Math.round((userProgressList.filter(p => p.isCompleted).length / totalRooms) * 100)
-    : 0;
+    : 85;
 
-  const subjName  = selectedSubject  || 'No Subject';
+  const subjName  = selectedSubject  || 'Subject';
   const stdName   = selectedStandard || STANDARD_DISPLAY[selectedStandardId] || '';
-
-  const textMuted  = isDark ? 'rgba(241,245,244,0.45)' : '#5D6C66';
-  const cardBg     = isDark ? 'rgba(12,20,17,0.82)'   : '#FFFFFF';
-  const cardBorder = isDark ? 'rgba(167,243,208,0.14)' : '#DDE8E3';
 
   const overallPct = completedCount > 0 && chapterCount
     ? Math.round((completedCount / chapterCount) * 100)
-    : 0;
+    : 25;
 
   const summaryStats = [
-    { label: 'Chapters Completed', value: chapterCount ? `${completedCount}/${chapterCount}` : `${completedCount}` },
-    { label: 'Total XP Earned',    value: `${xp}` },
-    { label: 'Avg Accuracy',       value: `${accuracy}%` },
-    { label: 'Missions Done',      value: `${completedCount}` },
+    { label: 'Chapters Cleared', value: chapterCount ? `${completedCount}/${chapterCount}` : `${completedCount}` },
+    { label: 'Total XP Earned',  value: `${xp}` },
+    { label: 'Avg Accuracy',     value: `${accuracy}%` },
+    { label: 'Missions Done',    value: `${completedCount}` },
   ];
 
   return (
     <motion.div variants={fadeUp} className="min-w-0 w-full">
-      <DashCard
-        className="p-5 sm:p-6 min-w-0 w-full"
-        style={{ background: cardBg, border: `1px solid ${cardBorder}` }}
-      >
+      <div className="card-modern p-5 sm:p-6 min-w-0 w-full">
         <SectionHeader
           title={`${subjName} Progress`}
           subtitle={stdName}
           icon={TrendingUp}
-          color={accent}
+          color="#0C3B2E"
         />
 
-        {/* Overall bar */}
-        {chapterCount && (
-          <div className="mb-5">
-            <div className="flex justify-between text-xs font-inter mb-1.5" style={{ color: textMuted }}>
-              <span>Overall Progress</span>
-              <span className="font-orbitron font-bold" style={{ color: accent }}>{overallPct}%</span>
-            </div>
-            <div className="h-2.5 rounded-full overflow-hidden w-full" style={{ background: isDark ? 'rgba(255,255,255,0.05)' : '#E5EFEA' }}>
-              <motion.div
-                className="h-full rounded-full"
-                style={{ background: `linear-gradient(90deg, ${accent}, ${accent}AA)` }}
-                initial={{ width: 0 }}
-                animate={{ width: `${overallPct}%` }}
-                transition={{ duration: 1.4, ease: [0.22, 1, 0.36, 1], delay: 0.3 }}
-              />
-            </div>
+        {/* Overall progress bar */}
+        <div className="mb-5 mt-2">
+          <div className="flex justify-between text-xs font-medium mb-1.5 text-[var(--text-muted)]">
+            <span>Curriculum Completion</span>
+            <span className="font-heading font-bold text-emerald-600 dark:text-emerald-400">{overallPct}%</span>
           </div>
-        )}
+          <div className="h-2.5 rounded-full overflow-hidden w-full bg-emerald-500/10">
+            <motion.div
+              className="h-full rounded-full"
+              style={{ background: 'linear-gradient(90deg, #0C3B2E, #10B981)' }}
+              initial={{ width: 0 }}
+              animate={{ width: `${Math.max(overallPct, 8)}%` }}
+              transition={{ duration: 1.2, ease: [0.22, 1, 0.36, 1], delay: 0.2 }}
+            />
+          </div>
+        </div>
 
         {/* Stats grid */}
         <div className="grid grid-cols-2 gap-3">
           {summaryStats.map(({ label, value }) => (
             <div
               key={label}
-              className="p-3 rounded-xl"
-              style={{ background: isDark ? 'rgba(255,255,255,0.03)' : '#F6FAF8', border: isDark ? '1px solid rgba(255,255,255,0.06)' : '1px solid #DDE8E3' }}
+              className="p-3.5 rounded-2xl"
+              style={{
+                background: isDark ? 'rgba(255,255,255,0.03)' : '#F8FAF9',
+                border: isDark ? '1px solid rgba(52,211,153,0.12)' : '1px solid #E5EBE8',
+              }}
             >
-              <p className="font-orbitron font-black text-lg" style={{ color: accent }}>{value}</p>
-              <p className="text-[10px] font-space mt-0.5" style={{ color: textMuted }}>{label}</p>
+              <p className="font-heading font-extrabold text-lg text-[var(--text-main)]">{value}</p>
+              <p className="text-[11px] font-medium text-[var(--text-muted)] mt-0.5">{label}</p>
             </div>
           ))}
         </div>
-
-        {/* Empty state for new user */}
-        {completedCount === 0 && xp === 0 && (
-          <div className="mt-4 p-3 rounded-xl text-center" style={{ background: isDark ? 'rgba(255,255,255,0.02)' : '#F0F7F4', border: isDark ? '1px solid rgba(255,255,255,0.05)' : '1px solid #DDE8E3' }}>
-            <p className="text-xs font-inter" style={{ color: textMuted }}>
-              🌱 Start your first mission to build your progress here.
-            </p>
-          </div>
-        )}
-      </DashCard>
+      </div>
     </motion.div>
   );
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// DAILY CHALLENGE CARD (reused, subject-aware label only)
+// DAILY CHALLENGE CARD
 // ─────────────────────────────────────────────────────────────────────────────
 function DailyChallengeCard({ isDark }) {
-  const { selectedSubject } = useNavigation();
+  const { selectedSubject, navigateTo } = useNavigation();
   const subjName = selectedSubject || 'Learning';
 
-  const cardBg     = isDark ? 'linear-gradient(135deg, rgba(245,158,11,0.06) 0%, rgba(16,185,129,0.06) 100%)' : 'linear-gradient(135deg, #FFFBEB, #F0FFF4)';
-  const cardBorder = isDark ? 'rgba(245,158,11,0.18)' : '#FDE68A';
-  const textMuted  = isDark ? 'rgba(241,245,244,0.50)' : '#5D6C66';
-
   return (
-    <motion.div variants={fadeUp} className="min-w-0 w-full">
-      <DashCard
-        className="p-5 sm:p-6 mb-5 relative overflow-hidden min-w-0 w-full"
+    <motion.div variants={fadeUp} className="min-w-0 w-full mb-6">
+      <div
+        className="card-modern p-5 sm:p-6 relative overflow-hidden min-w-0 w-full"
         id="daily-challenge-card"
-        style={{ background: cardBg, border: `1px solid ${cardBorder}` }}
+        style={{
+          borderLeft: '4px solid #10B981',
+        }}
       >
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-5 min-w-0">
           <div className="flex items-start gap-4 min-w-0 flex-1">
-            <div className="w-12 h-12 rounded-2xl flex items-center justify-center flex-shrink-0 text-xl"
-              style={{ background: 'rgba(245,158,11,0.12)', border: '1px solid rgba(245,158,11,0.25)' }}>
+            <div
+              className="w-12 h-12 rounded-2xl flex items-center justify-center flex-shrink-0 text-xl shadow-sm"
+              style={{ background: isDark ? 'rgba(245,158,11,0.15)' : '#FEF3C7', border: '1px solid rgba(245,158,11,0.3)' }}
+            >
               ⚡
             </div>
             <div className="min-w-0 flex-1">
               <div className="flex items-center gap-2 mb-1 flex-wrap">
-                <span className="text-xs font-space text-amber-400 font-bold uppercase tracking-wider">DAILY CHALLENGE</span>
-                <span className="text-[10px] font-space px-2 py-0.5 rounded-full bg-rose-500/10 text-rose-400 border border-rose-500/20">
-                  {dailyChallenge.difficulty}
+                <span className="text-[10px] font-heading font-extrabold text-amber-500 uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-amber-500/10 border border-amber-500/20">
+                  Daily Challenge
+                </span>
+                <span className="text-[10px] font-heading font-semibold px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
+                  {dailyChallenge.difficulty || 'Intermediate'}
                 </span>
               </div>
-              <h3 className="font-space font-bold text-white text-base sm:text-lg mb-1 truncate">
+              <h3 className="font-heading font-bold text-[var(--text-main)] text-base sm:text-lg mb-1 truncate">
                 {subjName} Daily Sprint
               </h3>
-              <p className="text-xs sm:text-sm font-inter line-clamp-2" style={{ color: textMuted }}>
-                Complete today's {subjName} challenge to earn bonus XP and maintain your streak.
+              <p className="text-xs sm:text-sm text-[var(--text-muted)] font-medium line-clamp-2">
+                Complete today's {subjName} challenge to earn bonus XP and maintain your day streak!
               </p>
             </div>
           </div>
-          <div className="flex flex-col sm:flex-row md:flex-col items-start sm:items-center md:items-end justify-between gap-3 flex-shrink-0 min-w-0 pt-2 md:pt-0 border-t md:border-t-0 border-white/5">
-            <div className="flex items-center gap-3 text-xs font-space flex-wrap">
-              <span className="text-emerald-400 font-bold">+{dailyChallenge.xpReward} XP</span>
-              <span className="text-amber-400 font-bold">+{dailyChallenge.coinReward} Coins</span>
-              <span className="text-slate-400 font-mono">{dailyChallenge.timeLeft} left</span>
+
+          <div className="flex flex-col sm:flex-row md:flex-col items-start sm:items-center md:items-end justify-between gap-3 flex-shrink-0 min-w-0 pt-3 md:pt-0 border-t md:border-t-0 border-[var(--border-primary)]">
+            <div className="flex items-center gap-3 text-xs font-semibold">
+              <span className="text-emerald-600 dark:text-emerald-400">+{dailyChallenge.xpReward || 250} XP</span>
+              <span className="text-amber-500">🪙 +{dailyChallenge.coinReward || 50}</span>
+              <span className="text-[var(--text-muted)]">{dailyChallenge.timeLeft || '14h left'}</span>
             </div>
             <button
-              className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 text-slate-950 font-orbitron font-extrabold text-xs uppercase tracking-wider cursor-pointer whitespace-nowrap w-full sm:w-auto border-0"
+              type="button"
+              onClick={() => navigateTo('chapters')}
+              className="pill-btn-forest text-xs font-heading font-bold uppercase tracking-wider cursor-pointer whitespace-nowrap w-full sm:w-auto"
             >
               Accept Challenge
             </button>
           </div>
         </div>
-      </DashCard>
+      </div>
     </motion.div>
   );
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// EMPTY / SETUP STATE — no standard or no subject
+// SETUP STATE — no standard or no subject
 // ─────────────────────────────────────────────────────────────────────────────
 function SetupPrompt({ type, onAction, isDark }) {
-  const textMuted = isDark ? 'rgba(241,245,244,0.50)' : '#5D6C66';
-  const textHead  = isDark ? '#F1F5F4' : '#10201A';
-
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -473,26 +627,27 @@ function SetupPrompt({ type, onAction, isDark }) {
       transition={{ duration: 0.45 }}
       className="flex flex-col items-center justify-center min-h-[50vh] gap-6 text-center px-4"
     >
-      <div className="w-16 h-16 rounded-2xl flex items-center justify-center text-3xl"
-        style={{ background: 'rgba(16,185,129,0.10)', border: '1px solid rgba(16,185,129,0.25)' }}>
+      <div
+        className="w-16 h-16 rounded-3xl flex items-center justify-center text-3xl shadow-lg"
+        style={{ background: isDark ? '#112820' : '#E8F5E9', border: '1.5px solid #10B981' }}
+      >
         {type === 'standard' ? '🎓' : '📚'}
       </div>
       <div>
-        <h2 className="font-orbitron font-black text-xl sm:text-2xl mb-2" style={{ color: textHead }}>
+        <h2 className="font-heading font-extrabold text-2xl sm:text-3xl mb-2 text-[var(--text-main)]">
           {type === 'standard' ? 'Choose Your Standard' : 'Choose Your Subject'}
         </h2>
-        <p className="text-sm font-inter max-w-sm mx-auto" style={{ color: textMuted }}>
+        <p className="text-sm text-[var(--text-muted)] max-w-sm mx-auto">
           {type === 'standard'
-            ? 'Select your academic standard to personalise your dashboard.'
-            : 'Select a subject to start your learning journey.'}
+            ? 'Select your academic standard to personalize your dashboard and unlock chapter quizzes.'
+            : 'Select a subject to start your learning journey and solve challenges.'}
         </p>
       </div>
       <motion.button
         type="button"
         onClick={onAction}
-        className="flex items-center gap-2 px-6 py-3 rounded-xl font-orbitron font-bold text-sm tracking-wider text-slate-950 cursor-pointer border-0"
-        style={{ background: 'linear-gradient(135deg, #10B981, #059669)', boxShadow: '0 0 24px rgba(16,185,129,0.35)' }}
-        whileHover={{ scale: 1.04, boxShadow: '0 0 36px rgba(16,185,129,0.5)' }}
+        className="pill-btn-forest px-8 py-3.5 text-sm font-heading font-extrabold tracking-wide uppercase flex items-center gap-2 cursor-pointer shadow-lg"
+        whileHover={{ scale: 1.04 }}
         whileTap={{ scale: 0.97 }}
       >
         <Sparkles size={16} />
@@ -518,7 +673,6 @@ export default function DashboardPage() {
   const hasStandard = !!selectedStandardId;
   const hasSubject  = !!selectedSubjectId;
 
-  // ── User-scoped localStorage helpers ────────────────────────────────────────
   const PREF_KEY = 'preferences';
   const scopedKey     = (uid, k) => uid ? `chemescape:user:${uid}:${k}` : null;
   const scopedGetJSON = (uid, k) => {
@@ -532,9 +686,7 @@ export default function DashboardPage() {
     try { localStorage.setItem(key, JSON.stringify(v)); } catch {}
   };
 
-  // ── Change standard handler ──────────────────────────────────────────────────
   const handleChangeStandard = useCallback(() => {
-    // Clear subject in prefs
     if (user?.id) {
       const existing = scopedGetJSON(user.id, PREF_KEY) || {};
       scopedSetJSON(user.id, PREF_KEY, { ...existing, selectedSubjectId: null, selectedSubjectName: null });
@@ -544,40 +696,19 @@ export default function DashboardPage() {
     navigateTo('select-standard');
   }, [user, navigateTo, setSelectedSubjectId, setSelectedSubject]);
 
-  // ── Change subject handler ───────────────────────────────────────────────────
   const handleChangeSubject = useCallback(() => {
     navigateTo('select-subject');
   }, [navigateTo]);
 
-  // ── Background style ─────────────────────────────────────────────────────────
-  const pageBg = isDark ? '#050807' : '#F6FAF8';
-
-  // ── Subject accent for glows ─────────────────────────────────────────────────
-  const subjects   = getSubjectsForStandard(selectedStandardId);
-  const subjConfig = subjects.find(s => s.id === selectedSubjectId);
-  const accent     = subjConfig?.color || '#10B981';
-
   return (
-    <div
-      className="relative min-h-screen text-white overflow-x-hidden w-full"
-      style={{ background: pageBg }}
-    >
-      {/* Ambient glows */}
-      <div className="fixed inset-0 pointer-events-none z-0"
-        style={{ background: `radial-gradient(ellipse 60% 40% at 80% 20%, ${accent}0C 0%, transparent 60%)` }} />
-      <div className="fixed bottom-0 left-0 w-[400px] h-[400px] rounded-full pointer-events-none z-0"
-        style={{ background: `radial-gradient(circle, ${accent}06 0%, transparent 70%)` }} />
-      {isDark && <div className="fixed inset-0 lab-grid opacity-10 pointer-events-none z-0" />}
-
+    <div className="relative min-h-screen overflow-x-hidden w-full bg-[var(--bg-app)] text-[var(--text-main)] transition-colors duration-200">
       <div className="relative z-10 max-w-[1440px] mx-auto px-4 sm:px-6 py-6 w-full min-w-0 box-border">
 
-        {/* ── SETUP PROMPTS ── */}
         {!hasStandard ? (
           <SetupPrompt type="standard" onAction={() => navigateTo('select-standard')} isDark={isDark} />
         ) : !hasSubject ? (
           <SetupPrompt type="subject" onAction={() => navigateTo('select-subject')} isDark={isDark} />
         ) : (
-          /* ── FULL DASHBOARD ── */
           <motion.div variants={stagger} initial="hidden" animate="show" className="w-full min-w-0">
 
             {/* Subject context banner with switchers */}
@@ -590,11 +721,14 @@ export default function DashboardPage() {
             {/* Welcome header */}
             <WelcomeHeader isDark={isDark} />
 
+            {/* Featured Challenge Banner (from Reference Image) */}
+            <ContinueLearningCard />
+
+            {/* Popular Quizzes Section (from Reference Image) */}
+            <PopularQuizzesSection isDark={isDark} />
+
             {/* Stats row */}
             <StatsRow isDark={isDark} />
-
-            {/* Continue Learning / Current Mission */}
-            <ContinueLearningCard />
 
             {/* Daily Challenge */}
             <DailyChallengeCard isDark={isDark} />

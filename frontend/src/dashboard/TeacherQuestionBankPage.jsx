@@ -308,7 +308,7 @@ export default function TeacherQuestionBankPage() {
   };
 
   return (
-    <div className="relative min-h-screen bg-[#050807] text-white overflow-x-hidden w-full pb-16">
+    <div className="relative min-h-screen bg-[var(--bg-app)] text-[var(--text-main)] overflow-x-hidden w-full pb-16 transition-colors duration-200">
       {/* Background ambient glows */}
       <div className="fixed inset-0 pointer-events-none z-0"
         style={{ background: 'radial-gradient(ellipse 70% 50% at 50% -10%, rgba(16,185,129,0.12) 0%, transparent 60%)' }} />
