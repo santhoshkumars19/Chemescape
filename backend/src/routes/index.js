@@ -11,6 +11,7 @@ const questionRoutes = require('./questionRoutes');
 const gameRoutes = require('./gameRoutes');
 const testRoutes = require('./testRoutes');
 const aiRoutes = require('./aiRoutes');
+const leaderboardRoutes = require('./leaderboardRoutes');
 
 // Mount routes under /api
 router.use('/', healthRoutes);
@@ -22,6 +23,7 @@ router.use('/topics', topicRoutes);
 router.use('/rooms', roomRoutes);
 router.use('/questions', questionRoutes);
 router.use('/game', gameRoutes);
+router.use('/leaderboard', leaderboardRoutes);
 router.use('/test', testRoutes);
 router.use('/ai', aiRoutes);
 
