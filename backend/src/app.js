@@ -73,8 +73,9 @@ app.use((req, res, next) => {
   next();
 });
 
-// API Routes Prefix (/api)
+// API Routes (supports both /api/* and root /* for seamless deployment compatibility)
 app.use('/api', apiRoutes);
+app.use('/', apiRoutes);
 
 // 404 Not Found Handler
 app.use(notFoundHandler);
