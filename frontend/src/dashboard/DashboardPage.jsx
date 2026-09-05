@@ -1,17 +1,14 @@
 import { motion } from 'framer-motion';
-import { useCallback, useState } from 'react';
+import { useCallback } from 'react';
 import {
-  Zap, Flame, Clock, Play,
-  CheckCircle2, GraduationCap, BookOpen,
-  RotateCcw, ChevronRight, Sparkles, Trophy, Star,
-  FlaskConical, Calculator, Languages, Globe,
-  BookText, Leaf, Terminal, Atom, Microscope,
-  TrendingUp, Compass, Palette, Award, HelpCircle,
+  Zap, Flame, GraduationCap, BookOpen,
+  RotateCcw, Sparkles, FlaskConical, Calculator,
+  Languages, Globe, BookText, Leaf, Terminal,
+  Atom, Microscope, TrendingUp,
 } from 'lucide-react';
-import { DashCard, SectionHeader, AnimatedCounter } from './DashComponents';
+import { SectionHeader } from './DashComponents';
 import { ProgressChart, AccuracyChart } from './Charts';
 import ContinueLearningCard from './ContinueLearningCard';
-import { dailyChallenge } from './mockData';
 import { registerCharts } from './chartConfig';
 import { useNavigation } from '../context/NavigationContext';
 import { useAuth } from '../auth/AuthContext';
@@ -233,243 +230,7 @@ function WelcomeHeader({ isDark }) {
   );
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// STATS ROW — modern rounded cards
-// ─────────────────────────────────────────────────────────────────────────────
-function StatsRow({ isDark }) {
-  const { xp, coins, streak, userProgressList, selectedSubjectId, selectedStandardId } = useNavigation();
-  const completedCount = userProgressList.filter(p => p.isCompleted).length;
 
-  const stats = [
-    { icon: <Zap size={16} className="text-emerald-500" />,         label: 'Total XP',          value: xp,             color: '#10B981' },
-    { icon: <span className="text-amber-500 text-sm">🪙</span>,     label: 'Coins Earned',      value: coins,          color: '#F59E0B' },
-    { icon: <Flame size={16} className="text-orange-500" />,        label: 'Day Streak',        value: streak,         color: '#F97316' },
-    { icon: <Clock size={16} className="text-teal-500" />,          label: 'Study Time',        value: '2.5h',         color: '#14B8A6' },
-    { icon: <CheckCircle2 size={16} className="text-emerald-500" />, label: 'Quizzes Solved',  value: completedCount, color: '#10B981' },
-    { icon: <Trophy size={16} className="text-amber-500" />,        label: 'Global Rank',       value: '#12',          color: '#F59E0B' },
-  ];
-
-  return (
-    <motion.div
-      variants={stagger}
-      className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 mb-6 w-full min-w-0"
-    >
-      {stats.map(s => (
-        <motion.div key={s.label} variants={fadeUp} className="min-w-0 w-full">
-          <div className="card-modern p-4 min-w-0 w-full flex flex-col justify-between h-full">
-            <div className="w-8 h-8 rounded-xl flex items-center justify-center mb-2.5 flex-shrink-0"
-              style={{
-                background: isDark ? `${s.color}15` : `${s.color}10`,
-                border: `1px solid ${s.color}30`,
-              }}>
-              {s.icon}
-            </div>
-            <div>
-              <p className="font-heading font-extrabold text-lg sm:text-xl text-[var(--text-main)] leading-none truncate">
-                {typeof s.value === 'number'
-                  ? <AnimatedCounter value={s.value} duration={1.2} />
-                  : s.value}
-              </p>
-              <p className="text-[11px] text-[var(--text-muted)] font-medium mt-1 truncate">{s.label}</p>
-            </div>
-          </div>
-        </motion.div>
-      ))}
-    </motion.div>
-  );
-}
-
-// ─────────────────────────────────────────────────────────────────────────────
-// POPULAR QUIZZES SECTION (Direct Match to Reference Image)
-// ─────────────────────────────────────────────────────────────────────────────
-function PopularQuizzesSection({ isDark }) {
-  const { navigateTo, setSelectedSubjectId, setSelectedSubject } = useNavigation();
-  const [activeCategory, setActiveCategory] = useState('All');
-
-  const categories = [
-    { id: 'All', label: 'All', icon: Sparkles },
-    { id: 'science', label: 'Science', icon: FlaskConical },
-    { id: 'mathematics', label: 'Math', icon: Calculator },
-    { id: 'social-science', label: 'History', icon: Globe },
-    { id: 'english', label: 'Languages', icon: Languages },
-  ];
-
-  const popularQuizzes = [
-    {
-      id: 'quiz-math',
-      title: 'Math Mastery Quiz',
-      subjectId: 'mathematics',
-      subjectName: 'Mathematics',
-      questionsCount: 15,
-      rating: 4.9,
-      reviews: 142,
-      difficulty: 'Intermediate',
-      color: '#3B82F6',
-      icon: Calculator,
-      badge: 'POPULAR 🔥',
-    },
-    {
-      id: 'quiz-science',
-      title: 'Science Discovery Quiz',
-      subjectId: 'science',
-      subjectName: 'Science',
-      questionsCount: 20,
-      rating: 4.8,
-      reviews: 218,
-      difficulty: 'All Levels',
-      color: '#10B981',
-      icon: FlaskConical,
-      badge: 'TRENDING',
-    },
-    {
-      id: 'quiz-history',
-      title: 'World History Sprint',
-      subjectId: 'social-science',
-      subjectName: 'Social Science',
-      questionsCount: 12,
-      rating: 4.7,
-      reviews: 98,
-      difficulty: 'Beginner',
-      color: '#F59E0B',
-      icon: Globe,
-      badge: 'HOT',
-    },
-    {
-      id: 'quiz-english',
-      title: 'Vocabulary & Grammar Quiz',
-      subjectId: 'english',
-      subjectName: 'English',
-      questionsCount: 18,
-      rating: 4.9,
-      reviews: 185,
-      difficulty: 'Intermediate',
-      color: '#8B5CF6',
-      icon: BookText,
-      badge: 'TOP RATED',
-    },
-  ];
-
-  const filteredQuizzes = activeCategory === 'All'
-    ? popularQuizzes
-    : popularQuizzes.filter(q => q.subjectId === activeCategory);
-
-  const handleStartQuiz = (quiz) => {
-    setSelectedSubjectId(quiz.subjectId);
-    setSelectedSubject(quiz.subjectName);
-    navigateTo('chapters');
-  };
-
-  return (
-    <motion.div variants={fadeUp} className="mb-8 w-full min-w-0">
-      {/* Header Row */}
-      <div className="flex items-center justify-between gap-4 mb-4">
-        <div>
-          <h3 className="font-heading font-extrabold text-xl sm:text-2xl text-[var(--text-main)]">
-            Popular Quizzes 🔥
-          </h3>
-          <p className="text-xs text-[var(--text-muted)] font-medium mt-0.5">
-            Explore curated topic quizzes and test your knowledge
-          </p>
-        </div>
-
-        <button
-          type="button"
-          onClick={() => navigateTo('chapters')}
-          className="text-xs font-heading font-bold text-emerald-600 dark:text-emerald-400 hover:underline flex items-center gap-1 cursor-pointer bg-transparent border-0"
-        >
-          <span>View All</span>
-          <ChevronRight size={14} />
-        </button>
-      </div>
-
-      {/* Category Pills Row */}
-      <div className="flex items-center gap-2 overflow-x-auto pb-2 mb-4 scrollbar-none">
-        {categories.map(cat => {
-          const Icon = cat.icon;
-          const isActive = activeCategory === cat.id;
-          return (
-            <button
-              key={cat.id}
-              onClick={() => setActiveCategory(cat.id)}
-              className={`flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-heading font-semibold transition-all cursor-pointer whitespace-nowrap ${
-                isActive
-                  ? 'pill-btn-forest shadow-md'
-                  : 'pill-btn-outline'
-              }`}
-            >
-              <Icon size={13} />
-              <span>{cat.label}</span>
-            </button>
-          );
-        })}
-      </div>
-
-      {/* Quiz Cards Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        {filteredQuizzes.map(quiz => {
-          const QuizIcon = quiz.icon;
-          return (
-            <div
-              key={quiz.id}
-              className="card-modern p-5 flex flex-col justify-between hover:shadow-lg transition-all group"
-            >
-              <div>
-                {/* Top badge and icon */}
-                <div className="flex items-center justify-between mb-4">
-                  <div
-                    className="w-12 h-12 rounded-2xl flex items-center justify-center flex-shrink-0 shadow-sm"
-                    style={{
-                      background: isDark ? `${quiz.color}18` : `${quiz.color}12`,
-                      border: `1px solid ${quiz.color}30`,
-                    }}
-                  >
-                    <QuizIcon size={22} style={{ color: quiz.color }} />
-                  </div>
-
-                  <span
-                    className="text-[10px] font-heading font-extrabold uppercase px-2.5 py-0.5 rounded-full"
-                    style={{
-                      background: isDark ? 'rgba(52,211,153,0.15)' : '#E8F5E9',
-                      color: isDark ? '#34D399' : '#0C3B2E',
-                      border: isDark ? '1px solid rgba(52,211,153,0.3)' : '1px solid #A7F3D0',
-                    }}
-                  >
-                    {quiz.badge}
-                  </span>
-                </div>
-
-                {/* Title */}
-                <h4 className="font-heading font-bold text-base text-[var(--text-main)] mb-1 group-hover:text-emerald-500 transition-colors">
-                  {quiz.title}
-                </h4>
-
-                {/* Info: Questions & Rating */}
-                <div className="flex items-center gap-3 text-xs text-[var(--text-muted)] mb-4">
-                  <span>{quiz.questionsCount} Questions</span>
-                  <span>•</span>
-                  <span className="flex items-center gap-1 font-semibold text-amber-500">
-                    <Star size={12} className="fill-amber-400 text-amber-400" />
-                    {quiz.rating}
-                  </span>
-                </div>
-              </div>
-
-              {/* Start Quiz Pill Button */}
-              <button
-                type="button"
-                onClick={() => handleStartQuiz(quiz)}
-                className="w-full pill-btn-forest text-xs font-heading font-bold flex items-center justify-center gap-2 cursor-pointer transition-transform group-hover:scale-[1.02]"
-              >
-                <span>Start Quiz</span>
-                <ChevronRight size={14} />
-              </button>
-            </div>
-          );
-        })}
-      </div>
-    </motion.div>
-  );
-}
 
 // ─────────────────────────────────────────────────────────────────────────────
 // SUBJECT SUMMARY CARD
@@ -554,67 +315,7 @@ function SubjectSummaryCard({ isDark }) {
   );
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// DAILY CHALLENGE CARD
-// ─────────────────────────────────────────────────────────────────────────────
-function DailyChallengeCard({ isDark }) {
-  const { selectedSubject, navigateTo } = useNavigation();
-  const subjName = selectedSubject || 'Learning';
 
-  return (
-    <motion.div variants={fadeUp} className="min-w-0 w-full mb-6">
-      <div
-        className="card-modern p-5 sm:p-6 relative overflow-hidden min-w-0 w-full"
-        id="daily-challenge-card"
-        style={{
-          borderLeft: '4px solid #10B981',
-        }}
-      >
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-5 min-w-0">
-          <div className="flex items-start gap-4 min-w-0 flex-1">
-            <div
-              className="w-12 h-12 rounded-2xl flex items-center justify-center flex-shrink-0 text-xl shadow-sm"
-              style={{ background: isDark ? 'rgba(245,158,11,0.15)' : '#FEF3C7', border: '1px solid rgba(245,158,11,0.3)' }}
-            >
-              ⚡
-            </div>
-            <div className="min-w-0 flex-1">
-              <div className="flex items-center gap-2 mb-1 flex-wrap">
-                <span className="text-[10px] font-heading font-extrabold text-amber-500 uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-amber-500/10 border border-amber-500/20">
-                  Daily Challenge
-                </span>
-                <span className="text-[10px] font-heading font-semibold px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
-                  {dailyChallenge.difficulty || 'Intermediate'}
-                </span>
-              </div>
-              <h3 className="font-heading font-bold text-[var(--text-main)] text-base sm:text-lg mb-1 truncate">
-                {subjName} Daily Sprint
-              </h3>
-              <p className="text-xs sm:text-sm text-[var(--text-muted)] font-medium line-clamp-2">
-                Complete today's {subjName} challenge to earn bonus XP and maintain your day streak!
-              </p>
-            </div>
-          </div>
-
-          <div className="flex flex-col sm:flex-row md:flex-col items-start sm:items-center md:items-end justify-between gap-3 flex-shrink-0 min-w-0 pt-3 md:pt-0 border-t md:border-t-0 border-[var(--border-primary)]">
-            <div className="flex items-center gap-3 text-xs font-semibold">
-              <span className="text-emerald-600 dark:text-emerald-400">+{dailyChallenge.xpReward || 250} XP</span>
-              <span className="text-amber-500">🪙 +{dailyChallenge.coinReward || 50}</span>
-              <span className="text-[var(--text-muted)]">{dailyChallenge.timeLeft || '14h left'}</span>
-            </div>
-            <button
-              type="button"
-              onClick={() => navigateTo('chapters')}
-              className="pill-btn-forest text-xs font-heading font-bold uppercase tracking-wider cursor-pointer whitespace-nowrap w-full sm:w-auto"
-            >
-              Accept Challenge
-            </button>
-          </div>
-        </div>
-      </div>
-    </motion.div>
-  );
-}
 
 // ─────────────────────────────────────────────────────────────────────────────
 // SETUP STATE — no standard or no subject
@@ -721,17 +422,8 @@ export default function DashboardPage() {
             {/* Welcome header */}
             <WelcomeHeader isDark={isDark} />
 
-            {/* Featured Challenge Banner (from Reference Image) */}
+            {/* Featured Challenge Banner */}
             <ContinueLearningCard />
-
-            {/* Popular Quizzes Section (from Reference Image) */}
-            <PopularQuizzesSection isDark={isDark} />
-
-            {/* Stats row */}
-            <StatsRow isDark={isDark} />
-
-            {/* Daily Challenge */}
-            <DailyChallengeCard isDark={isDark} />
 
             {/* Bottom section: charts + subject summary */}
             <div className="mt-2 grid grid-cols-1 lg:grid-cols-3 gap-6 w-full min-w-0">
