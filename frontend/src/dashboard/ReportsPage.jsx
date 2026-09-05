@@ -592,13 +592,20 @@ export default function ReportsPage() {
                     <td colSpan={16} className="py-12 text-center text-white/40">
                       <div className="flex flex-col items-center justify-center gap-2">
                         <FileSpreadsheet size={28} className="text-white/20" />
-                        <p className="font-space text-sm">No activity records match your search or filters.</p>
-                        <button
-                          onClick={handleResetFilters}
-                          className="mt-2 px-3 py-1.5 rounded-lg text-xs bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 cursor-pointer"
-                        >
-                          Clear Filters
-                        </button>
+                        <p className="font-space text-sm font-semibold text-white">No reports available yet</p>
+                        <p className="font-space text-xs text-white/40 mt-0.5">
+                          {searchTerm || selectedStandard !== 'ALL' || selectedSubject !== 'ALL' || selectedStatus !== 'ALL' || selectedType !== 'ALL' || selectedDate
+                            ? 'No activity records match your search or filters.'
+                            : 'Reports will appear automatically as registered scholars complete quizzes and challenges.'}
+                        </p>
+                        {(searchTerm || selectedStandard !== 'ALL' || selectedSubject !== 'ALL' || selectedStatus !== 'ALL' || selectedType !== 'ALL' || selectedDate) && (
+                          <button
+                            onClick={handleResetFilters}
+                            className="mt-2 px-3 py-1.5 rounded-lg text-xs bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 cursor-pointer"
+                          >
+                            Clear Filters
+                          </button>
+                        )}
                       </div>
                     </td>
                   </tr>
@@ -854,7 +861,14 @@ export default function ReportsPage() {
                               </tr>
                             </thead>
                             <tbody className="divide-y divide-white/5 font-space text-white/80">
-                              {activeUserHistory.records.map((r, i) => {
+                              {(!activeUserHistory.records || activeUserHistory.records.length === 0) ? (
+                                <tr>
+                                  <td colSpan={8} className="py-8 text-center text-white/40 font-space text-xs">
+                                    No quiz activity available
+                                  </td>
+                                </tr>
+                              ) : (
+                                activeUserHistory.records.map((r, i) => {
                                 const isPassed = r.status === 'PASSED' || r.status === 'COMPLETED';
                                 return (
                                   <tr key={r.id || i} className="hover:bg-white/5 transition-colors">
@@ -888,7 +902,7 @@ export default function ReportsPage() {
                                     </td>
                                   </tr>
                                 );
-                              })}
+                              }))}
                             </tbody>
                           </table>
                         </div>

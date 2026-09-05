@@ -2,201 +2,8 @@
 
 const prisma = require('../config/db');
 
-// Multi-subject EduNova Scholar Rankings (Fallback & Seed)
-const SCHOLARS_SEED = [
-  {
-    id: 'sch-1',
-    name: 'Kavitha R.',
-    avatar: '👩‍🎓',
-    country: '🇮🇳',
-    title: 'Math Prodigy',
-    standardId: 'grade-8',
-    standardName: '8th Standard',
-    subjectId: 'mathematics',
-    subjectName: 'Mathematics',
-    xp: 12450,
-    level: 13,
-    streak: 21,
-    badges: 14,
-    trend: '+2',
-  },
-  {
-    id: 'sch-2',
-    name: 'Arjun S.',
-    avatar: '🧑‍🔬',
-    country: '🇮🇳',
-    title: 'Science Virtuoso',
-    standardId: 'grade-7',
-    standardName: '7th Standard',
-    subjectId: 'science',
-    subjectName: 'Science',
-    xp: 11800,
-    level: 12,
-    streak: 19,
-    badges: 12,
-    trend: '+1',
-  },
-  {
-    id: 'sch-3',
-    name: 'Meera N.',
-    avatar: '👩‍🏫',
-    country: '🇮🇳',
-    title: 'Grammar Master',
-    standardId: 'grade-6',
-    standardName: '6th Standard',
-    subjectId: 'english',
-    subjectName: 'English',
-    xp: 11150,
-    level: 12,
-    streak: 17,
-    badges: 11,
-    trend: '0',
-  },
-  {
-    id: 'sch-4',
-    name: 'Siddharth V.',
-    avatar: '🧑‍🚀',
-    country: '🇮🇳',
-    title: 'History Explorer',
-    standardId: 'grade-8',
-    standardName: '8th Standard',
-    subjectId: 'social-science',
-    subjectName: 'Social Science',
-    xp: 10640,
-    level: 11,
-    streak: 15,
-    badges: 10,
-    trend: '+3',
-  },
-  {
-    id: 'sch-5',
-    name: 'Pooja Krishnan',
-    avatar: '👩‍💼',
-    country: '🇮🇳',
-    title: 'Tamil Scholar',
-    standardId: 'grade-7',
-    standardName: '7th Standard',
-    subjectId: 'tamil',
-    subjectName: 'Tamil',
-    xp: 10100,
-    level: 11,
-    streak: 14,
-    badges: 9,
-    trend: '+1',
-  },
-  {
-    id: 'sch-6',
-    name: 'Rahul Dev',
-    avatar: '🧑‍💻',
-    country: '🇮🇳',
-    title: 'Lab Explorer',
-    standardId: 'grade-6',
-    standardName: '6th Standard',
-    subjectId: 'science',
-    subjectName: 'Science',
-    xp: 9750,
-    level: 10,
-    streak: 12,
-    badges: 8,
-    trend: '-1',
-  },
-  {
-    id: 'sch-7',
-    name: 'Divya M.',
-    avatar: '👧',
-    country: '🇮🇳',
-    title: 'Number Wizard',
-    standardId: 'grade-5',
-    standardName: '5th Standard',
-    subjectId: 'mathematics',
-    subjectName: 'Mathematics',
-    xp: 9200,
-    level: 10,
-    streak: 11,
-    badges: 8,
-    trend: '+2',
-  },
-  {
-    id: 'sch-8',
-    name: 'Vikram Karthik',
-    avatar: '👦',
-    country: '🇮🇳',
-    title: 'Word Hunter',
-    standardId: 'grade-4',
-    standardName: '4th Standard',
-    subjectId: 'english',
-    subjectName: 'English',
-    xp: 8950,
-    level: 9,
-    streak: 10,
-    badges: 7,
-    trend: '0',
-  },
-  {
-    id: 'sch-9',
-    name: 'Nithya S.',
-    avatar: '👩‍🎓',
-    country: '🇮🇳',
-    title: 'Tamil Illakkiya Star',
-    standardId: 'grade-8',
-    standardName: '8th Standard',
-    subjectId: 'tamil',
-    subjectName: 'Tamil',
-    xp: 8400,
-    level: 9,
-    streak: 9,
-    badges: 6,
-    trend: '+1',
-  },
-  {
-    id: 'sch-10',
-    name: 'Harish K.',
-    avatar: '🧑‍🎓',
-    country: '🇮🇳',
-    title: 'Geography Ace',
-    standardId: 'grade-7',
-    standardName: '7th Standard',
-    subjectId: 'social-science',
-    subjectName: 'Social Science',
-    xp: 7900,
-    level: 8,
-    streak: 8,
-    badges: 6,
-    trend: '-2',
-  },
-  {
-    id: 'sch-11',
-    name: 'Sneha V.',
-    avatar: '👩‍💻',
-    country: '🇮🇳',
-    title: 'Curious Discoverer',
-    standardId: 'grade-5',
-    standardName: '5th Standard',
-    subjectId: 'science',
-    subjectName: 'Science',
-    xp: 7450,
-    level: 8,
-    streak: 7,
-    badges: 5,
-    trend: '+1',
-  },
-  {
-    id: 'sch-12',
-    name: 'Anand Kumar',
-    avatar: '🧑‍🏫',
-    country: '🇮🇳',
-    title: 'Tamil Kavignar',
-    standardId: 'grade-4',
-    standardName: '4th Standard',
-    subjectId: 'tamil',
-    subjectName: 'Tamil',
-    xp: 6900,
-    level: 7,
-    streak: 6,
-    badges: 5,
-    trend: '0',
-  }
-];
+// Clean state - only real registered scholars and real activity are ranked
+const SCHOLARS_SEED = [];
 
 class LeaderboardService {
   async getLeaderboard({
@@ -238,11 +45,47 @@ class LeaderboardService {
         }));
       }
     } catch {
-      // DB offline - gracefully use fallback seed
+      // DB offline - fall through to local records
     }
 
+    // Dynamic aggregation from real local activity records
     if (list.length === 0) {
-      list = JSON.parse(JSON.stringify(SCHOLARS_SEED));
+      try {
+        const activityReportService = require('./activityReportService');
+        const records = activityReportService.readAllRecords();
+        if (records && records.length > 0) {
+          const userMap = {};
+          records.forEach(r => {
+            if (!r.userId) return;
+            if (!userMap[r.userId]) {
+              userMap[r.userId] = {
+                id: r.userId,
+                name: r.name || 'Scholar',
+                avatar: '🎓',
+                country: '🇮🇳',
+                title: 'EduNova Scholar',
+                standardId: r.standard ? (r.standard.toLowerCase().includes('grade') ? r.standard : `grade-${r.standard.replace(/\D/g, '')}`) : 'grade-8',
+                standardName: r.standard ? `${r.standard} Standard` : 'General',
+                subjectId: r.subject ? r.subject.toLowerCase() : 'all',
+                subjectName: r.subject || 'General',
+                xp: 0,
+                level: 1,
+                streak: 1,
+                badges: 1,
+                trend: '0',
+              };
+            }
+            userMap[r.userId].xp += (Number(r.points) || 0);
+          });
+          list = Object.values(userMap).map(u => ({
+            ...u,
+            level: Math.floor(u.xp / 1000) + 1,
+            badges: Math.max(1, Math.floor(u.xp / 1000)),
+          }));
+        }
+      } catch (err) {
+        console.warn('[LeaderboardService] Error aggregating local user activity:', err.message);
+      }
     }
 
     if (timeframe === 'weekly') {
@@ -259,32 +102,34 @@ class LeaderboardService {
 
     if (currentUser) {
       const userXP = currentUser.xp !== undefined ? currentUser.xp : (currentUser.totalXP || 0);
-      const userLevel = currentUser.level || Math.floor(userXP / 1000) + 1;
-      const userStreak = currentUser.streak || 1;
+      if (userXP > 0 || list.length > 0) {
+        const userLevel = currentUser.level || Math.floor(userXP / 1000) + 1;
+        const userStreak = currentUser.streak || 1;
 
-      const existingIdx = list.findIndex(p => p.id === currentUser.id);
-      const userEntry = {
-        id: currentUser.id,
-        name: currentUser.name || 'You',
-        avatar: currentUser.avatar || '⚡',
-        country: '🇮🇳',
-        title: `Rising Scholar · Lv ${userLevel}`,
-        standardId: currentUser.standardId || 'grade-8',
-        standardName: currentUser.standardName || '8th Standard',
-        subjectId: currentUser.subjectId || 'mathematics',
-        subjectName: currentUser.subjectName || 'General',
-        xp: timeframe === 'weekly' ? Math.round(userXP * 0.35) : timeframe === 'monthly' ? Math.round(userXP * 0.75) : userXP,
-        level: userLevel,
-        streak: userStreak,
-        badges: currentUser.badges?.length || 1,
-        trend: '+1',
-        isUser: true,
-      };
+        const existingIdx = list.findIndex(p => p.id === currentUser.id);
+        const userEntry = {
+          id: currentUser.id,
+          name: currentUser.name || 'You',
+          avatar: currentUser.avatar || '⚡',
+          country: '🇮🇳',
+          title: `Rising Scholar · Lv ${userLevel}`,
+          standardId: currentUser.standardId || 'grade-8',
+          standardName: currentUser.standardName || '8th Standard',
+          subjectId: currentUser.subjectId || 'mathematics',
+          subjectName: currentUser.subjectName || 'General',
+          xp: timeframe === 'weekly' ? Math.round(userXP * 0.35) : timeframe === 'monthly' ? Math.round(userXP * 0.75) : userXP,
+          level: userLevel,
+          streak: userStreak,
+          badges: currentUser.badges?.length || 1,
+          trend: '+1',
+          isUser: true,
+        };
 
-      if (existingIdx !== -1) {
-        list[existingIdx] = { ...list[existingIdx], ...userEntry };
-      } else {
-        list.push(userEntry);
+        if (existingIdx !== -1) {
+          list[existingIdx] = { ...list[existingIdx], ...userEntry };
+        } else {
+          list.push(userEntry);
+        }
       }
     }
 

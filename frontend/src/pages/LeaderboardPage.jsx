@@ -11,144 +11,7 @@ import {
   TrendingUp, Award, Star, CheckCircle2, ShieldAlert,
 } from 'lucide-react';
 
-const INITIAL_SCHOLARS = [
-  {
-    id: 'sch-1',
-    name: 'Ahmed Rauf',
-    avatar: '👨‍🎓',
-    country: '🇮🇳',
-    title: 'Science Master',
-    standardId: 'grade-8',
-    standardName: '8th Standard',
-    subjectId: 'science',
-    subjectName: 'Science',
-    subjectColor: '#10B981',
-    xp: 3450,
-    level: 14,
-    streak: 24,
-    badges: 16,
-    trend: '+4',
-  },
-  {
-    id: 'sch-2',
-    name: 'Teresa A.',
-    avatar: '👩‍🎓',
-    country: '🇮🇳',
-    title: 'Math Prodigy',
-    standardId: 'grade-8',
-    standardName: '8th Standard',
-    subjectId: 'mathematics',
-    subjectName: 'Mathematics',
-    subjectColor: '#3B82F6',
-    xp: 2980,
-    level: 13,
-    streak: 19,
-    badges: 14,
-    trend: '+2',
-  },
-  {
-    id: 'sch-3',
-    name: 'Caroline H.',
-    avatar: '👩‍🔬',
-    country: '🇮🇳',
-    title: 'Grammar Virtuoso',
-    standardId: 'grade-7',
-    standardName: '7th Standard',
-    subjectId: 'english',
-    subjectName: 'English',
-    subjectColor: '#8B5CF6',
-    xp: 2840,
-    level: 12,
-    streak: 18,
-    badges: 12,
-    trend: '+1',
-  },
-  {
-    id: 'sch-4',
-    name: 'Kavitha R.',
-    avatar: '👩‍💼',
-    country: '🇮🇳',
-    title: 'History Explorer',
-    standardId: 'grade-8',
-    standardName: '8th Standard',
-    subjectId: 'social-science',
-    subjectName: 'Social Science',
-    subjectColor: '#F59E0B',
-    xp: 2650,
-    level: 11,
-    streak: 16,
-    badges: 11,
-    trend: '-1',
-  },
-  {
-    id: 'sch-5',
-    name: 'Arjun S.',
-    avatar: '🧑‍🔬',
-    country: '🇮🇳',
-    title: 'Tamil Scholar',
-    standardId: 'grade-7',
-    standardName: '7th Standard',
-    subjectId: 'tamil',
-    subjectName: 'Tamil',
-    subjectColor: '#10B981',
-    xp: 2520,
-    level: 11,
-    streak: 14,
-    badges: 10,
-    trend: '+3',
-  },
-  {
-    id: 'sch-6',
-    name: 'Rahul Dev',
-    avatar: '🧑‍💻',
-    country: '🇮🇳',
-    title: 'Number Wizard',
-    standardId: 'grade-6',
-    standardName: '6th Standard',
-    subjectId: 'mathematics',
-    subjectName: 'Mathematics',
-    subjectColor: '#3B82F6',
-    xp: 2310,
-    level: 10,
-    streak: 12,
-    badges: 8,
-    trend: '-2',
-  },
-  {
-    id: 'sch-7',
-    name: 'Divya M.',
-    avatar: '👧',
-    country: '🇮🇳',
-    title: 'Tamil Illakkiya Star',
-    standardId: 'grade-5',
-    standardName: '5th Standard',
-    subjectId: 'tamil',
-    subjectName: 'Tamil',
-    subjectColor: '#10B981',
-    xp: 2150,
-    level: 9,
-    streak: 11,
-    badges: 8,
-    trend: '+2',
-  },
-  {
-    id: 'sch-8',
-    name: 'Vikram Karthik',
-    avatar: '👦',
-    country: '🇮🇳',
-    title: 'Word Hunter',
-    standardId: 'grade-4',
-    standardName: '4th Standard',
-    subjectId: 'english',
-    subjectName: 'English',
-    subjectColor: '#8B5CF6',
-    xp: 1980,
-    level: 9,
-    streak: 10,
-    badges: 7,
-    trend: '0',
-  },
-];
+const INITIAL_SCHOLARS = [];
 
 const STANDARDS_TABS = [
   { id: 'all', label: 'All Grades' },
@@ -216,32 +79,32 @@ export default function LeaderboardPage() {
   }, [timeframe, selectedGrade, selectedSubj, searchQuery]);
 
   const rankings = useMemo(() => {
-    let list = apiData?.rankings ? [...apiData.rankings] : [...INITIAL_SCHOLARS];
+    let list = apiData?.rankings ? [...apiData.rankings] : [];
 
     const mult = timeframe === 'weekly' ? 0.35 : timeframe === 'monthly' ? 0.75 : 1.0;
     list = list.map(item => ({
       ...item,
-      xp: Math.round((item.rawXP || item.xp) * mult),
+      xp: Math.round((item.rawXP || item.xp || 0) * mult),
     }));
 
-    if (user) {
-      const liveUserXP = Math.round((userXP || 450) * mult);
+    if (user && (userXP || 0) > 0) {
+      const liveUserXP = Math.round((userXP || 0) * mult);
       const currentUserEntry = {
         id: user.id || 'current-user',
         name: user.name || 'You (Scholar)',
         avatar: user.avatar || '⚡',
         country: '🇮🇳',
-        title: `${selectedSubject || 'All-Subject'} Explorer`,
+        title: `${selectedSubject || 'Science'} Scholar`,
         standardId: selectedStandardId || 'grade-8',
         standardName: selectedStandard || '8th Standard',
         subjectId: selectedSubjectId || 'science',
         subjectName: selectedSubject || 'Science',
         subjectColor: '#10B981',
         xp: liveUserXP,
-        level: userLevel || Math.floor(userXP / 1000) + 1,
-        streak: userStreak || 1,
-        badges: 3,
-        trend: '+1',
+        level: userLevel || Math.max(1, Math.floor((userXP || 0) / 1000) + 1),
+        streak: userStreak || 0,
+        badges: 0,
+        trend: '0',
         isUser: true,
       };
 
@@ -254,18 +117,18 @@ export default function LeaderboardPage() {
     }
 
     if (selectedGrade !== 'all') {
-      list = list.filter(p => p.standardId === selectedGrade || p.isUser);
+      list = list.filter(p => p.standardId === selectedGrade || (p.isUser && (p.standardId === selectedGrade || !selectedGrade)));
     }
 
     if (selectedSubj !== 'all') {
-      list = list.filter(p => p.subjectId === selectedSubj || p.isUser);
+      list = list.filter(p => p.subjectId === selectedSubj || (p.isUser && (p.subjectId === selectedSubj || !selectedSubj)));
     }
 
     if (searchQuery.trim()) {
       const q = searchQuery.toLowerCase().trim();
       list = list.filter(p =>
         p.name.toLowerCase().includes(q) ||
-        p.title.toLowerCase().includes(q) ||
+        (p.title && p.title.toLowerCase().includes(q)) ||
         (p.subjectName && p.subjectName.toLowerCase().includes(q))
       );
     }
@@ -535,8 +398,8 @@ export default function LeaderboardPage() {
             {rankings.length === 0 ? (
               <div className="p-12 text-center text-[var(--text-muted)]">
                 <Trophy size={36} className="mx-auto text-amber-500/50 mb-2" />
-                <p className="text-sm font-heading font-semibold text-[var(--text-main)]">No scholars found</p>
-                <p className="text-xs mt-0.5">Try changing the filters or search query.</p>
+                <p className="text-sm font-heading font-semibold text-[var(--text-main)]">No leaderboard data available yet</p>
+                <p className="text-xs mt-0.5">Complete quizzes and challenges to enter the leaderboard.</p>
               </div>
             ) : (
               rankings.map(scholar => {

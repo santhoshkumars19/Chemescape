@@ -11,13 +11,15 @@ import {
 
 // Validation helpers
 function validateEmail(v) {
-  if (!v) return 'Email is required';
-  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)) return 'Enter a valid email address';
+  if (!v) return 'Email or username is required';
+  const trimmed = v.trim().toLowerCase();
+  if (trimmed === 'admin@edunova' || trimmed === 'teacher@edunova') return '';
+  if (!/^[^\s@]+@[^\s@]+$/.test(v)) return 'Enter a valid email address or username';
   return '';
 }
 function validatePassword(v) {
   if (!v) return 'Password is required';
-  if (v.length < 6) return 'Password must be at least 6 characters';
+  if (v.length < 4) return 'Password must be at least 4 characters';
   return '';
 }
 
@@ -99,7 +101,7 @@ export default function LoginPage() {
           <AuthBrand />
 
           {/* Headline */}
-          <div className="text-center mb-8">
+          <div className="text-center mb-6">
             <h2 className="font-space font-bold text-2xl text-white mb-1">Welcome back</h2>
             <p className="text-white/35 text-sm font-inter">Log in to continue your experiments</p>
           </div>
@@ -113,28 +115,12 @@ export default function LoginPage() {
             )}
           </AnimatePresence>
 
-          {/* Mock credentials hint */}
-          <motion.div
-            className="mb-5 p-3.5 rounded-xl text-xs font-inter text-white/50 leading-relaxed"
-            style={{ background: 'rgba(0,212,255,0.04)', border: '1px solid rgba(0,212,255,0.12)' }}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.4 }}
-          >
-            <div className="text-cyan-400 font-semibold mb-1">Demo Accounts (Password123):</div>
-            <div className="flex flex-col gap-0.5 text-[11px] font-space text-white/70">
-              <div>🧪 <span className="text-cyan-300 font-bold">Student:</span> student@edunova.com</div>
-              <div>👨‍🏫 <span className="text-purple-300 font-bold">Teacher:</span> teacher@edunova.com</div>
-              <div>🛡️ <span className="text-amber-300 font-bold">Admin:</span> admin@edunova.com</div>
-            </div>
-          </motion.div>
-
           {/* Form */}
           <form onSubmit={handleLogin} className="flex flex-col gap-4" noValidate>
             <AuthInput
               id="login-email"
               label="Email"
-              type="email"
+              type="text"
               placeholder="you@example.com"
               icon={Mail}
               value={form.email}

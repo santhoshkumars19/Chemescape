@@ -7,11 +7,11 @@ import html2canvas from 'html2canvas';
  * @param {Object} user - User profile object ({ name, title, level })
  */
 export async function generateCertificatePDF(cert, user = {}) {
-  const studentName = user.name || 'Alex Vance';
+  const studentName = user.name || 'Scholar';
   const chapterName = cert.chapter || 'Chemistry Mastery';
   const dateStr = cert.date || new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
   const certCode = cert.code || `CHEM-${Math.floor(1000 + Math.random() * 9000)}-PT`;
-  const gradeStr = cert.grade || '98.5%';
+  const gradeStr = cert.grade || '100%';
 
   // 1. Create off-screen A4 Landscape DOM container (297mm x 210mm ratio = 1123px x 794px at 96DPI)
   const certElement = document.createElement('div');

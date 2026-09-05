@@ -1,29 +1,33 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Users, BookOpen, CheckCircle2, Clock, Award,
   Plus, Search, Lock, Unlock, Download, Send,
   TrendingUp, AlertTriangle, ChevronRight, Eye, Shield,
-  FlaskConical, Zap, BarChart2, Filter, X, FileText, ArrowRight, FileSpreadsheet
+  FlaskConical, Zap, BarChart2, Filter, X, FileText, ArrowRight, FileSpreadsheet, Megaphone
 } from 'lucide-react';
 import { DashCard, SectionHeader, AnimatedCounter } from './DashComponents';
 import { useAuth } from '../auth/AuthContext';
 import { useNavigation } from '../context/NavigationContext';
+import { apiClient } from '../services/apiClient';
 
-const mockStudents = [];
-
-const unitStats = [
-  { id: 1, name: 'Unit 1: Calculation Quest', topic: 'Core Concepts', passRate: 96, avgTime: '12m 40s', status: 'UNLOCKED' },
-  { id: 2, name: 'Unit 2: Quantum Orbital Architect', topic: 'Quantum Mechanical Model of Atom', passRate: 88, avgTime: '15m 10s', status: 'UNLOCKED' },
-  { id: 3, name: 'Unit 3: Periodic Grid Reconstruction', topic: 'Periodic Classification of Elements', passRate: 92, avgTime: '11m 05s', status: 'UNLOCKED' },
-  { id: 4, name: 'Unit 4: Hydrogen Reactor', topic: 'Hydrogen & Hydrides', passRate: 84, avgTime: '18m 30s', status: 'UNLOCKED' },
-  { id: 5, name: 'Unit 5: Element Sorting Factory', topic: 'Alkali & Alkaline Earth Metals', passRate: 86, avgTime: '14m 20s', status: 'UNLOCKED' },
-  { id: 6, name: 'Unit 6: Gas Chamber Simulator', topic: 'States of Matter: Gaseous State', passRate: 90, avgTime: '16m 45s', status: 'UNLOCKED' },
+const CURRICULUM_UNITS = [
+  { id: 1, name: 'Unit 1: Calculation Quest', topic: 'Core Concepts' },
+  { id: 2, name: 'Unit 2: Quantum Orbital Architect', topic: 'Quantum Mechanical Model of Atom' },
+  { id: 3, name: 'Unit 3: Periodic Grid Reconstruction', topic: 'Periodic Classification of Elements' },
+  { id: 4, name: 'Unit 4: Hydrogen Reactor', topic: 'Hydrogen & Hydrides' },
+  { id: 5, name: 'Unit 5: Element Sorting Factory', topic: 'Alkali & Alkaline Earth Metals' },
+  { id: 6, name: 'Unit 6: Gas Chamber Simulator', topic: 'States of Matter: Gaseous State' },
 ];
 
 export default function TeacherDashboardPage() {
   const { user } = useAuth();
   const { navigateTo } = useNavigation();
+
+  const [students, setStudents] = useState([]);
+  const [reports, setReports] = useState([]);
+  const [stats, setStats] = useState({ totalReports: 0, avgScore: 0, passRate: 0, completedRooms: 0, totalTimeMinutes: 0 });
+  const [loading, setLoading] = useState(true);
 
   const [selectedClass, setSelectedClass] = useState('8th Grade - Sec A');
   const [searchTerm, setSearchTerm] = useState('');
@@ -31,9 +35,79 @@ export default function TeacherDashboardPage() {
   const [roomLocks, setRoomLocks] = useState({
     1: true, 2: true, 3: true, 4: true, 5: true, 6: true,
   });
+  const [announcements, setAnnouncements] = useState(() => {
+    try {
+      const raw = localStorage.getItem('chemescape_teacher_announcements');
+      return raw ? JSON.parse(raw) : [];
+    } catch {
+      return [];
+    }
+  });
   const [announcementModal, setAnnouncementModal] = useState(false);
   const [announcementText, setAnnouncementText] = useState('');
+  const [announcementTitle, setAnnouncementTitle] = useState('');
   const [toast, setToast] = useState(null);
+
+  useEffect(() => {
+    let isMounted = true;
+    async function loadTeacherData() {
+      try {
+        const [usersRes, reportsRes] = await Promise.allSettled([
+          apiClient.get('/auth/users', { params: { role: 'STUDENT' } }),
+          apiClient.get('/reports')
+        ]);
+
+        if (isMounted) {
+          const recs = reportsRes.status === 'fulfilled' && reportsRes.value?.records ? reportsRes.value.records : [];
+          setReports(recs);
+
+          if (reportsRes.status === 'fulfilled' && reportsRes.value?.stats) {
+            setStats(reportsRes.value.stats);
+          }
+
+          const rawUsers = usersRes.status === 'fulfilled' ? (usersRes.value?.data?.users || usersRes.value?.users || []) : [];
+          if (usersRes.status === 'fulfilled') {
+            const enriched = rawUsers.map(u => {
+              const studentRecs = recs.filter(r => r.userId === u.id || r.userEmail === u.email);
+              const count = studentRecs.length;
+              const avg = count > 0
+                ? Math.round(studentRecs.reduce((acc, r) => acc + (r.score || 0), 0) / count)
+                : 0;
+              const completedUnits = Array.from(new Set(studentRecs.filter(r => r.passed).map(r => {
+                const topic = (r.topic || '').toLowerCase();
+                if (topic.includes('core') || topic.includes('calc')) return 1;
+                if (topic.includes('quantum') || topic.includes('orbital') || topic.includes('atom')) return 2;
+                if (topic.includes('periodic')) return 3;
+                if (topic.includes('hydrogen')) return 4;
+                if (topic.includes('metal') || topic.includes('alkali')) return 5;
+                if (topic.includes('gas') || topic.includes('matter')) return 6;
+                return 1;
+              })));
+
+              return {
+                id: u.id,
+                name: u.name || 'Scholar',
+                email: u.email || '',
+                level: Math.max(1, Math.floor(avg / 20)),
+                xp: studentRecs.reduce((acc, r) => acc + (r.score || 0) * 10, 0),
+                completedUnits,
+                avgScore: count > 0 ? `${avg}%` : '0%',
+                numericAvg: avg,
+                status: avg >= 80 ? 'TOP_PERFORMER' : avg >= 50 ? 'ON_TRACK' : 'NEEDS_SUPPORT'
+              };
+            });
+            setStudents(enriched);
+          }
+        }
+      } catch (err) {
+        console.warn('Failed to load teacher data:', err);
+      } finally {
+        if (isMounted) setLoading(false);
+      }
+    }
+    loadTeacherData();
+    return () => { isMounted = false; };
+  }, []);
 
   const toggleRoomLock = (unitId) => {
     setRoomLocks(prev => {
@@ -44,10 +118,38 @@ export default function TeacherDashboardPage() {
     });
   };
 
-  const filteredStudents = mockStudents.filter(s =>
+  const filteredStudents = students.filter(s =>
     s.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     s.email.toLowerCase().includes(searchTerm.toLowerCase())
   );
+
+  const unitStats = CURRICULUM_UNITS.map(unit => {
+    const unitRecs = reports.filter(r => {
+      const t = (r.topic || '').toLowerCase();
+      if (unit.id === 1 && (t.includes('core') || t.includes('calc'))) return true;
+      if (unit.id === 2 && (t.includes('quantum') || t.includes('orbital') || t.includes('atom'))) return true;
+      if (unit.id === 3 && t.includes('periodic')) return true;
+      if (unit.id === 4 && t.includes('hydrogen')) return true;
+      if (unit.id === 5 && (t.includes('metal') || t.includes('alkali'))) return true;
+      if (unit.id === 6 && (t.includes('gas') || t.includes('matter'))) return true;
+      return false;
+    });
+    const passCount = unitRecs.filter(r => r.passed).length;
+    const passRate = unitRecs.length > 0 ? Math.round((passCount / unitRecs.length) * 100) : 0;
+    const avgSec = unitRecs.length > 0
+      ? Math.round(unitRecs.reduce((acc, r) => acc + (r.timeSpentSeconds || 0), 0) / unitRecs.length)
+      : 0;
+    const mins = Math.floor(avgSec / 60);
+    const secs = avgSec % 60;
+    const avgTime = unitRecs.length > 0 ? `${mins}m ${secs}s` : '--';
+
+    return {
+      ...unit,
+      passRate,
+      avgTime,
+      attempts: unitRecs.length
+    };
+  });
 
   return (
     <div className="relative min-h-screen bg-[var(--bg-app)] text-[var(--text-main)] overflow-x-hidden w-full pb-16 transition-colors duration-200">
@@ -86,7 +188,9 @@ export default function TeacherDashboardPage() {
                 <span className="text-xs font-orbitron font-extrabold px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 uppercase tracking-wider">
                   TEACHER DASHBOARD
                 </span>
-                <span className="text-xs font-space text-slate-400">ID: TCH-2026-88</span>
+                <span className="text-xs font-space text-slate-400">
+                  {user?.id ? `ID: ${String(user.id).slice(-8).toUpperCase()}` : 'Faculty Instructor'}
+                </span>
               </div>
               <h1 className="font-heading font-extrabold text-2xl sm:text-3xl text-[var(--text-main)] leading-tight mt-1">
                 {user?.name || 'Prof. Teacher'}
@@ -119,12 +223,12 @@ export default function TeacherDashboardPage() {
         {/* ── METRICS ROW ─────────────────────────────────────────────────── */}
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3.5 mb-8">
           {[
-            { label: 'Enrolled Students', value: 34, icon: Users, color: '#00d4ff', suffix: '' },
+            { label: 'Enrolled Students', value: students.length, icon: Users, color: '#00d4ff', suffix: '' },
             { label: 'Assigned Rooms', value: 6, icon: FlaskConical, color: '#a855f7', suffix: '/6' },
-            { label: 'Class Completion', value: 88, icon: CheckCircle2, color: '#34d399', suffix: '%' },
-            { label: 'Avg Class Score', value: 92, icon: Award, color: '#fbbf24', suffix: '%' },
-            { label: 'Active Lab Sessions', value: 12, icon: Zap, color: '#ec4899', suffix: '' },
-            { label: 'Needs Support', value: 2, icon: AlertTriangle, color: '#fb923c', suffix: ' Students' },
+            { label: 'Class Completion', value: stats.completedRooms || 0, icon: CheckCircle2, color: '#34d399', suffix: ' Rooms' },
+            { label: 'Avg Class Score', value: stats.avgScore || 0, icon: Award, color: '#fbbf24', suffix: '%' },
+            { label: 'Active Lab Sessions', value: stats.totalReports || 0, icon: Zap, color: '#ec4899', suffix: '' },
+            { label: 'Needs Support', value: students.filter(s => s.status === 'NEEDS_SUPPORT').length, icon: AlertTriangle, color: '#fb923c', suffix: ' Students' },
           ].map((m) => (
             <DashCard key={m.label} className="p-4" glow={`${m.color}08`}>
               <div className="flex items-center justify-between mb-2">
@@ -174,8 +278,8 @@ export default function TeacherDashboardPage() {
                 {filteredStudents.length === 0 ? (
                   <div className="py-12 px-4 text-center font-space">
                     <Users className="mx-auto mb-3 text-emerald-400 opacity-50" size={36} />
-                    <p className="text-sm font-semibold text-white">No students enrolled yet.</p>
-                    <p className="text-xs text-white/40 mt-1">Enrolled students will appear here as they register for your class section.</p>
+                    <p className="text-sm font-semibold text-white">No registered students found</p>
+                    <p className="text-xs text-white/40 mt-1">Enrolled students will appear here once they register on EduNova.</p>
                   </div>
                 ) : (
                   <table className="w-full text-left text-xs font-inter border-collapse">
@@ -326,19 +430,30 @@ export default function TeacherDashboardPage() {
 
             {/* Class Announcements Widget */}
             <DashCard className="p-5">
-              <h3 className="font-orbitron font-bold text-base text-white mb-3">Recent Class Announcements</h3>
-              <div className="flex flex-col gap-3 text-xs font-inter">
-                <div className="p-3 rounded-xl bg-purple-500/10 border border-purple-500/20">
-                  <p className="font-space font-bold text-purple-300 mb-0.5">Unit 6 Gas Chamber Open</p>
-                  <p className="text-white/60 text-[11px]">Chapter 6 Gaseous State escape room is now unlocked for all students. Complete by Friday!</p>
-                  <span className="text-[9px] text-white/30 font-mono mt-1 block">Posted 2 hours ago</span>
-                </div>
-                <div className="p-3 rounded-xl bg-white/5 border border-white/10">
-                  <p className="font-space font-bold text-cyan-300 mb-0.5">Unit 2 Quantum Model Review</p>
-                  <p className="text-white/60 text-[11px]">Great job on Orbital Architect puzzles! Class average accuracy reached 94%.</p>
-                  <span className="text-[9px] text-white/30 font-mono mt-1 block">Posted 2 days ago</span>
-                </div>
+              <div className="flex items-center justify-between mb-3">
+                <h3 className="font-orbitron font-bold text-base text-white">Class Announcements</h3>
+                <button
+                  onClick={() => setAnnouncementModal(true)}
+                  className="px-2.5 py-1 rounded-lg bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 font-orbitron text-[10px] font-bold flex items-center gap-1 border border-emerald-500/30 cursor-pointer"
+                >
+                  <Plus size={12} /> Post
+                </button>
               </div>
+              {announcements.length === 0 ? (
+                <div className="p-4 rounded-xl bg-white/5 border border-white/10 text-center">
+                  <p className="text-xs text-white/40 font-space">No class announcements posted yet.</p>
+                </div>
+              ) : (
+                <div className="flex flex-col gap-3 text-xs font-inter">
+                  {announcements.map((ann, idx) => (
+                    <div key={idx} className="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20">
+                      <p className="font-space font-bold text-emerald-300 mb-0.5">{ann.title}</p>
+                      <p className="text-white/60 text-[11px]">{ann.text}</p>
+                      <span className="text-[9px] text-white/30 font-mono mt-1 block">{ann.date}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
             </DashCard>
           </div>
         </div>
@@ -353,7 +468,7 @@ export default function TeacherDashboardPage() {
             exit={{ opacity: 0 }}
             className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm"
           >
-            <div className="w-full max-w-lg p-6 rounded-2xl bg-[#0a1628] border border-purple-500/30 shadow-2xl">
+            <div className="w-full max-w-lg p-6 rounded-2xl bg-[#0a1628] border border-emerald-500/30 shadow-2xl">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="font-orbitron font-bold text-lg text-white">Broadcast Class Announcement</h3>
                 <button onClick={() => setAnnouncementModal(false)} className="text-white/40 hover:text-white cursor-pointer">
@@ -361,12 +476,20 @@ export default function TeacherDashboardPage() {
                 </button>
               </div>
 
+              <input
+                type="text"
+                placeholder="Announcement Title..."
+                value={announcementTitle}
+                onChange={e => setAnnouncementTitle(e.target.value)}
+                className="w-full p-3 rounded-xl bg-[#040810] border border-white/10 text-white placeholder-white/30 text-xs font-space outline-none focus:border-emerald-500/40 mb-3"
+              />
+
               <textarea
                 rows={4}
                 placeholder="Write message to students..."
                 value={announcementText}
                 onChange={e => setAnnouncementText(e.target.value)}
-                className="w-full p-3 rounded-xl bg-[#040810] border border-white/10 text-white placeholder-white/30 text-xs font-inter outline-none focus:border-purple-500/40 mb-4"
+                className="w-full p-3 rounded-xl bg-[#040810] border border-white/10 text-white placeholder-white/30 text-xs font-inter outline-none focus:border-emerald-500/40 mb-4"
               />
 
               <div className="flex justify-end gap-3">
@@ -378,12 +501,23 @@ export default function TeacherDashboardPage() {
                 </button>
                 <button
                   onClick={() => {
-                    setToast('Announcement broadcasted to class!');
-                    setAnnouncementModal(false);
-                    setAnnouncementText('');
-                    setTimeout(() => setToast(null), 3000);
+                    if (announcementText.trim()) {
+                      const newAnn = {
+                        title: announcementTitle.trim() || 'Class Announcement',
+                        text: announcementText.trim(),
+                        date: new Date().toLocaleDateString()
+                      };
+                      const next = [newAnn, ...announcements];
+                      setAnnouncements(next);
+                      try { localStorage.setItem('chemescape_teacher_announcements', JSON.stringify(next)); } catch {}
+                      setToast('Announcement broadcasted to class!');
+                      setAnnouncementModal(false);
+                      setAnnouncementText('');
+                      setAnnouncementTitle('');
+                      setTimeout(() => setToast(null), 3000);
+                    }
                   }}
-                  className="px-5 py-2 rounded-xl bg-gradient-to-r from-purple-600 to-cyan-500 text-white font-space font-bold text-xs uppercase cursor-pointer"
+                  className="px-5 py-2 rounded-xl bg-emerald-500 text-slate-950 font-space font-bold text-xs uppercase cursor-pointer hover:bg-emerald-400 transition-colors"
                 >
                   Send Announcement
                 </button>

@@ -11,6 +11,8 @@ import { useNavigation } from '../context/NavigationContext';
 import { DashCard } from '../dashboard/DashComponents';
 import { ThemeSettingsCard } from '../components/ThemeToggle';
 
+import { apiClient } from '../services/apiClient';
+
 // Small reusable toggle row for settings tab
 function PrefToggle({ label, desc }) {
   const [on, setOn] = useState(true);
@@ -30,44 +32,7 @@ function PrefToggle({ label, desc }) {
   );
 }
 
-const TEACHER_PROFILE_INIT = {
-  name: 'Prof. Chemistry Teacher',
-  subject: 'Chemistry',
-  qualification: 'M.Sc. Chemistry, B.Ed.',
-  institution: 'EduNova Academy',
-  email: 'teacher@edunova.com',
-  phone: '+91 98765 43210',
-  location: 'Chennai, Tamil Nadu',
-  joined: 'August 2025',
-  bio: 'Passionate Chemistry educator with 8+ years of experience teaching 11th & 12th standard students. Specialized in Physical and Organic Chemistry.',
-  avatar: '👨‍🏫',
-  specialization: 'Physical Chemistry & Thermodynamics',
-  experience: '8 Years',
-};
-
 const AVATARS = ['👨‍🏫', '👩‍🏫', '🧑‍🏫', '👨‍🔬', '👩‍🔬', '🧑‍🔬'];
-
-const TEACHER_STATS = [
-  { label: 'Students Taught', value: '34', icon: Users, color: '#00d4ff' },
-  { label: 'Rooms Managed', value: '6', icon: Lock, color: '#a855f7' },
-  { label: 'Questions Created', value: '24', icon: FileText, color: '#ec4899' },
-  { label: 'Avg Class Score', value: '92%', icon: Star, color: '#fbbf24' },
-  { label: 'Active Sessions', value: '12', icon: Zap, color: '#34d399' },
-  { label: 'Yrs Experience', value: '8', icon: GraduationCap, color: '#fb923c' },
-];
-
-const CERTIFICATIONS = [
-  { title: 'Certified Chemistry Educator', issuer: 'Central Board of Secondary Education', year: '2018', icon: '🎓' },
-  { title: 'Advanced Pedagogy in STEM', issuer: 'National Council of Educational Research', year: '2020', icon: '📘' },
-  { title: 'Digital Learning Facilitator', issuer: 'EduNova Academy', year: '2025', icon: '💻' },
-];
-
-const RECENT_ACTIVITY = [
-  { action: 'Unlocked Unit 6 Gas Chamber for all students', time: '2 hours ago', icon: Unlock, color: '#34d399' },
-  { action: 'Added 3 new questions to Calculation Heist', time: '5 hours ago', icon: FileText, color: '#00d4ff' },
-  { action: 'Sent class announcement for Unit 2 review', time: '1 day ago', icon: MessageSquare, color: '#a855f7' },
-  { action: 'Reviewed Priya Sundaram student report', time: '2 days ago', icon: BarChart2, color: '#fbbf24' },
-];
 
 export default function TeacherProfilePage() {
   const { user } = useAuth();
@@ -76,12 +41,54 @@ export default function TeacherProfilePage() {
   const [activeTab, setActiveTab] = useState(
     currentScreen === 'settings' ? 'settings' : 'overview'
   );
-  const [profile, setProfile] = useState({
-    ...TEACHER_PROFILE_INIT,
-    name: user?.name || TEACHER_PROFILE_INIT.name,
-    email: user?.email || TEACHER_PROFILE_INIT.email,
-    avatar: user?.avatar || TEACHER_PROFILE_INIT.avatar,
+
+  const [stats, setStats] = useState({
+    studentsCount: 0,
+    avgScore: 0,
+    totalReports: 0,
   });
+
+  const [profile, setProfile] = useState({
+    name: user?.name || 'Faculty Educator',
+    subject: 'Chemistry',
+    qualification: 'Faculty Educator',
+    institution: 'EduNova Academy',
+    email: user?.email || '',
+    phone: '',
+    location: '',
+    joined: '2026',
+    bio: 'Passionate Chemistry educator inspiring students to explore and master the science.',
+    avatar: user?.avatar || '👨‍🏫',
+    specialization: 'Chemistry Curriculum',
+    experience: 'Educator',
+  });
+
+  useEffect(() => {
+    let isMounted = true;
+    async function loadStats() {
+      try {
+        const [usersRes, repRes] = await Promise.allSettled([
+          apiClient.get('/auth/users', { params: { role: 'STUDENT' } }),
+          apiClient.get('/reports')
+        ]);
+        if (isMounted) {
+          const rawStudents = usersRes.status === 'fulfilled' ? (usersRes.value?.data?.users || usersRes.value?.users || []) : [];
+          const sCount = rawStudents.length || (usersRes.status === 'fulfilled' ? (usersRes.value?.data?.total ?? usersRes.value?.total ?? 0) : 0);
+          const repStats = repRes.status === 'fulfilled' && repRes.value?.stats ? repRes.value.stats : {};
+          setStats({
+            studentsCount: sCount,
+            avgScore: repStats.avgScore || 0,
+            totalReports: repStats.totalReports || 0,
+          });
+        }
+      } catch (e) {
+        console.warn(e);
+      }
+    }
+    loadStats();
+    return () => { isMounted = false; };
+  }, []);
+
   const [isEditing, setIsEditing] = useState(false);
   const [editForm, setEditForm] = useState({
     name: profile.name,
@@ -172,7 +179,9 @@ export default function TeacherProfilePage() {
                     <span className="text-xs font-orbitron font-bold px-2.5 py-0.5 rounded-full bg-purple-500/20 text-purple-300 border border-purple-500/30 uppercase tracking-wider">
                       TEACHER PORTAL
                     </span>
-                    <span className="text-xs font-space text-white/40">ID: TCH-2026-88</span>
+                    <span className="text-xs font-space text-white/40">
+                      {user?.id ? `ID: ${String(user.id).slice(-8).toUpperCase()}` : 'Faculty Instructor'}
+                    </span>
                   </div>
                   <h1 className="font-orbitron font-black text-2xl sm:text-3xl text-white">{profile.name}</h1>
                   <p className="text-purple-300 text-sm font-space font-bold mt-0.5">{profile.subject} — {profile.specialization}</p>
@@ -194,9 +203,9 @@ export default function TeacherProfilePage() {
 
               {/* Contact Row */}
               <div className="flex flex-wrap gap-4 mt-3 text-xs font-inter text-white/50">
-                <span className="flex items-center gap-1.5"><Mail size={12} className="text-cyan-400" /> {profile.email}</span>
-                <span className="flex items-center gap-1.5"><Phone size={12} className="text-purple-400" /> {profile.phone}</span>
-                <span className="flex items-center gap-1.5"><MapPin size={12} className="text-pink-400" /> {profile.location}</span>
+                <span className="flex items-center gap-1.5"><Mail size={12} className="text-cyan-400" /> {profile.email || 'None'}</span>
+                <span className="flex items-center gap-1.5"><Phone size={12} className="text-purple-400" /> {profile.phone || 'Not set'}</span>
+                <span className="flex items-center gap-1.5"><MapPin size={12} className="text-pink-400" /> {profile.location || 'Not set'}</span>
                 <span className="flex items-center gap-1.5"><Calendar size={12} className="text-amber-400" /> Joined {profile.joined}</span>
               </div>
 
@@ -208,7 +217,14 @@ export default function TeacherProfilePage() {
 
         {/* ── STATS ROW ───────────────────────────────────────────────── */}
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3.5 mb-6">
-          {TEACHER_STATS.map(m => (
+          {[
+            { label: 'Students Enrolled', value: stats.studentsCount, icon: Users, color: '#00d4ff' },
+            { label: 'Rooms Managed', value: 6, icon: Lock, color: '#a855f7' },
+            { label: 'Curriculum Units', value: 6, icon: FileText, color: '#ec4899' },
+            { label: 'Avg Class Score', value: `${stats.avgScore}%`, icon: Star, color: '#fbbf24' },
+            { label: 'Active Sessions', value: stats.totalReports, icon: Zap, color: '#34d399' },
+            { label: 'Role Status', value: 'Active', icon: GraduationCap, color: '#fb923c' },
+          ].map(m => (
             <DashCard key={m.label} className="p-4" glow={`${m.color}08`}>
               <div className="w-8 h-8 rounded-xl flex items-center justify-center mb-2"
                 style={{ background: `${m.color}15`, border: `1px solid ${m.color}30` }}>
@@ -254,8 +270,8 @@ export default function TeacherProfilePage() {
                   { label: 'Qualification', value: profile.qualification },
                   { label: 'Institution', value: profile.institution },
                   { label: 'Experience', value: profile.experience },
-                  { label: 'Location', value: profile.location },
-                  { label: 'Contact', value: profile.phone },
+                  { label: 'Location', value: profile.location || 'Not specified' },
+                  { label: 'Contact', value: profile.phone || 'Not specified' },
                 ].map(row => (
                   <div key={row.label} className="flex items-start justify-between gap-4 py-2 border-b border-white/5 last:border-0">
                     <span className="text-white/40 font-space text-xs">{row.label}</span>
@@ -271,21 +287,20 @@ export default function TeacherProfilePage() {
               </h3>
               <div className="flex flex-col gap-4">
                 {[
-                  { label: 'Student Completion Rate', value: 88 },
-                  { label: 'Average Class Score', value: 92 },
-                  { label: 'Question Bank Utilization', value: 76 },
-                  { label: 'Student Engagement', value: 95 },
+                  { label: 'Enrolled Students', value: stats.studentsCount, max: Math.max(10, stats.studentsCount) },
+                  { label: 'Average Class Score', value: stats.avgScore, max: 100 },
+                  { label: 'Activity Reports Generated', value: stats.totalReports, max: Math.max(10, stats.totalReports) },
                 ].map(item => (
                   <div key={item.label}>
                     <div className="flex justify-between text-xs font-space mb-1">
                       <span className="text-white/60">{item.label}</span>
-                      <span className="font-orbitron font-bold text-cyan-400">{item.value}%</span>
+                      <span className="font-orbitron font-bold text-cyan-400">{item.value}</span>
                     </div>
                     <div className="h-2 rounded-full bg-white/5 overflow-hidden">
                       <motion.div
                         className="h-full rounded-full bg-gradient-to-r from-purple-500 to-cyan-500"
                         initial={{ width: 0 }}
-                        animate={{ width: `${item.value}%` }}
+                        animate={{ width: `${Math.min(100, Math.round((item.value / item.max) * 100))}%` }}
                         transition={{ duration: 1, ease: 'easeOut', delay: 0.2 }}
                       />
                     </div>
@@ -298,45 +313,19 @@ export default function TeacherProfilePage() {
 
         {/* ── TAB: CERTIFICATIONS ─────────────────────────────────────── */}
         {activeTab === 'certifications' && (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-            {CERTIFICATIONS.map((cert, i) => (
-              <DashCard key={i} className="p-5 flex items-start gap-4">
-                <div className="w-12 h-12 rounded-xl bg-purple-500/15 border border-purple-500/30 flex items-center justify-center text-2xl flex-shrink-0">
-                  {cert.icon}
-                </div>
-                <div>
-                  <h4 className="font-space font-bold text-white text-sm mb-0.5">{cert.title}</h4>
-                  <p className="text-white/50 text-xs font-inter">{cert.issuer}</p>
-                  <div className="flex items-center gap-2 mt-2">
-                    <span className="text-[10px] font-orbitron font-bold px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-300 border border-emerald-500/30">
-                      Verified ✓
-                    </span>
-                    <span className="text-[10px] text-white/30 font-space">{cert.year}</span>
-                  </div>
-                </div>
-              </DashCard>
-            ))}
-          </div>
+          <DashCard className="p-8 text-center">
+            <Award className="mx-auto mb-2 text-purple-400/50" size={36} />
+            <p className="text-sm font-semibold text-white">No certifications uploaded yet.</p>
+            <p className="text-xs text-white/40 mt-1 font-space">Verified teaching credentials will appear here once submitted.</p>
+          </DashCard>
         )}
 
         {/* ── TAB: RECENT ACTIVITY ────────────────────────────────────── */}
         {activeTab === 'activity' && (
-          <DashCard className="p-5">
-            <h3 className="font-orbitron font-bold text-base text-white mb-4">Teaching Activity Log</h3>
-            <div className="flex flex-col gap-1">
-              {RECENT_ACTIVITY.map((item, i) => (
-                <div key={i} className="flex items-center gap-4 p-3 rounded-xl hover:bg-white/[0.02] transition-colors">
-                  <div className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0"
-                    style={{ background: `${item.color}15`, border: `1px solid ${item.color}30` }}>
-                    <item.icon size={15} style={{ color: item.color }} />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-white text-xs font-inter">{item.action}</p>
-                    <p className="text-white/30 text-[10px] font-space mt-0.5">{item.time}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
+          <DashCard className="p-8 text-center">
+            <Clock className="mx-auto mb-2 text-purple-400/50" size={36} />
+            <p className="text-sm font-semibold text-white">No teaching activity logged yet.</p>
+            <p className="text-xs text-white/40 mt-1 font-space">Classroom room changes and student performance events will appear here.</p>
           </DashCard>
         )}
 

@@ -35,15 +35,6 @@ const NAV_BY_ROLE = {
   ],
 };
 
-const mockUser = {
-  name: 'Alex Scholar',
-  role: 'STUDENT',
-  avatar: '🎓',
-  level: 1,
-  xp: 0,
-  xpToNext: 1000,
-};
-
 export default function Sidebar({ mobileOpen = false, setMobileOpen }) {
   const [collapsed, setCollapsed] = useState(false);
   const { user, logout } = useAuth();
@@ -58,8 +49,7 @@ export default function Sidebar({ mobileOpen = false, setMobileOpen }) {
     navigateTo('landing');
   };
 
-  const rawName = user?.name || mockUser.name;
-  const displayName = (rawName === 'Student Chemist' || rawName === 'Student Agent') ? 'Student Scholar' : rawName;
+  const displayName = user?.name || (role === 'TEACHER' ? 'Teacher' : role === 'ADMIN' ? 'Admin' : 'Guest Scholar');
   const displayAvatar = user?.avatar || (role === 'TEACHER' ? '👨‍🏫' : role === 'ADMIN' ? '🛡️' : '🎓');
 
   const sidebarContent = (
@@ -114,22 +104,29 @@ export default function Sidebar({ mobileOpen = false, setMobileOpen }) {
               </div>
             </div>
           </div>
-          {role === 'STUDENT' && (
-            <div className="mt-3">
-              <div className="flex justify-between text-[11px] font-sans font-semibold mb-1 text-slate-700 dark:text-slate-300">
-                <span>{xp || 0} XP</span>
-                <span>{mockUser.xpToNext.toLocaleString()} XP</span>
+          {role === 'STUDENT' && (() => {
+            const currentXp = xp || 0;
+            const currentLevel = level || 1;
+            const xpToNext = Math.max(1000, currentLevel * 1000);
+            const progressPct = Math.min(100, Math.max(4, Math.round((currentXp / xpToNext) * 100)));
+
+            return (
+              <div className="mt-3">
+                <div className="flex justify-between text-[11px] font-sans font-semibold mb-1 text-slate-700 dark:text-slate-300">
+                  <span>{currentXp} XP</span>
+                  <span>{xpToNext.toLocaleString()} XP</span>
+                </div>
+                <div className="h-1.5 rounded-full bg-slate-200 dark:bg-white/10 overflow-hidden">
+                  <motion.div
+                    className="h-full rounded-full bg-gradient-to-r from-emerald-600 to-teal-400"
+                    initial={{ width: 0 }}
+                    animate={{ width: `${progressPct}%` }}
+                    transition={{ duration: 1.2, ease: [0.22, 1, 0.36, 1], delay: 0.2 }}
+                  />
+                </div>
               </div>
-              <div className="h-1.5 rounded-full bg-slate-200 dark:bg-white/10 overflow-hidden">
-                <motion.div
-                  className="h-full rounded-full bg-gradient-to-r from-emerald-600 to-teal-400"
-                  initial={{ width: 0 }}
-                  animate={{ width: `${Math.min(100, Math.max(8, ((xp || 0) / mockUser.xpToNext) * 100))}%` }}
-                  transition={{ duration: 1.2, ease: [0.22, 1, 0.36, 1], delay: 0.2 }}
-                />
-              </div>
-            </div>
-          )}
+            );
+          })()}
         </div>
       )}
 

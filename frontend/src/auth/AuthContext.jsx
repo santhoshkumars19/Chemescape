@@ -9,10 +9,7 @@ export function AuthProvider({ children }) {
     try {
       const raw = localStorage.getItem('chemescape_user');
       if (raw) {
-        const u = JSON.parse(raw);
-        if (u.name === 'Student Chemist' || u.name === 'Student Agent') u.name = 'Student Scholar';
-        if (u.avatar === '🧪') u.avatar = '🎓';
-        return u;
+        return JSON.parse(raw);
       }
     } catch {}
     return null;
@@ -43,10 +40,7 @@ export function AuthProvider({ children }) {
 
   useEffect(() => {
     if (user) {
-      const cleanUser = { ...user };
-      if (cleanUser.name === 'Student Chemist' || cleanUser.name === 'Student Agent') cleanUser.name = 'Student Scholar';
-      if (cleanUser.avatar === '🧪') cleanUser.avatar = '🎓';
-      localStorage.setItem('chemescape_user', JSON.stringify(cleanUser));
+      localStorage.setItem('chemescape_user', JSON.stringify(user));
     } else {
       localStorage.removeItem('chemescape_user');
     }
@@ -70,7 +64,6 @@ export function AuthProvider({ children }) {
   // login — clear previous user's state FIRST, then load the new user's data
   // ─────────────────────────────────────────────────────────────────────────
   const login = useCallback(async (email, password) => {
-    // Step 1: Wipe any previous user's progress from memory & localStorage
     progressActionsRef.current.clearProgressState();
 
     try {
@@ -85,9 +78,7 @@ export function AuthProvider({ children }) {
         throw new Error(data.message || 'Login failed. Please check credentials.');
       }
 
-      let userObj  = data.data?.user || { name: 'Student Scholar', email, role: 'STUDENT' };
-      if (userObj.name === 'Student Chemist' || userObj.name === 'Student Agent') userObj = { ...userObj, name: 'Student Scholar' };
-      if (userObj.avatar === '🧪') userObj = { ...userObj, avatar: '🎓' };
+      const userObj  = data.data?.user;
       const authToken = data.data?.token;
 
       // Step 2: Set new identity & token
@@ -97,39 +88,29 @@ export function AuthProvider({ children }) {
       setIsGuest(false);
 
       // Step 3: Load ONLY this user's progress from the server
-      if (authToken) {
+      if (authToken && userObj?.id) {
         setTimeout(() => {
           progressActionsRef.current.refreshUserStats(userObj.id);
-        }, 100); // tiny delay so token is in localStorage before fetch
+        }, 100);
       }
 
       return userObj;
     } catch (err) {
-      console.warn('[EduNova] Backend login fallback:', err.message);
-
-      // Demo / offline fallback
-      const lowerEmail = email.toLowerCase();
-      let role = 'STUDENT', name = 'Student Scholar', avatar = '🎓';
-      if (lowerEmail.includes('teacher')) { role = 'TEACHER'; name = 'Prof. Teacher'; avatar = '👨‍🏫'; }
-      else if (lowerEmail.includes('admin')) { role = 'ADMIN'; name = 'System Administrator'; avatar = '🛡️'; }
-
-      const fallbackUser = { name, email, role, avatar };
-      setUser(fallbackUser);
-      setIsGuest(false);
-      return fallbackUser;
+      console.error('[EduNova] Login error:', err.message);
+      throw err;
     }
   }, []);
 
   // ─────────────────────────────────────────────────────────────────────────
-  // register
+  // register — accepts real name, email, password, and chosen role
   // ─────────────────────────────────────────────────────────────────────────
-  const register = useCallback(async (name, email, password) => {
+  const register = useCallback(async (name, email, password, role = 'STUDENT') => {
     progressActionsRef.current.clearProgressState();
 
     const response = await fetch(`${API_BASE}/auth/register`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name, email, password }),
+      body: JSON.stringify({ name, email, password, role }),
     });
 
     const data = await response.json();
@@ -137,7 +118,7 @@ export function AuthProvider({ children }) {
       throw new Error(data.message || 'Registration failed.');
     }
 
-    const userObj  = data.data?.user || { name, email };
+    const userObj  = data.data?.user;
     const authToken = data.data?.token;
 
     setUser(userObj);
@@ -145,7 +126,7 @@ export function AuthProvider({ children }) {
     if (authToken) localStorage.setItem('chemescape_token', authToken);
     setIsGuest(false);
 
-    if (authToken) {
+    if (authToken && userObj?.id) {
       setTimeout(() => {
         progressActionsRef.current.refreshUserStats(userObj.id);
       }, 100);
@@ -157,14 +138,20 @@ export function AuthProvider({ children }) {
   const forgotPassword = useCallback(async (_email) => true, []);
 
   const continueAsGuest = useCallback(async () => {
-    try {
-      await login('student@edunova.com', 'Password123');
-    } catch {
-      progressActionsRef.current.clearProgressState();
-      setUser({ name: 'Guest Scholar', email: 'guest@edunova.com', avatar: '🎓' });
-      setIsGuest(true);
-    }
-  }, [login]);
+    progressActionsRef.current.clearProgressState();
+    const guestUser = {
+      id: `guest-${Date.now()}`,
+      name: 'Guest Scholar',
+      email: '',
+      role: 'STUDENT',
+      avatar: '🎓',
+    };
+    setUser(guestUser);
+    setIsGuest(true);
+    setToken(null);
+    localStorage.removeItem('chemescape_token');
+    localStorage.setItem('chemescape_user', JSON.stringify(guestUser));
+  }, []);
 
   // ─────────────────────────────────────────────────────────────────────────
   // logout — clear EVERYTHING: token, user, ALL game progress state

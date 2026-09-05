@@ -70,6 +70,28 @@ class AuthController {
       next(error);
     }
   }
+
+  /**
+   * GET /api/auth/users
+   * Returns registered users with optional role filter
+   */
+  async getAllUsers(req, res, next) {
+    try {
+      const { role } = req.query;
+      const users = await authService.getAllUsers(role);
+      return res.status(200).json({
+        success: true,
+        data: {
+          users,
+          total: users.length,
+        },
+        users,
+        total: users.length,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
 }
 
 module.exports = new AuthController();

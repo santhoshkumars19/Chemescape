@@ -491,8 +491,8 @@ export default function InteractiveQuizEngine() {
       }
 
       apiClient.post('/reports/activity', {
-        name: user?.name || 'Student Scholar',
-        userId: user?.id || 'usr-student-1',
+        name: user?.name || 'Guest Scholar',
+        userId: user?.id || (user?.email ? user.email : `guest-${Date.now()}`),
         standard: stdDisplayName,
         subject: subjDisplayName,
         chapter: activeChapter?.title || activeChapter?.name || 'Chapter Quiz',
@@ -528,8 +528,8 @@ export default function InteractiveQuizEngine() {
       });
 
       apiClient.post('/reports/activity', {
-        name: user?.name || 'Student Scholar',
-        userId: user?.id || 'usr-student-1',
+        name: user?.name || 'Guest Scholar',
+        userId: user?.id || (user?.email ? user.email : `guest-${Date.now()}`),
         standard: stdDisplayName,
         subject: subjDisplayName,
         chapter: activeChapter?.title || activeChapter?.name || 'Chapter Quiz',

@@ -82,7 +82,7 @@ export const accuracyData = {
   labels: ['Correct', 'Incorrect'],
   datasets: [
     {
-      data: [100, 0],
+      data: [0, 0],
       backgroundColor: ['rgba(16,185,129,0.85)', 'rgba(255,255,255,0.06)'],
       borderColor: ['#10B981', 'rgba(255,255,255,0.05)'],
       borderWidth: 2,

@@ -133,8 +133,7 @@ function WelcomeHeader({ isDark }) {
   const hour = new Date().getHours();
   const greeting = hour < 12 ? 'Good Morning' : hour < 17 ? 'Good Afternoon' : 'Good Evening';
 
-  const rawUserName = user?.name || 'Student';
-  const userName = (rawUserName === 'Student Chemist' || rawUserName === 'Student Agent') ? 'Student Scholar' : rawUserName;
+  const userName = user?.name || 'Scholar';
   const stdName    = selectedStandard || STANDARD_DISPLAY[selectedStandardId] || '';
   const subjName   = selectedSubject  || '';
 
@@ -251,14 +250,14 @@ function SubjectSummaryCard({ isDark }) {
   const totalRooms     = userProgressList.length || 0;
   const accuracy       = totalRooms > 0
     ? Math.round((userProgressList.filter(p => p.isCompleted).length / totalRooms) * 100)
-    : 85;
+    : 0;
 
   const subjName  = selectedSubject  || 'Subject';
   const stdName   = selectedStandard || STANDARD_DISPLAY[selectedStandardId] || '';
 
   const overallPct = completedCount > 0 && chapterCount
     ? Math.round((completedCount / chapterCount) * 100)
-    : 25;
+    : 0;
 
   const summaryStats = [
     { label: 'Chapters Cleared', value: chapterCount ? `${completedCount}/${chapterCount}` : `${completedCount}` },
@@ -288,7 +287,7 @@ function SubjectSummaryCard({ isDark }) {
               className="h-full rounded-full"
               style={{ background: 'linear-gradient(90deg, #0C3B2E, #10B981)' }}
               initial={{ width: 0 }}
-              animate={{ width: `${Math.max(overallPct, 8)}%` }}
+              animate={{ width: `${overallPct}%` }}
               transition={{ duration: 1.2, ease: [0.22, 1, 0.36, 1], delay: 0.2 }}
             />
           </div>

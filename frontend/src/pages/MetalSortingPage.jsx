@@ -88,23 +88,7 @@ export default function MetalSortingPage() {
     setFeedback(null);
     setShowHint(false);
 
-    let authToken = token || localStorage.getItem('chemescape_token');
-    if (!authToken) {
-      try {
-        const authRes = await fetch(`${API_BASE}/auth/login`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email: 'student@edunova.com', password: 'Password123' }),
-        });
-        const authData = await authRes.json();
-        if (authData.success && authData.data?.token) {
-          authToken = authData.data.token;
-          localStorage.setItem('chemescape_token', authToken);
-        }
-      } catch (e) {
-        console.warn('Auto auth notice:', e);
-      }
-    }
+    const authToken = token || localStorage.getItem('chemescape_token');
 
     try {
       const response = await fetch(`${API_BASE}/game/metal-sorting/start`, {

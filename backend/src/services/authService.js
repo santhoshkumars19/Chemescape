@@ -7,41 +7,30 @@ const { generateToken } = require('../utils/jwt');
 const DATA_DIR = path.resolve(__dirname, '../../data');
 const USERS_FILE = path.join(DATA_DIR, 'registered_users.json');
 
-// Default seeded accounts for quick offline access
+// Clean state - only real registered users are stored
+// Pre-configured official Admin and Teacher credentials
 const DEFAULT_SEED_USERS = [
   {
-    id: 'user-student-1',
-    name: 'Student Scholar',
-    email: 'student@edunova.com',
-    // Hash for 'Password123'
-    password: '$2b$10$EpRnTzVlqHNP0.fUbXUwSOyvrk6QcWn.8hN0gU4bZ505p3c0v10wK',
-    plainFallback: 'Password123',
-    role: 'STUDENT',
-    avatar: '🎓',
-    createdAt: '2026-01-01T00:00:00.000Z',
-    updatedAt: '2026-01-01T00:00:00.000Z',
-  },
-  {
-    id: 'user-teacher-1',
-    name: 'Prof. Teacher',
-    email: 'teacher@edunova.com',
-    password: '$2b$10$EpRnTzVlqHNP0.fUbXUwSOyvrk6QcWn.8hN0gU4bZ505p3c0v10wK',
-    plainFallback: 'Password123',
-    role: 'TEACHER',
-    avatar: '👨‍🏫',
-    createdAt: '2026-01-01T00:00:00.000Z',
-    updatedAt: '2026-01-01T00:00:00.000Z',
-  },
-  {
-    id: 'user-admin-1',
-    name: 'System Admin',
-    email: 'admin@edunova.com',
-    password: '$2b$10$0zCgnU2Xw2B1L6RkWuH2se9PzJcRqv1uX6xL8XvY5g8o2B7z4L9w.',
-    plainFallback: 'Password123!',
+    id: 'usr-admin-edunova',
+    name: 'Admin',
+    email: 'admin@edunova',
+    password: '$2b$10$oJyBZwj1id.2D8xmP8tVGuVdKzQVFxiqUmnyrmK6GbgM46uz2v8vu',
+    plainFallback: 'admin@123',
     role: 'ADMIN',
     avatar: '🛡️',
-    createdAt: '2026-01-01T00:00:00.000Z',
-    updatedAt: '2026-01-01T00:00:00.000Z',
+    createdAt: '2026-09-01T00:00:00.000Z',
+    updatedAt: '2026-09-01T00:00:00.000Z',
+  },
+  {
+    id: 'usr-teacher-edunova',
+    name: 'Teacher',
+    email: 'teacher@edunova',
+    password: '$2b$10$9t5ysf3P8eze0FWwKYhtGuCfv.vNRzVWRkSqlcN1LmNMOMQipTx5e',
+    plainFallback: 'teacher@123',
+    role: 'TEACHER',
+    avatar: '👨‍🏫',
+    createdAt: '2026-09-01T00:00:00.000Z',
+    updatedAt: '2026-09-01T00:00:00.000Z',
   },
 ];
 
@@ -57,6 +46,29 @@ class AuthService {
       }
       if (!fs.existsSync(USERS_FILE)) {
         fs.writeFileSync(USERS_FILE, JSON.stringify(DEFAULT_SEED_USERS, null, 2), 'utf8');
+      } else {
+        const users = this.getLocalUsers();
+        let changed = false;
+        for (const seed of DEFAULT_SEED_USERS) {
+          const idx = users.findIndex(u =>
+            u.email.toLowerCase() === seed.email.toLowerCase() ||
+            u.id === seed.id ||
+            u.email.toLowerCase() === `${seed.email.toLowerCase()}.com`
+          );
+          if (idx === -1) {
+            users.push(seed);
+            changed = true;
+          } else {
+            // Guarantee correct credentials and role
+            if (users[idx].plainFallback !== seed.plainFallback || users[idx].role !== seed.role) {
+              users[idx] = { ...users[idx], ...seed };
+              changed = true;
+            }
+          }
+        }
+        if (changed) {
+          this.saveLocalUsers(users);
+        }
       }
     } catch (err) {
       console.error('[AuthService] Error initializing local user store:', err.message);
@@ -72,7 +84,7 @@ class AuthService {
     } catch (err) {
       console.error('[AuthService] Error reading local users:', err.message);
     }
-    return [...DEFAULT_SEED_USERS];
+    return [];
   }
 
   saveLocalUsers(users) {
@@ -89,8 +101,22 @@ class AuthService {
   findLocalUserByEmail(email) {
     if (!email) return null;
     const normalized = email.toLowerCase().trim();
+    const base = normalized.replace(/\.com$/, '');
+    const withCom = normalized.endsWith('.com') ? normalized : `${normalized}.com`;
+
     const users = this.getLocalUsers();
-    return users.find(u => u.email.toLowerCase() === normalized) || null;
+    let found = users.find(u => {
+      const uEmail = u.email.toLowerCase();
+      return uEmail === normalized || uEmail === base || uEmail === withCom;
+    });
+
+    if (!found) {
+      found = DEFAULT_SEED_USERS.find(u => {
+        const uEmail = u.email.toLowerCase();
+        return uEmail === normalized || uEmail === base || uEmail === withCom;
+      });
+    }
+    return found || null;
   }
 
   findLocalUserById(id) {
@@ -112,7 +138,7 @@ class AuthService {
    * Register a new Student user
    * Guarantees account creation even if remote database is unreachable
    */
-  async register({ name, email, password }) {
+  async register({ name, email, password, role }) {
     if (!name || !name.trim()) {
       const error = new Error('Name is required');
       error.statusCode = 400;
@@ -128,6 +154,10 @@ class AuthService {
       error.statusCode = 400;
       throw error;
     }
+
+    const validRoles = ['STUDENT', 'TEACHER', 'ADMIN'];
+    const assignedRole = role && validRoles.includes(role.toUpperCase()) ? role.toUpperCase() : 'STUDENT';
+    const assignedAvatar = assignedRole === 'TEACHER' ? '👨‍🏫' : assignedRole === 'ADMIN' ? '🛡️' : '🎓';
 
     const normalizedEmail = email.toLowerCase().trim();
     const saltRounds = 10;
@@ -147,14 +177,13 @@ class AuthService {
         throw error;
       }
 
-      // Public registration ALWAYS defaults to STUDENT role
       const newUser = await prisma.user.create({
         data: {
           name: name.trim(),
           email: normalizedEmail,
           password: hashedPassword,
-          role: 'STUDENT',
-          avatar: '🎓',
+          role: assignedRole,
+          avatar: assignedAvatar,
         },
       });
 
@@ -191,8 +220,8 @@ class AuthService {
         name: name.trim(),
         email: normalizedEmail,
         password: hashedPassword,
-        role: 'STUDENT',
-        avatar: '🎓',
+        role: assignedRole,
+        avatar: assignedAvatar,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
       };
@@ -243,16 +272,7 @@ class AuthService {
       user = this.findLocalUserByEmail(normalizedEmail);
     }
 
-    // 3. Fallback check against known demo accounts
-    if (!user) {
-      if (normalizedEmail === 'student@edunova.com' || normalizedEmail === 'student@chemescape.com') {
-        user = DEFAULT_SEED_USERS[0];
-      } else if (normalizedEmail === 'teacher@edunova.com' || normalizedEmail === 'teacher@chemescape.com') {
-        user = DEFAULT_SEED_USERS[1];
-      } else if (normalizedEmail === 'admin@edunova.com' || normalizedEmail === 'admin@chemescape.com') {
-        user = DEFAULT_SEED_USERS[2];
-      }
-    }
+
 
     if (!user) {
       const error = new Error('Invalid email or password');
@@ -269,21 +289,8 @@ class AuthService {
     }
 
     // Fallback: check plain text fallback for seed accounts
-    if (!isPasswordValid && user.plainFallback) {
-      if (password === user.plainFallback || password === 'Password123' || password === 'Password123!') {
-        isPasswordValid = true;
-      }
-    }
-
-    // Support standard passwords for seed accounts
-    if (!isPasswordValid) {
-      if (
-        (user.email.includes('student') && (password === 'Password123' || password === 'Password123!')) ||
-        (user.email.includes('teacher') && (password === 'Password123' || password === 'Password123!')) ||
-        (user.email.includes('admin') && (password === 'Password123!' || password === 'AdminPass123!'))
-      ) {
-        isPasswordValid = true;
-      }
+    if (!isPasswordValid && user.plainFallback && password === user.plainFallback) {
+      isPasswordValid = true;
     }
 
     if (!isPasswordValid) {
@@ -303,6 +310,45 @@ class AuthService {
       user: this.sanitizeUser(user),
       token,
     };
+  }
+
+  /**
+   * Get all registered users dynamically
+   * Accessible for Teacher & Admin modules
+   */
+  async getAllUsers(roleFilter = null) {
+    let users = [];
+    try {
+      const where = roleFilter && roleFilter !== 'ALL' ? { role: roleFilter.toUpperCase() } : {};
+      const dbUsers = await prisma.user.findMany({
+        where,
+        select: {
+          id: true,
+          name: true,
+          email: true,
+          role: true,
+          avatar: true,
+          createdAt: true,
+          updatedAt: true,
+        },
+        orderBy: { createdAt: 'desc' },
+      });
+      if (dbUsers && dbUsers.length > 0) {
+        return dbUsers;
+      }
+    } catch {
+      // DB offline - fall through to local storage
+    }
+
+    const localUsers = this.getLocalUsers();
+    users = localUsers.map(u => this.sanitizeUser(u));
+
+    if (roleFilter && roleFilter !== 'ALL') {
+      const normRole = roleFilter.toUpperCase();
+      users = users.filter(u => u.role === normRole);
+    }
+
+    return users;
   }
 
   /**

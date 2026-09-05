@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Shield, Users, Database, Server, Activity, AlertCircle,
@@ -8,39 +8,70 @@ import {
 import { DashCard, SectionHeader, AnimatedCounter } from './DashComponents';
 import { useAuth } from '../auth/AuthContext';
 import { useNavigation } from '../context/NavigationContext';
+import { apiClient } from '../services/apiClient';
 
-const initialUsers = [
-  { id: 'usr-1', name: 'System Administrator', email: 'admin@edunova.com', role: 'ADMIN', status: 'ACTIVE', regDate: '2026-01-01', sessionsCount: 142 },
-  { id: 'usr-2', name: 'Prof. Science Teacher', email: 'teacher@edunova.com', role: 'TEACHER', status: 'ACTIVE', regDate: '2026-01-05', sessionsCount: 88 },
-  { id: 'usr-3', name: 'Student Agent', email: 'student@edunova.com', role: 'STUDENT', status: 'ACTIVE', regDate: '2026-01-10', sessionsCount: 24 },
-];
-
-const systemEngines = [
-  { id: 'u1', code: 'CALCULATION_HEIST', name: 'Unit 1: Calculation Heist', type: 'Formula Calculator Engine', status: 'ONLINE', plays: 3420 },
-  { id: 'u2', code: 'QUANTUM_ARCHITECT', name: 'Unit 2: Quantum Architect', type: 'Orbital Builder Engine', status: 'ONLINE', plays: 2980 },
-  { id: 'u3', code: 'GRID_RECONSTRUCTION', name: 'Unit 3: Periodic Grid', type: 'Periodic Matrix Engine', status: 'ONLINE', plays: 2750 },
-  { id: 'u4', code: 'HYDROGEN_REACTOR', name: 'Unit 4: Hydrogen Reactor', type: 'Equation Balance Engine', status: 'ONLINE', plays: 2410 },
-  { id: 'u5', code: 'ELEMENT_SORTING', name: 'Unit 5: Metal Sorting', type: 'Factory Sorting Engine', status: 'ONLINE', plays: 2190 },
-  { id: 'u6', code: 'GAS_SIMULATOR', name: 'Unit 6: Gas Chamber', type: '2D Canvas Kinetic Engine', status: 'ONLINE', plays: 1170 },
-];
-
-const auditLogs = [
-  { id: 'log-1', event: 'USER_LOGIN', user: 'teacher@edunova.com', role: 'TEACHER', time: 'Just now', ip: '127.0.0.1', status: 'SUCCESS' },
-  { id: 'log-2', event: 'GAME_SESSION_COMPLETE', user: 'student@edunova.com', role: 'STUDENT', time: '2 mins ago', ip: '127.0.0.1', status: 'SUCCESS' },
-  { id: 'log-3', event: 'DATABASE_SEED', user: 'SYSTEM', role: 'SYSTEM', time: '15 mins ago', ip: '127.0.0.1', status: 'SUCCESS' },
-  { id: 'log-4', event: 'ANTI_CHEAT_VERIFY', user: 'student@edunova.com', role: 'STUDENT', time: '1 hour ago', ip: '127.0.0.1', status: 'CLEARED' },
+const CURRICULUM_ENGINES = [
+  { id: 'u1', code: 'CALCULATION_HEIST', name: 'Unit 1: Calculation Heist', type: 'Formula Calculator Engine', status: 'ONLINE', match: (t) => t.includes('core') || t.includes('calc') },
+  { id: 'u2', code: 'QUANTUM_ARCHITECT', name: 'Unit 2: Quantum Architect', type: 'Orbital Builder Engine', status: 'ONLINE', match: (t) => t.includes('quantum') || t.includes('orbital') || t.includes('atom') },
+  { id: 'u3', code: 'GRID_RECONSTRUCTION', name: 'Unit 3: Periodic Grid', type: 'Periodic Matrix Engine', status: 'ONLINE', match: (t) => t.includes('periodic') },
+  { id: 'u4', code: 'HYDROGEN_REACTOR', name: 'Unit 4: Hydrogen Reactor', type: 'Equation Balance Engine', status: 'ONLINE', match: (t) => t.includes('hydrogen') },
+  { id: 'u5', code: 'ELEMENT_SORTING', name: 'Unit 5: Metal Sorting', type: 'Factory Sorting Engine', status: 'ONLINE', match: (t) => t.includes('metal') || t.includes('alkali') },
+  { id: 'u6', code: 'GAS_SIMULATOR', name: 'Unit 6: Gas Chamber', type: '2D Canvas Kinetic Engine', status: 'ONLINE', match: (t) => t.includes('gas') || t.includes('matter') },
 ];
 
 export default function AdminDashboardPage() {
   const { user } = useAuth();
   const { navigateTo } = useNavigation();
 
-  const [usersList, setUsersList] = useState(initialUsers);
+  const [usersList, setUsersList] = useState([]);
+  const [reports, setReports] = useState([]);
+  const [stats, setStats] = useState({ totalReports: 0, avgScore: 0, passRate: 0, completedRooms: 0 });
+  const [loading, setLoading] = useState(true);
+
   const [roleFilter, setRoleFilter] = useState('ALL');
   const [searchQuery, setSearchQuery] = useState('');
   const [addUserModal, setAddUserModal] = useState(false);
-  const [newUserForm, setNewUserForm] = useState({ name: '', email: '', role: 'STUDENT' });
+  const [newUserForm, setNewUserForm] = useState({ name: '', email: '', role: 'STUDENT', password: 'Password123' });
   const [toast, setToast] = useState(null);
+
+  useEffect(() => {
+    let isMounted = true;
+    async function loadAdminData() {
+      try {
+        const [usersRes, reportsRes] = await Promise.allSettled([
+          apiClient.get('/auth/users'),
+          apiClient.get('/reports')
+        ]);
+        if (isMounted) {
+          if (usersRes.status === 'fulfilled') {
+            const rawUsers = usersRes.value?.data?.users || usersRes.value?.users || [];
+            setUsersList(rawUsers.map(u => ({
+              id: u.id,
+              name: u.name || 'User',
+              email: u.email || '',
+              role: u.role || 'STUDENT',
+              status: 'ACTIVE',
+              regDate: u.createdAt ? u.createdAt.split('T')[0] : new Date().toISOString().split('T')[0],
+              sessionsCount: 0
+            })));
+          }
+          if (reportsRes.status === 'fulfilled') {
+            const recs = reportsRes.value?.records || [];
+            setReports(recs);
+            if (reportsRes.value?.stats) {
+              setStats(reportsRes.value.stats);
+            }
+          }
+        }
+      } catch (e) {
+        console.warn('Failed to load admin data:', e);
+      } finally {
+        if (isMounted) setLoading(false);
+      }
+    }
+    loadAdminData();
+    return () => { isMounted = false; };
+  }, []);
 
   const handleRoleChange = (userId, newRole) => {
     setUsersList(prev => prev.map(u => u.id === userId ? { ...u, role: newRole } : u));
@@ -60,22 +91,34 @@ export default function AdminDashboardPage() {
     }));
   };
 
-  const handleCreateUser = (e) => {
+  const handleCreateUser = async (e) => {
     e.preventDefault();
     if (!newUserForm.name || !newUserForm.email) return;
-    const created = {
-      id: `usr-${Date.now()}`,
-      name: newUserForm.name,
-      email: newUserForm.email,
-      role: newUserForm.role,
-      status: 'ACTIVE',
-      regDate: new Date().toISOString().split('T')[0],
-      sessionsCount: 0,
-    };
-    setUsersList([created, ...usersList]);
-    setAddUserModal(false);
-    setNewUserForm({ name: '', email: '', role: 'STUDENT' });
-    setToast(`Created new ${newUserForm.role} user!`);
+
+    try {
+      const res = await apiClient.post('/auth/register', {
+        name: newUserForm.name,
+        email: newUserForm.email,
+        password: newUserForm.password || 'Password123',
+        role: newUserForm.role
+      });
+
+      const newUser = res.user || {
+        id: `usr-${Date.now()}`,
+        name: newUserForm.name,
+        email: newUserForm.email,
+        role: newUserForm.role,
+        status: 'ACTIVE',
+        regDate: new Date().toISOString().split('T')[0],
+      };
+
+      setUsersList(prev => [newUser, ...prev]);
+      setAddUserModal(false);
+      setNewUserForm({ name: '', email: '', role: 'STUDENT', password: 'Password123' });
+      setToast(`Created new ${newUserForm.role} user!`);
+    } catch (err) {
+      setToast(err.message || 'Failed to create user');
+    }
     setTimeout(() => setToast(null), 3000);
   };
 
@@ -85,6 +128,21 @@ export default function AdminDashboardPage() {
                           u.email.toLowerCase().includes(searchQuery.toLowerCase());
     return matchesRole && matchesSearch;
   });
+
+  const engines = CURRICULUM_ENGINES.map(eng => {
+    const plays = reports.filter(r => eng.match((r.topic || '').toLowerCase())).length;
+    return { ...eng, plays };
+  });
+
+  const auditLogs = reports.slice(0, 6).map((r, i) => ({
+    id: r.id || `log-${i}`,
+    event: 'QUIZ_SUBMISSION',
+    user: r.userEmail || r.userName || 'Student',
+    role: 'STUDENT',
+    time: r.createdAt ? new Date(r.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'Recent',
+    ip: '127.0.0.1',
+    status: r.passed ? 'PASSED' : 'COMPLETED'
+  }));
 
   return (
     <div className="relative min-h-screen bg-[var(--bg-app)] text-[var(--text-main)] overflow-x-hidden w-full pb-16 transition-colors duration-200">
@@ -168,10 +226,10 @@ export default function AdminDashboardPage() {
         {/* ── METRICS ROW ─────────────────────────────────────────────────── */}
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3.5 mb-8">
           {[
-            { label: 'Total Platform Users', value: usersList.length + 1240, icon: Users, color: '#fbbf24' },
-            { label: 'Active Teachers', value: 28, icon: Shield, color: '#a855f7' },
-            { label: 'Enrolled Students', value: 1220, icon: Zap, color: '#00d4ff' },
-            { label: 'Sessions Completed', value: 14920, icon: Activity, color: '#34d399' },
+            { label: 'Total Platform Users', value: usersList.length, icon: Users, color: '#fbbf24' },
+            { label: 'Active Teachers', value: usersList.filter(u => u.role === 'TEACHER').length, icon: Shield, color: '#a855f7' },
+            { label: 'Enrolled Students', value: usersList.filter(u => u.role === 'STUDENT').length, icon: Zap, color: '#00d4ff' },
+            { label: 'Sessions Completed', value: stats.totalReports || 0, icon: Activity, color: '#34d399' },
             { label: 'Game Engines', value: 6, icon: Cpu, color: '#ec4899' },
             { label: 'Security Flags', value: 0, icon: CheckCircle2, color: '#10b981' },
           ].map((m) => (
@@ -236,75 +294,95 @@ export default function AdminDashboardPage() {
 
               {/* Users Table */}
               <div className="overflow-x-auto">
-                <table className="w-full text-left text-xs font-inter border-collapse">
-                  <thead>
-                    <tr className="border-b border-white/10 text-white/40 font-space uppercase text-[10px] tracking-wider">
-                      <th className="py-3 px-3">User</th>
-                      <th className="py-3 px-3">Role</th>
-                      <th className="py-3 px-3">Status</th>
-                      <th className="py-3 px-3">Reg Date</th>
-                      <th className="py-3 px-3 text-right">Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-white/5">
-                    {filteredUsers.map(u => (
-                      <tr key={u.id} className="hover:bg-white/[0.02] transition-colors">
-                        <td className="py-3.5 px-3">
-                          <div className="flex items-center gap-2.5">
-                            <div className="w-8 h-8 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-sm font-bold text-amber-300">
-                              {u.name[0]}
-                            </div>
-                            <div>
-                              <p className="font-space font-bold text-white text-xs">{u.name}</p>
-                              <p className="text-[10px] text-white/40 font-inter">{u.email}</p>
-                            </div>
-                          </div>
-                        </td>
-
-                        {/* Interactive Role Switcher */}
-                        <td className="py-3.5 px-3">
-                          <select
-                            value={u.role}
-                            onChange={e => handleRoleChange(u.id, e.target.value)}
-                            className="px-2.5 py-1 rounded-lg bg-[#0a1628] border border-white/10 text-xs font-orbitron font-bold outline-none cursor-pointer text-white"
-                          >
-                            <option value="STUDENT">STUDENT</option>
-                            <option value="TEACHER">TEACHER</option>
-                            <option value="ADMIN">ADMIN</option>
-                          </select>
-                        </td>
-
-                        <td className="py-3.5 px-3">
-                          <span className={`px-2 py-0.5 rounded-full text-[10px] font-space font-bold ${
-                            u.status === 'ACTIVE'
-                              ? 'bg-emerald-500/15 text-emerald-300 border border-emerald-500/30'
-                              : 'bg-rose-500/15 text-rose-300 border border-rose-500/30'
-                          }`}>
-                            {u.status}
-                          </span>
-                        </td>
-
-                        <td className="py-3.5 px-3 font-mono text-white/40 text-[11px]">
-                          {u.regDate}
-                        </td>
-
-                        <td className="py-3.5 px-3 text-right">
-                          <button
-                            onClick={() => handleStatusToggle(u.id)}
-                            className={`p-1.5 rounded-lg border transition-all cursor-pointer ${
-                              u.status === 'ACTIVE'
-                                ? 'bg-rose-500/10 text-rose-400 border-rose-500/20 hover:bg-rose-500/20'
-                                : 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20 hover:bg-emerald-500/20'
-                            }`}
-                            title={u.status === 'ACTIVE' ? 'Suspend Account' : 'Activate Account'}
-                          >
-                            {u.status === 'ACTIVE' ? <Lock size={13} /> : <Unlock size={13} />}
-                          </button>
-                        </td>
+                {filteredUsers.length === 0 ? (
+                  <div className="py-12 px-4 text-center font-space">
+                    <Users className="mx-auto mb-3 text-emerald-400 opacity-50" size={36} />
+                    <p className="text-sm font-semibold text-white">
+                      {roleFilter === 'STUDENT'
+                        ? 'No registered students found'
+                        : roleFilter === 'TEACHER'
+                        ? 'No registered teachers found'
+                        : roleFilter === 'ADMIN'
+                        ? 'No registered admins found'
+                        : 'No registered users found'}
+                    </p>
+                    <p className="text-xs text-white/40 mt-1">
+                      {roleFilter === 'ALL'
+                        ? 'No registered accounts on the platform.'
+                        : `No registered ${roleFilter.toLowerCase()}s found.`}
+                    </p>
+                  </div>
+                ) : (
+                  <table className="w-full text-left text-xs font-inter border-collapse">
+                    <thead>
+                      <tr className="border-b border-white/10 text-white/40 font-space uppercase text-[10px] tracking-wider">
+                        <th className="py-3 px-3">User</th>
+                        <th className="py-3 px-3">Role</th>
+                        <th className="py-3 px-3">Status</th>
+                        <th className="py-3 px-3">Reg Date</th>
+                        <th className="py-3 px-3 text-right">Actions</th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
+                    </thead>
+                    <tbody className="divide-y divide-white/5">
+                      {filteredUsers.map(u => (
+                        <tr key={u.id} className="hover:bg-white/[0.02] transition-colors">
+                          <td className="py-3.5 px-3">
+                            <div className="flex items-center gap-2.5">
+                              <div className="w-8 h-8 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-sm font-bold text-amber-300">
+                                {(u.name || 'U')[0]}
+                              </div>
+                              <div>
+                                <p className="font-space font-bold text-white text-xs">{u.name}</p>
+                                <p className="text-[10px] text-white/40 font-inter">{u.email}</p>
+                              </div>
+                            </div>
+                          </td>
+
+                          {/* Interactive Role Switcher */}
+                          <td className="py-3.5 px-3">
+                            <select
+                              value={u.role}
+                              onChange={e => handleRoleChange(u.id, e.target.value)}
+                              className="px-2.5 py-1 rounded-lg bg-[#0a1628] border border-white/10 text-xs font-orbitron font-bold outline-none cursor-pointer text-white"
+                            >
+                              <option value="STUDENT">STUDENT</option>
+                              <option value="TEACHER">TEACHER</option>
+                              <option value="ADMIN">ADMIN</option>
+                            </select>
+                          </td>
+
+                          <td className="py-3.5 px-3">
+                            <span className={`px-2 py-0.5 rounded-full text-[10px] font-space font-bold ${
+                              u.status === 'ACTIVE'
+                                ? 'bg-emerald-500/15 text-emerald-300 border border-emerald-500/30'
+                                : 'bg-rose-500/15 text-rose-300 border border-rose-500/30'
+                            }`}>
+                              {u.status}
+                            </span>
+                          </td>
+
+                          <td className="py-3.5 px-3 font-mono text-white/40 text-[11px]">
+                            {u.regDate}
+                          </td>
+
+                          <td className="py-3.5 px-3 text-right">
+                            <button
+                              onClick={() => handleStatusToggle(u.id)}
+                              className={`p-1.5 rounded-lg border transition-all cursor-pointer ${
+                                u.status === 'ACTIVE'
+                                  ? 'bg-rose-500/10 text-rose-400 border-rose-500/20 hover:bg-rose-500/20'
+                                  : 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20 hover:bg-emerald-500/20'
+                              }`}
+                              title={u.status === 'ACTIVE' ? 'Suspend Account' : 'Activate Account'}
+                            >
+                              {u.status === 'ACTIVE' ? <Lock size={13} /> : <Unlock size={13} />}
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                )}
               </div>
             </DashCard>
 
@@ -314,7 +392,7 @@ export default function AdminDashboardPage() {
               <p className="text-white/40 text-xs font-space mb-5">Registered Academic room validation services (Units 1 - 6)</p>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                {systemEngines.map(eng => (
+                {engines.map(eng => (
                   <div key={eng.id} className="p-4 rounded-xl glass border border-white/10">
                     <div className="flex items-center justify-between mb-1">
                       <span className="font-orbitron font-bold text-xs text-white">{eng.name}</span>
@@ -343,21 +421,27 @@ export default function AdminDashboardPage() {
                 <Terminal size={16} className="text-amber-400" />
               </div>
 
-              <div className="flex flex-col gap-3 font-mono text-[11px]">
-                {auditLogs.map(log => (
-                  <div key={log.id} className="p-3 rounded-xl bg-[#0a1628] border border-white/5">
-                    <div className="flex items-center justify-between mb-1">
-                      <span className="text-amber-400 font-bold">{log.event}</span>
-                      <span className="text-white/30 text-[9px]">{log.time}</span>
+              {auditLogs.length === 0 ? (
+                <div className="p-6 rounded-xl bg-white/5 border border-white/10 text-center font-mono text-xs text-white/40">
+                  No audit logs recorded yet.
+                </div>
+              ) : (
+                <div className="flex flex-col gap-3 font-mono text-[11px]">
+                  {auditLogs.map(log => (
+                    <div key={log.id} className="p-3 rounded-xl bg-[#0a1628] border border-white/5">
+                      <div className="flex items-center justify-between mb-1">
+                        <span className="text-amber-400 font-bold">{log.event}</span>
+                        <span className="text-white/30 text-[9px]">{log.time}</span>
+                      </div>
+                      <p className="text-white/60 text-[10px]">{log.user}</p>
+                      <div className="flex items-center justify-between text-[9px] text-white/30 mt-1">
+                        <span>IP: {log.ip}</span>
+                        <span className="text-emerald-400">{log.status}</span>
+                      </div>
                     </div>
-                    <p className="text-white/60 text-[10px]">{log.user}</p>
-                    <div className="flex items-center justify-between text-[9px] text-white/30 mt-1">
-                      <span>IP: {log.ip}</span>
-                      <span className="text-emerald-400">{log.status}</span>
-                    </div>
-                  </div>
-                ))}
-              </div>
+                  ))}
+                </div>
+              )}
             </DashCard>
 
             {/* Server Infrastructure Health */}
@@ -427,7 +511,7 @@ export default function AdminDashboardPage() {
                   <input
                     type="email"
                     required
-                    placeholder="user@edunova.com"
+                    placeholder="user@example.com"
                     value={newUserForm.email}
                     onChange={e => setNewUserForm({ ...newUserForm, email: e.target.value })}
                     className="w-full p-2.5 rounded-xl bg-[#040810] border border-white/10 text-white text-xs font-inter outline-none focus:border-amber-500/40"

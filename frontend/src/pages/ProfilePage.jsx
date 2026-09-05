@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigation } from '../context/NavigationContext';
+import { useAuth } from '../auth/AuthContext';
 import { ThemeSettingsCard } from '../components/ThemeToggle';
 import { generateCertificatePDF } from '../utils/certificateGenerator';
 import {
@@ -10,56 +11,68 @@ import {
   X, Check, Save, Share2, Flame, BookOpen, Loader2
 } from 'lucide-react';
 
-// ── Mock Profile Data ──
-const INITIAL_PROFILE = {
-  name: 'Alex Vance',
-  title: 'Lab Escape Specialist',
-  bio: 'Passionately escaping chemistry labs and mastering the Periodic Table. Level 19 Alchemist.',
-  avatar: '⚡',
-  level: 19,
-  currentXp: 4150,
-  nextLevelXp: 5000,
-  totalCoins: 720,
-  completedChapters: 6,
-  totalChapters: 8,
-  learningTime: '24h 35m',
-  accuracy: 92.4,
-  streak: 12,
-};
-
-const ACHIEVEMENTS = [
-  { id: 1, title: 'Periodic Pioneer', desc: 'Cleared Room 1 with 100% accuracy', icon: '⚗️', unlocked: true, rarity: 'Epic', date: 'May 12' },
-  { id: 2, title: 'Reaction Master', desc: 'Balanced 50 chemical equations', icon: '🔥', unlocked: true, rarity: 'Legendary', date: 'May 18' },
-  { id: 3, title: 'Speed Chemist', desc: 'Escaped Room 2 in under 5 minutes', icon: '⏱️', unlocked: true, rarity: 'Rare', date: 'May 20' },
-  { id: 4, title: 'AEGIS Slayer', desc: 'Defeated AEGIS-9000 Security AI', icon: '👑', unlocked: true, rarity: 'Mythic', date: 'June 01' },
-  { id: 5, title: 'Stoichiometry God', desc: 'Solve 100 mole calculation puzzles', icon: '🧬', unlocked: false, rarity: 'Mythic', date: 'Locked' },
-  { id: 6, title: 'Quantum Surfer', desc: 'Master all electron configuration rooms', icon: '⚛️', unlocked: false, rarity: 'Legendary', date: 'Locked' },
-];
-
-const BADGES = [
-  { id: 1, name: 'Acid Survivor', emoji: '🧪', color: '#00d4ff' },
-  { id: 2, name: 'Orbital Ace', emoji: '⚛️', color: '#a855f7' },
-  { id: 3, name: 'Flame Master', emoji: '🔥', color: '#f43f5e' },
-  { id: 4, name: 'Mole Scholar', emoji: '📚', color: '#fbbf24' },
-  { id: 5, name: 'Plasma Shield', emoji: '🛡️', color: '#34d399' },
-];
-
-const CERTIFICATES = [
-  { id: 'cert-1', chapter: 'Periodic Table & Periodicity', date: 'May 14, 2026', code: 'CHEM-8821-PT', grade: '98.5%' },
-  { id: 'cert-2', chapter: 'Chemical Bonding & Structure', date: 'May 22, 2026', code: 'CHEM-9932-CB', grade: '95.0%' },
-  { id: 'cert-3', chapter: 'States of Matter & Gas Laws', date: 'June 02, 2026', code: 'CHEM-1043-SM', grade: '96.2%' },
+const ACHIEVEMENTS_DEF = [
+  { id: 1, title: 'Periodic Pioneer', desc: 'Cleared Room 1 with high accuracy', icon: '⚗️', rarity: 'Epic', check: (rooms) => rooms.some(r => String(r).includes('room1')) },
+  { id: 2, title: 'Reaction Master', desc: 'Completed 5 chemistry missions', icon: '🔥', rarity: 'Legendary', check: (rooms) => rooms.length >= 5 },
+  { id: 3, title: 'Speed Chemist', desc: 'Escaped 3 challenge rooms', icon: '⏱️', rarity: 'Rare', check: (rooms) => rooms.length >= 3 },
+  { id: 4, title: 'AEGIS Slayer', desc: 'Conquered the Boss Room AI', icon: '👑', rarity: 'Mythic', check: (rooms) => rooms.some(r => String(r).includes('boss')) },
 ];
 
 export default function ProfilePage() {
-  const { navigateTo, currentScreen } = useNavigation();
+  const { user, logout } = useAuth();
+  const {
+    navigateTo,
+    currentScreen,
+    xp = 0,
+    coins = 0,
+    streak = 0,
+    level = 1,
+    completedRooms = [],
+    userBadges = [],
+    userProgressList = []
+  } = useNavigation();
 
   const [activeTab, setActiveTab] = useState(
     currentScreen === 'settings' ? 'settings' : 'overview'
   );
-  const [profile, setProfile] = useState(INITIAL_PROFILE);
+
+  const [profile, setProfile] = useState({
+    name: user?.name || 'Scholar',
+    email: user?.email || '',
+    title: user?.role === 'TEACHER' ? 'Faculty Educator' : user?.role === 'ADMIN' ? 'Platform Administrator' : 'Level 1 Chemist',
+    bio: user?.role === 'TEACHER' ? 'Empowering students to master chemistry through interactive simulations.' : 'Exploring the fascinating world of chemistry through escape challenges.',
+    avatar: user?.avatar || '⚡',
+  });
+
+  useEffect(() => {
+    if (user) {
+      setProfile(prev => ({
+        ...prev,
+        name: user.name || prev.name,
+        email: user.email || prev.email,
+        avatar: user.avatar || prev.avatar,
+      }));
+    }
+  }, [user]);
+
   const [isEditing, setIsEditing] = useState(false);
   const [editForm, setEditForm] = useState({ name: profile.name, title: profile.title, bio: profile.bio });
   const [selectedAvatar, setSelectedAvatar] = useState(profile.avatar);
+
+  // Dynamic calculations from real activity
+  const accuracy = userProgressList && userProgressList.length > 0
+    ? Math.round(userProgressList.reduce((acc, p) => acc + (p.score || 0), 0) / userProgressList.length)
+    : 0;
+
+  const earnedAchievements = ACHIEVEMENTS_DEF.filter(a => a.check(completedRooms));
+
+  const certificates = completedRooms.map((roomId, idx) => ({
+    id: `cert-${idx + 1}`,
+    chapter: String(roomId).replace(/[-_]/g, ' ').toUpperCase(),
+    date: new Date().toLocaleDateString(),
+    code: `CHEM-${2026 + idx}-${String(roomId).slice(0, 3).toUpperCase()}`,
+    grade: '100%'
+  }));
 
   // Settings & PDF states
   const [soundEnabled, setSoundEnabled] = useState(true);
@@ -144,7 +157,13 @@ export default function ProfilePage() {
           </nav>
         </div>
 
-        <button onClick={() => navigateTo('login')} className="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:text-rose-400 hover:bg-rose-500/10 transition-colors font-space text-xs font-semibold border-0 bg-transparent cursor-pointer">
+        <button
+          onClick={() => {
+            logout();
+            navigateTo('login');
+          }}
+          className="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:text-rose-400 hover:bg-rose-500/10 transition-colors font-space text-xs font-semibold border-0 bg-transparent cursor-pointer"
+        >
           <LogOut size={18} />
           <span>Log Out</span>
         </button>
@@ -170,7 +189,7 @@ export default function ProfilePage() {
             <div className="relative w-28 h-28 md:w-36 md:h-36 rounded-3xl bg-[#050807] border-4 border-emerald-500/50 p-2 shadow-[0_0_40px_rgba(16,185,129,0.3)] flex items-center justify-center text-5xl md:text-6xl flex-shrink-0">
               {profile.avatar}
               <span className="absolute -bottom-2 -right-2 px-3 py-1 rounded-full bg-gradient-to-r from-emerald-500 to-teal-600 text-slate-950 font-orbitron font-black text-xs border-2 border-[#050807]">
-                Lv {profile.level}
+                Lv {level}
               </span>
             </div>
 
@@ -285,61 +304,60 @@ export default function ProfilePage() {
                 <div className="p-4 rounded-2xl bg-[#0B1210]/60 border border-emerald-500/15 backdrop-blur-xl">
                   <Zap className="text-emerald-400 mb-2" size={20} />
                   <p className="text-[10px] font-space text-slate-400 uppercase">Total XP</p>
-                  <p className="font-orbitron font-extrabold text-xl text-white">{profile.currentXp}</p>
+                  <p className="font-orbitron font-extrabold text-xl text-white">{xp}</p>
                 </div>
                 <div className="p-4 rounded-2xl bg-[#0B1210]/60 border border-emerald-500/15 backdrop-blur-xl">
                   <Coins className="text-amber-400 mb-2" size={20} />
                   <p className="text-[10px] font-space text-slate-400 uppercase">Coins</p>
-                  <p className="font-orbitron font-extrabold text-xl text-amber-300">{profile.totalCoins}</p>
+                  <p className="font-orbitron font-extrabold text-xl text-amber-300">{coins}</p>
                 </div>
                 <div className="p-4 rounded-2xl bg-[#0B1210]/60 border border-emerald-500/15 backdrop-blur-xl">
                   <Flame className="text-orange-400 mb-2" size={20} />
                   <p className="text-[10px] font-space text-slate-400 uppercase">Day Streak</p>
-                  <p className="font-orbitron font-extrabold text-xl text-orange-400">{profile.streak} Days</p>
+                  <p className="font-orbitron font-extrabold text-xl text-orange-400">{streak} Days</p>
                 </div>
                 <div className="p-4 rounded-2xl bg-[#0B1210]/60 border border-emerald-500/15 backdrop-blur-xl">
                   <Target className="text-emerald-400 mb-2" size={20} />
                   <p className="text-[10px] font-space text-slate-400 uppercase">Accuracy</p>
-                  <p className="font-orbitron font-extrabold text-xl text-emerald-400">{profile.accuracy}%</p>
+                  <p className="font-orbitron font-extrabold text-xl text-emerald-400">{accuracy}%</p>
                 </div>
               </div>
 
               {/* Badges Collection */}
               <div>
                 <h3 className="font-orbitron font-bold text-sm text-white uppercase tracking-widest mb-4">Equipped Badges</h3>
-                <div className="flex flex-wrap gap-4">
-                  {BADGES.map(badge => (
-                    <div
-                      key={badge.id}
-                      className="flex items-center gap-3 px-4 py-2.5 rounded-2xl bg-[#0B1210]/80 border border-emerald-500/15"
-                      style={{ borderColor: `${badge.color}40` }}
-                    >
-                      <span className="text-xl">{badge.emoji}</span>
-                      <span className="font-orbitron text-xs font-bold text-white">{badge.name}</span>
-                    </div>
-                  ))}
-                </div>
+                {userBadges.length === 0 ? (
+                  <p className="text-xs font-space text-slate-400">No badges earned yet. Complete challenges to earn badges.</p>
+                ) : (
+                  <div className="flex flex-wrap gap-4">
+                    {userBadges.map((badge, idx) => (
+                      <div
+                        key={badge.id || idx}
+                        className="flex items-center gap-3 px-4 py-2.5 rounded-2xl bg-[#0B1210]/80 border border-emerald-500/15"
+                      >
+                        <span className="text-xl">{badge.emoji || '🏅'}</span>
+                        <span className="font-orbitron text-xs font-bold text-white">{badge.name || badge.title}</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
             </div>
           )}
 
           {activeTab === 'achievements' && (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {ACHIEVEMENTS.length === 0 ? (
+              {earnedAchievements.length === 0 ? (
                 <div className="col-span-2 p-8 text-center glass rounded-2xl">
                   <Trophy className="mx-auto mb-2 text-emerald-400/50" size={32} />
                   <p className="text-sm font-space font-semibold text-white">No achievements unlocked yet.</p>
                   <p className="text-xs font-space text-slate-400 mt-1">Play escape rooms and complete challenges to unlock badges.</p>
                 </div>
               ) : (
-                ACHIEVEMENTS.map(ach => (
+                earnedAchievements.map(ach => (
                   <div
                     key={ach.id}
-                    className={`p-5 rounded-2xl border backdrop-blur-xl flex items-center gap-4 ${
-                      ach.unlocked
-                        ? 'bg-[#0B1210]/70 border-emerald-500/30'
-                        : 'bg-[#050807]/40 border-emerald-500/5 opacity-50'
-                    }`}
+                    className="p-5 rounded-2xl border backdrop-blur-xl flex items-center gap-4 bg-[#0B1210]/70 border-emerald-500/30"
                   >
                     <div className="w-12 h-12 rounded-2xl bg-[#050807] border border-emerald-500/15 flex items-center justify-center text-2xl flex-shrink-0">
                       {ach.icon}
@@ -361,14 +379,14 @@ export default function ProfilePage() {
 
           {activeTab === 'certificates' && (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {CERTIFICATES.length === 0 ? (
+              {certificates.length === 0 ? (
                 <div className="col-span-2 p-8 text-center glass rounded-2xl">
                   <Award className="mx-auto mb-2 text-emerald-400/50" size={32} />
                   <p className="text-sm font-space font-semibold text-white">No certificates available.</p>
                   <p className="text-xs font-space text-slate-400 mt-1">Complete chapter escape rooms to earn official certificates.</p>
                 </div>
               ) : (
-                CERTIFICATES.map(cert => (
+                certificates.map(cert => (
                   <div key={cert.id} className="p-6 rounded-2xl bg-[#0B1210]/80 border border-emerald-500/30 backdrop-blur-xl flex flex-col justify-between space-y-4">
                     <div>
                       <span className="text-[10px] font-space text-emerald-400 uppercase tracking-widest">OFFICIAL CERTIFICATE</span>

@@ -12,13 +12,16 @@ const registerSchema = z.object({
   password: z
     .string({ required_error: 'Password is required' })
     .min(8, { message: 'Password must be at least 8 characters' }),
+  role: z
+    .enum(['STUDENT', 'TEACHER', 'ADMIN'])
+    .optional(),
 });
 
 const loginSchema = z.object({
   email: z
     .string({ required_error: 'Email is required' })
     .trim()
-    .email({ message: 'Invalid email address format' }),
+    .min(3, { message: 'Email or login identifier is required' }),
   password: z
     .string({ required_error: 'Password is required' })
     .min(1, { message: 'Password is required' }),

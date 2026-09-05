@@ -62,8 +62,8 @@ async function authMiddleware(req, res, next) {
       } else {
         user = {
           id: decoded.userId,
-          name: decoded.name || 'Student Scholar',
-          email: decoded.email || 'user@edunova.com',
+          name: decoded.name || 'Scholar',
+          email: decoded.email || '',
           role: decoded.role || 'STUDENT',
         };
       }
@@ -143,8 +143,8 @@ async function optionalAuth(req, res, next) {
     } else {
       req.user = {
         id: decoded.userId,
-        name: decoded.name || 'Student Scholar',
-        email: decoded.email || 'user@edunova.com',
+        name: decoded.name || 'Scholar',
+        email: decoded.email || '',
         role: decoded.role || 'STUDENT',
       };
     }
