@@ -1,5 +1,24 @@
 [
   {
+    "id": "act-1788592073160-232",
+    "name": "Priya Sharma",
+    "userId": "USER002",
+    "standard": "7th",
+    "subject": "Mathematics",
+    "chapter": "Chapter 2: Algebra Expressions",
+    "gameOrQuizName": "Algebra Mastery Quiz",
+    "points": 95,
+    "accuracy": "95%",
+    "totalQuestions": 10,
+    "correctAnswers": 9,
+    "wrongAnswers": 1,
+    "timeTaken": "04:40 mins",
+    "timeSpentSec": 280,
+    "dateTime": "05-09-2026 12:37:53",
+    "timestamp": "2026-09-05T07:07:53.160Z",
+    "status": "PASSED"
+  },
+  {
     "id": "act-1788585896959-168",
     "name": "Student Scholar",
     "userId": "user-student-1",

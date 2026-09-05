@@ -21,23 +21,32 @@ const allowedOrigins = configuredOrigins.length > 0 ? configuredOrigins : defaul
 
 const corsOptions = {
   origin: (origin, callback) => {
-    // Allow server-to-server or non-browser tools (e.g. Postman, curl, health checks)
+    // Allow server-to-server, health checks, or non-browser tools (e.g. Postman, curl)
     if (!origin) return callback(null, true);
 
     const cleanOrigin = origin.replace(/\/+$/, '');
+
+    // Allow wildcard if configured
+    if (configuredOrigins.includes('*')) {
+      return callback(null, true);
+    }
 
     // 1. Direct match with configured origins
     if (allowedOrigins.includes(cleanOrigin) || allowedOrigins.includes(origin)) {
       return callback(null, true);
     }
 
-    // 2. Allow any Vercel deployment preview / production domain for EduNova
-    if (/^https:\/\/chemescape.*\.vercel\.app$/.test(origin) || /^https:\/\/edunova.*\.vercel\.app$/.test(origin)) {
+    // 2. Allow any Vercel, Netlify, or Render deployment domain
+    if (
+      /\.vercel\.app$/i.test(cleanOrigin) ||
+      /\.netlify\.app$/i.test(cleanOrigin) ||
+      /\.onrender\.com$/i.test(cleanOrigin)
+    ) {
       return callback(null, true);
     }
 
-    // 3. Allow localhost in non-production environments
-    if (process.env.NODE_ENV !== 'production' && (cleanOrigin.includes('localhost') || cleanOrigin.includes('127.0.0.1'))) {
+    // 3. Allow localhost / 127.0.0.1 development origins
+    if (cleanOrigin.includes('localhost') || cleanOrigin.includes('127.0.0.1')) {
       return callback(null, true);
     }
 

@@ -597,40 +597,51 @@ async function main() {
     }
   }
 
-  // ── 8. QUESTIONS FOR 11TH CHEMISTRY & STANDARD 4 MATH ───────────────────
-  const qChem1 = await prisma.question.findFirst({
-    where: { roomId: room1.id, questionNumber: 1 },
-  });
-
-  if (!qChem1) {
-    await prisma.question.create({
-      data: {
-        chapterId: periodicChapter.id,
-        topicId: topicsMap[1]?.id || null,
-        roomId: room1.id,
-        questionNumber: 1,
-        displayOrder: 1,
-        questionType: 'MCQ',
-        questionText: 'Which element is located in Group 1, Period 3 of the Periodic Table?',
-        description: 'Identify the alkali metal in the third period.',
-        difficulty: 'EASY',
-        points: 100,
-        timeLimit: 60,
-        hint: 'Its atomic number is 11 and it reacts vigorously with water.',
-        explanation: 'Sodium (Na) is an alkali metal with atomic number 11 located in Group 1, Period 3.',
-        status: 'PUBLISHED',
-        isActive: true,
-        options: {
-          create: [
-            { optionKey: 'A', optionText: 'Lithium (Li)', isCorrect: false, orderNumber: 1 },
-            { optionKey: 'B', optionText: 'Sodium (Na)', isCorrect: true, orderNumber: 2 },
-            { optionKey: 'C', optionText: 'Potassium (K)', isCorrect: false, orderNumber: 3 },
-            { optionKey: 'D', optionText: 'Magnesium (Mg)', isCorrect: false, orderNumber: 4 },
-          ],
-        },
-      },
-    });
-    console.log(' ✔ Questions seeded: 11th Chemistry Room 1');
+  // ── 8. QUESTIONS FOR ALL CURRICULUM STANDARDS & ROOMS ───────────────────
+  try {
+    const questionService = require('../src/services/questionService');
+    const defaultQuestions = questionService.DEFAULT_QUESTIONS || [];
+    let seededCount = 0;
+    for (const q of defaultQuestions) {
+      try {
+        const existing = await prisma.question.findUnique({ where: { id: q.id } }).catch(() => null);
+        if (!existing && q.roomId) {
+          await prisma.question.create({
+            data: {
+              id: q.id,
+              chapterId: q.chapterId,
+              roomId: q.roomId,
+              questionNumber: q.questionNumber || 1,
+              displayOrder: q.displayOrder || q.questionNumber || 1,
+              questionType: q.questionType || 'MCQ',
+              questionText: q.questionText,
+              description: q.description || q.questionText,
+              difficulty: q.difficulty || 'EASY',
+              points: q.points || 100,
+              timeLimit: q.timeLimit || 60,
+              hint: q.hint || '',
+              explanation: q.explanation || '',
+              status: q.status || 'PUBLISHED',
+              isActive: q.isActive !== false,
+              options: q.options && q.options.length > 0 ? {
+                create: q.options.map((opt, optIdx) => ({
+                  id: opt.id,
+                  optionKey: opt.optionKey || String.fromCharCode(65 + optIdx),
+                  optionText: opt.optionText || opt.text || '',
+                  isCorrect: opt.isCorrect || false,
+                  orderNumber: opt.orderNumber || optIdx + 1,
+                  displayOrder: opt.displayOrder || optIdx + 1,
+                })),
+              } : undefined,
+            },
+          }).catch(() => null);
+          seededCount++;
+        }
+      } catch {}
+    }
+    console.log(` ✔ Seeded ${seededCount} curriculum questions across all standards`);
+  } catch (err) {
+    console.log(' Notice on bulk question seeding:', err.message);
   }
 
   console.log(' ✔ Game Engine & Reward configurations seeded for Rooms 1-4 & Gas Simulator');

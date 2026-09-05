@@ -2,15 +2,15 @@ const express = require('express');
 const router = express.Router();
 const roomController = require('../controllers/roomController');
 const questionController = require('../controllers/questionController');
-const authMiddleware = require('../middleware/authMiddleware');
+const { authMiddleware, optionalAuth } = require('../middleware/authMiddleware');
 const requireRole = require('../middleware/roleMiddleware');
 
-// ── Room Read Endpoints (Students, Teachers, Admins) ────────────────────────
+// ── Room Read Endpoints (Students, Teachers, Admins & Curriculum Navigation) ──
 // GET /api/rooms/:id
-router.get('/:id', authMiddleware, roomController.getRoomById);
+router.get('/:id', optionalAuth, roomController.getRoomById);
 
 // GET /api/rooms/:roomId/questions (Question navigation)
-router.get('/:roomId/questions', authMiddleware, questionController.getQuestionsByRoom);
+router.get('/:roomId/questions', optionalAuth, questionController.getQuestionsByRoom);
 
 // ── Room Mutation Endpoints (Teachers & Admins only) ─────────────────────────
 // POST /api/rooms

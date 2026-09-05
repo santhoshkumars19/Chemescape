@@ -10,12 +10,130 @@ import {
   getSubjectsForStandard,
   getChaptersForStandardAndSubject,
 } from '../config/curriculumConfig';
+import { CURRICULUM_QUESTIONS } from '../data/curriculumQuestions';
 import {
   ArrowLeft, Lightbulb, CheckCircle2, XCircle, Clock,
   Sparkles, Zap, ChevronRight, RotateCcw, Trophy,
   Shield, Heart, Award, AlertTriangle, Check, X, BookOpen,
   Send, HelpCircle, AlertCircle, Play, Loader2, ChevronLeft,
 } from 'lucide-react';
+
+// ─────────────────────────────────────────────────────────────────────────────
+// CURRICULUM QUESTIONS FALLBACK RESOLVER
+// Ensures questions ALWAYS load in deployed environments even if backend is offline
+// ─────────────────────────────────────────────────────────────────────────────
+function getCurriculumQuestionsFallback(context) {
+  const { standardId, subjectId, chapter, roomId } = context;
+  if (!Array.isArray(CURRICULUM_QUESTIONS) || CURRICULUM_QUESTIONS.length === 0) {
+    return [];
+  }
+
+  const normStd = String(standardId || '').toLowerCase().replace(/^(grade-|std-|standard-)/, '');
+  const normSubj = String(subjectId || '').toLowerCase().replace(/^(subj-|subject-)/, '');
+  const chapterId = String(chapter?.id || '').toLowerCase().trim();
+  const chapterTitle = String(chapter?.title || chapter?.name || '').toLowerCase().trim();
+  const chapterNum = Number(chapter?.chapterNumber || 1);
+  const targetRoom = String(roomId || '').toLowerCase().trim();
+
+  // 1. Direct Chapter ID or Room ID match
+  let matches = CURRICULUM_QUESTIONS.filter(q => {
+    const qChId = String(q.chapterId || '').toLowerCase().trim();
+    const qRoomId = String(q.roomId || '').toLowerCase().trim();
+    if (chapterId && (qChId === chapterId || qRoomId === chapterId)) return true;
+    if (targetRoom && (qRoomId === targetRoom || qChId === targetRoom)) return true;
+    return false;
+  });
+
+  // 2. Chapter Title match (e.g. "அன்னைத் தமிழே")
+  if (matches.length === 0 && chapterTitle) {
+    matches = CURRICULUM_QUESTIONS.filter(q => {
+      const qTitle = String(q.chapterTitle || '').toLowerCase().trim();
+      return qTitle.includes(chapterTitle) || chapterTitle.includes(qTitle);
+    });
+  }
+
+  // 3. Standard + Subject + Chapter Number match
+  if (matches.length === 0 && normStd && normSubj) {
+    matches = CURRICULUM_QUESTIONS.filter(q => {
+      const qStd = String(q.standardId || q.standard || '').toLowerCase().replace(/^(grade-|std-|standard-)/, '');
+      const qSubj = String(q.subjectId || q.subject || '').toLowerCase().replace(/^(subj-|subject-)/, '');
+      const qNum = Number(q.chapterNumber || 1);
+
+      const stdMatch = qStd.includes(normStd) || normStd.includes(qStd);
+      const subjMatch = (
+        qSubj === normSubj ||
+        ((normSubj === 'tamil' || normSubj === 'tam') && (qSubj === 'tamil' || qSubj === 'tam')) ||
+        ((normSubj === 'english' || normSubj === 'eng') && (qSubj === 'english' || qSubj === 'eng')) ||
+        ((normSubj === 'mathematics' || normSubj === 'math') && (qSubj === 'mathematics' || qSubj === 'math')) ||
+        ((normSubj === 'science' || normSubj === 'sci') && (qSubj === 'science' || qSubj === 'sci')) ||
+        ((normSubj === 'social-science' || normSubj === 'soc' || normSubj === 'social') && (qSubj === 'social-science' || qSubj === 'soc' || qSubj === 'social'))
+      );
+      const numMatch = qNum === chapterNum;
+
+      return stdMatch && subjMatch && numMatch;
+    });
+  }
+
+  // 4. Fallback to Subject + Chapter Number
+  if (matches.length === 0 && normSubj) {
+    matches = CURRICULUM_QUESTIONS.filter(q => {
+      const qSubj = String(q.subjectId || q.subject || '').toLowerCase().replace(/^(subj-|subject-)/, '');
+      const qNum = Number(q.chapterNumber || 1);
+      const subjMatch = (
+        qSubj === normSubj ||
+        ((normSubj === 'tamil' || normSubj === 'tam') && (qSubj === 'tamil' || qSubj === 'tam')) ||
+        ((normSubj === 'english' || normSubj === 'eng') && (qSubj === 'english' || qSubj === 'eng')) ||
+        ((normSubj === 'mathematics' || normSubj === 'math') && (qSubj === 'mathematics' || qSubj === 'math')) ||
+        ((normSubj === 'science' || normSubj === 'sci') && (qSubj === 'science' || qSubj === 'sci')) ||
+        ((normSubj === 'social-science' || normSubj === 'soc' || normSubj === 'social') && (qSubj === 'social-science' || qSubj === 'soc' || qSubj === 'social'))
+      );
+      return subjMatch && qNum === chapterNum;
+    });
+  }
+
+  return matches;
+}
+
+function normalizeQuizQuestions(rawList = [], fallbackMatches = []) {
+  const source = rawList && rawList.length > 0 ? rawList : fallbackMatches;
+  return source.slice(0, 10).map((q, idx) => {
+    let options = [];
+    if (Array.isArray(q.options)) {
+      options = q.options.map((opt, optIdx) => {
+        const text = typeof opt === 'string' ? opt : (opt.optionText || opt.text || '');
+        const optId = typeof opt === 'object' && opt.id ? opt.id : `opt-${q.id || idx}-${optIdx}`;
+        const key = typeof opt === 'object' && opt.optionKey ? opt.optionKey : String.fromCharCode(65 + optIdx);
+        const isOptCorrect = typeof opt === 'object' && opt.isCorrect !== undefined
+          ? opt.isCorrect
+          : (optIdx === (q.correctOptionIndex ?? 0));
+
+        return {
+          id: optId,
+          optionKey: key,
+          optionText: text,
+          orderNumber: optIdx + 1,
+          displayOrder: optIdx + 1,
+          isCorrect: isOptCorrect,
+        };
+      });
+    }
+
+    return {
+      ...q,
+      id: q.id || `q-${idx + 1}`,
+      questionNumber: q.questionNumber || idx + 1,
+      questionText: q.questionText,
+      questionType: q.questionType || 'MCQ',
+      difficulty: q.difficulty || 'EASY',
+      points: q.points || 100,
+      hint: q.hint || '',
+      explanation: q.explanation || '',
+      targetAnswer: q.targetAnswer || (options[q.correctOptionIndex || 0]?.optionText || ''),
+      correctOptionIndex: q.correctOptionIndex ?? 0,
+      options,
+    };
+  });
+}
 
 // ─────────────────────────────────────────────────────────────────────────────
 // MAIN INTERACTIVE QUIZ ENGINE
@@ -162,36 +280,65 @@ export default function InteractiveQuizEngine() {
           setLoadedRoomId(targetRoomId);
         }
 
-        let qRes = await roomService.getQuestionsByRoom(targetRoomId, {
-          standardId: resolvedStdId,
-          subjectId: resolvedSubjId,
-          chapterId: activeChapter?.id,
-        });
-        let rawList = qRes?.data?.questions || qRes?.questions || (Array.isArray(qRes) ? qRes : []);
+        let rawList = [];
+        try {
+          let qRes = await roomService.getQuestionsByRoom(targetRoomId, {
+            standardId: resolvedStdId,
+            subjectId: resolvedSubjId,
+            chapterId: activeChapter?.id,
+          });
+          rawList = qRes?.data?.questions || qRes?.questions || (Array.isArray(qRes) ? qRes : []);
 
-        if ((!rawList || rawList.length === 0) && targetRoomId) {
-          try {
-            qRes = await roomService.getQuestionsByRoom(targetRoomId, {
-              standardId: resolvedStdId,
-              subjectId: resolvedSubjId,
-            });
-            rawList = qRes?.data?.questions || qRes?.questions || (Array.isArray(qRes) ? qRes : []);
-          } catch {}
+          if ((!rawList || rawList.length === 0) && targetRoomId) {
+            try {
+              qRes = await roomService.getQuestionsByRoom(targetRoomId, {
+                standardId: resolvedStdId,
+                subjectId: resolvedSubjId,
+              });
+              rawList = qRes?.data?.questions || qRes?.questions || (Array.isArray(qRes) ? qRes : []);
+            } catch {}
+          }
+        } catch (apiErr) {
+          console.warn('[InteractiveQuizEngine] Backend API notice:', apiErr.message);
+        }
+
+        // Resilient Fallback: If backend returned no questions or is offline in production
+        let finalQuestions = [];
+        if (Array.isArray(rawList) && rawList.length > 0) {
+          finalQuestions = normalizeQuizQuestions(rawList);
+        } else {
+          const fallbackMatches = getCurriculumQuestionsFallback({
+            standardId: resolvedStdId,
+            subjectId: resolvedSubjId,
+            chapter: activeChapter,
+            roomId: targetRoomId,
+          });
+          if (fallbackMatches.length > 0) {
+            finalQuestions = normalizeQuizQuestions([], fallbackMatches);
+          }
         }
 
         if (isMounted) {
-          if (Array.isArray(rawList) && rawList.length > 0) {
-            setQuestions(rawList.slice(0, 10));
-          } else {
-            setQuestions([]);
-          }
+          setQuestions(finalQuestions);
+          setError(null);
           setLoading(false);
         }
       } catch (err) {
         if (isMounted) {
-          const errMsg = err.response?.data?.message || err.message || 'Unable to load questions';
-          setError(errMsg);
-          setQuestions([]);
+          const fallbackMatches = getCurriculumQuestionsFallback({
+            standardId: resolvedStdId,
+            subjectId: resolvedSubjId,
+            chapter: activeChapter,
+            roomId: targetRoomId,
+          });
+          if (fallbackMatches.length > 0) {
+            setQuestions(normalizeQuizQuestions([], fallbackMatches));
+            setError(null);
+          } else {
+            const errMsg = err.response?.data?.message || err.message || 'Unable to load questions';
+            setError(errMsg);
+            setQuestions([]);
+          }
           setLoading(false);
         }
       }
@@ -269,8 +416,40 @@ export default function InteractiveQuizEngine() {
         setWrongCount(prev => prev + 1);
       }
     } catch (err) {
+      // Disconnected backend or network failure fallback:
+      let isCorrect = false;
+      if (qType === 'MCQ' || qType === 'SINGLE_CHOICE') {
+        const selectedOpt = (currentQuestion.options || []).find(
+          o => o.id === answerToSubmit || o.optionKey === answerToSubmit || o.optionText === answerToSubmit
+        );
+        if (selectedOpt) {
+          isCorrect = selectedOpt.isCorrect === true ||
+            (selectedOpt.orderNumber - 1 === currentQuestion.correctOptionIndex) ||
+            (currentQuestion.targetAnswer && selectedOpt.optionText?.trim() === currentQuestion.targetAnswer?.trim());
+        }
+      } else if (qType === 'CALCULATION' || qType === 'NUMERIC') {
+        isCorrect = String(currentQuestion.targetAnswer || '').trim().toLowerCase() === answerToSubmit.trim().toLowerCase();
+      }
+
+      const earnedPoints = isCorrect ? (currentQuestion.points || 100) : 0;
+      const fallbackFeedback = isCorrect
+        ? 'Correct! Excellent job.'
+        : (currentQuestion.explanation ? `Incorrect. ${currentQuestion.explanation}` : 'Incorrect. Keep going!');
+
       setIsChecking(false);
-      setAnswerError('Unable to check your answer. Please retry.');
+      setIsSubmitted(true);
+      setFeedback({
+        isCorrect,
+        message: isCorrect ? `✓ ${fallbackFeedback}` : `✕ ${fallbackFeedback}`,
+        earnedPoints,
+      });
+
+      if (isCorrect) {
+        setScore(prev => prev + earnedPoints);
+        setCorrectCount(prev => prev + 1);
+      } else {
+        setWrongCount(prev => prev + 1);
+      }
     }
   }, [currentQuestion, isSubmitted, isChecking, selectedOptionId, calculationInput, loadedRoomId]);
 

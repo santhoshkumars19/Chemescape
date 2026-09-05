@@ -71,5 +71,15 @@
     "avatar": "🎓",
     "createdAt": "2026-09-04T17:44:19.814Z",
     "updatedAt": "2026-09-04T17:44:19.815Z"
+  },
+  {
+    "id": "usr-1788592054326-sc4ok",
+    "name": "Alex Scholar",
+    "email": "student_1788592053940@edunova.com",
+    "password": "$2b$10$41K7eCo.Dq5oiqKPhVRoTO8CpOdXgPNnmIBmiy37bIMxLzCSSXtF2",
+    "role": "STUDENT",
+    "avatar": "🎓",
+    "createdAt": "2026-09-05T07:07:34.326Z",
+    "updatedAt": "2026-09-05T07:07:34.326Z"
   }
 ]

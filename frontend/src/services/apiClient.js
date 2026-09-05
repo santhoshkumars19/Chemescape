@@ -1,4 +1,20 @@
-const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api';
+function resolveApiBase() {
+  const envUrl = import.meta.env.VITE_API_BASE_URL;
+  if (envUrl && typeof envUrl === 'string' && envUrl.trim()) {
+    return envUrl.trim().replace(/\/+$/, '');
+  }
+  if (typeof window !== 'undefined' && window.location) {
+    const hostname = window.location.hostname;
+    const isLocal = hostname === 'localhost' || hostname === '127.0.0.1' || hostname.startsWith('192.168.');
+    if (!isLocal) {
+      // If deployed on Vercel/Netlify without backend URL, prevent mixed-content block
+      return '/api';
+    }
+  }
+  return 'http://localhost:5000/api';
+}
+
+export const API_BASE = resolveApiBase();
 
 /**
  * Reusable HTTP API Client for EduNova

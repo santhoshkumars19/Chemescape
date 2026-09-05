@@ -1831,4 +1831,7 @@ class QuestionService {
   }
 }
 
-module.exports = new QuestionService();
+const questionServiceInstance = new QuestionService();
+questionServiceInstance.DEFAULT_QUESTIONS = DEFAULT_QUESTIONS;
+
+module.exports = questionServiceInstance;

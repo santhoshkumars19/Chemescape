@@ -10,6 +10,7 @@ import { DashCard, AnimatedCounter } from './DashComponents';
 import { useAuth } from '../auth/AuthContext';
 import { useNavigation } from '../context/NavigationContext';
 import { CURRICULUM_QUESTIONS } from '../data/curriculumQuestions';
+import { API_BASE } from '../services/apiClient';
 
 const STANDARDS = [
   { id: 'ALL', label: 'All Standards' },
@@ -83,7 +84,7 @@ export default function TeacherQuestionBankPage() {
       if (!authToken) return;
       try {
         setIsLoadingApi(true);
-        const res = await fetch('http://localhost:5000/api/questions', {
+        const res = await fetch(`${API_BASE}/questions`, {
           headers: {
             Authorization: `Bearer ${authToken}`
           }
@@ -257,7 +258,7 @@ export default function TeacherQuestionBankPage() {
         };
 
         if (editingQuestion) {
-          await fetch(`http://localhost:5000/api/questions/${editingQuestion.id}`, {
+          await fetch(`${API_BASE}/questions/${editingQuestion.id}`, {
             method: 'PUT',
             headers: {
               'Content-Type': 'application/json',
@@ -266,7 +267,7 @@ export default function TeacherQuestionBankPage() {
             body: JSON.stringify(payload)
           });
         } else {
-          await fetch('http://localhost:5000/api/questions', {
+          await fetch(`${API_BASE}/questions`, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
@@ -288,7 +289,7 @@ export default function TeacherQuestionBankPage() {
     const authToken = token || localStorage.getItem('chemescape_token');
     if (authToken) {
       try {
-        await fetch(`http://localhost:5000/api/questions/${id}`, {
+        await fetch(`${API_BASE}/questions/${id}`, {
           method: 'DELETE',
           headers: {
             Authorization: `Bearer ${authToken}`
