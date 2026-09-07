@@ -1,1 +1,13 @@
-[]
+[
+  {
+    "userId": "usr-1788766211877-8z84d",
+    "roomId": "room-tam4-1",
+    "isCompleted": true,
+    "highScore": 800,
+    "starsEarned": 3,
+    "attempts": 2,
+    "chapterId": "ch-tam4-1",
+    "bestTimeSec": 50,
+    "updatedAt": "2026-09-07T07:33:18.703Z"
+  }
+]

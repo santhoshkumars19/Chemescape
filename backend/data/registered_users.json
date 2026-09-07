@@ -40,5 +40,15 @@
     "avatar": "🎓",
     "createdAt": "2026-09-05T17:04:20.585Z",
     "updatedAt": "2026-09-05T17:04:20.585Z"
+  },
+  {
+    "id": "usr-1788766211877-8z84d",
+    "name": "San",
+    "email": "san123@gmail.com",
+    "password": "$2b$10$lTGyDXpaH.zDJrUN4QafbeN4iJ57WSMvmLGkdewNw51An2QC.ZS9u",
+    "role": "STUDENT",
+    "avatar": "🎓",
+    "createdAt": "2026-09-07T07:30:11.877Z",
+    "updatedAt": "2026-09-07T07:30:11.877Z"
   }
 ]
