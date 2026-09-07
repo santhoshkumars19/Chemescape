@@ -931,6 +931,7 @@ export const CHAPTERS_STORE = {
     },
   ],
   // ── Standard 6 Subjects ──────────────────────────────────────────────────────
+  // ── Standard 6 Subjects ──────────────────────────────────────────────────────
   'grade-6:tamil': [
     {
       id: 'ch-tam6-1',
@@ -942,6 +943,28 @@ export const CHAPTERS_STORE = {
       coinsReward: 100,
       gameType: 'Interactive Quiz Engine',
       missionCode: 'TAM-0601',
+    },
+    {
+      id: 'ch-tam6-2',
+      chapterNumber: 2,
+      title: 'இயற்கை இன்பம் (சிலப்பதிகாரம் & காணி நிலம்)',
+      description: 'இளங்கோவடிகளின் சிலப்பதிகாரம், பாரதியாரின் காணி நிலம் மற்றும் சிறகின் ஓசை.',
+      difficulty: 'Intermediate',
+      xpReward: 450,
+      coinsReward: 110,
+      gameType: 'Interactive Quiz Engine',
+      missionCode: 'TAM-0602',
+    },
+    {
+      id: 'ch-tam6-3',
+      chapterNumber: 3,
+      title: 'அறிவியல் ஆத்திசூடி & கணியனின் நண்பன்',
+      description: 'அறிவியல் ஆத்திசூடி, கணியனின் நண்பன் (ரோபோ), மற்றும் ஒளி பிறந்தது.',
+      difficulty: 'Advanced',
+      xpReward: 500,
+      coinsReward: 120,
+      gameType: 'Interactive Quiz Engine',
+      missionCode: 'TAM-0603',
     },
   ],
   'grade-6:english': [
@@ -956,6 +979,17 @@ export const CHAPTERS_STORE = {
       gameType: 'Interactive Quiz Engine',
       missionCode: 'ENG-0601',
     },
+    {
+      id: 'ch-eng6-2',
+      chapterNumber: 2,
+      title: 'When the Trees Walked',
+      description: 'Ruskin Bond classic tale of nature, companionship, and descriptive vocabulary.',
+      difficulty: 'Intermediate',
+      xpReward: 450,
+      coinsReward: 110,
+      gameType: 'Interactive Quiz Engine',
+      missionCode: 'ENG-0602',
+    },
   ],
   'grade-6:mathematics': [
     {
@@ -968,6 +1002,17 @@ export const CHAPTERS_STORE = {
       coinsReward: 100,
       gameType: 'Interactive Quiz Engine',
       missionCode: 'MTH-0601',
+    },
+    {
+      id: 'ch-math6-2',
+      chapterNumber: 2,
+      title: 'Introduction to Algebra',
+      description: 'Patterns, variables, expressions, and writing algebraic rules from word problems.',
+      difficulty: 'Intermediate',
+      xpReward: 450,
+      coinsReward: 110,
+      gameType: 'Interactive Quiz Engine',
+      missionCode: 'MTH-0602',
     },
   ],
   'grade-6:science': [
@@ -982,6 +1027,17 @@ export const CHAPTERS_STORE = {
       gameType: 'Interactive Quiz Engine',
       missionCode: 'SCI-0601',
     },
+    {
+      id: 'ch-sci6-2',
+      chapterNumber: 2,
+      title: 'Force and Motion',
+      description: 'Push and pull, types of forces, rectilinear and periodic motion, and average speed.',
+      difficulty: 'Intermediate',
+      xpReward: 450,
+      coinsReward: 110,
+      gameType: 'Interactive Quiz Engine',
+      missionCode: 'SCI-0602',
+    },
   ],
   'grade-6:social-science': [
     {
@@ -994,6 +1050,17 @@ export const CHAPTERS_STORE = {
       coinsReward: 100,
       gameType: 'Interactive Quiz Engine',
       missionCode: 'SOC-0601',
+    },
+    {
+      id: 'ch-soc6-2',
+      chapterNumber: 2,
+      title: 'Human Evolution',
+      description: 'Stages of human migration, discovery of fire, cave art, and agricultural beginnings.',
+      difficulty: 'Intermediate',
+      xpReward: 450,
+      coinsReward: 110,
+      gameType: 'Interactive Quiz Engine',
+      missionCode: 'SOC-0602',
     },
   ],
 
@@ -1010,6 +1077,28 @@ export const CHAPTERS_STORE = {
       gameType: 'Interactive Quiz Engine',
       missionCode: 'TAM-0701',
     },
+    {
+      id: 'ch-tam7-2',
+      chapterNumber: 2,
+      title: 'விலங்குகள் உலகம் & திருக்குறள்',
+      description: 'காடு, விலங்குகள் பற்றிய தகவல்கள், நால்வகை குறுக்கங்கள் மற்றும் திருக்குறள் நன்னெறிகள்.',
+      difficulty: 'Intermediate',
+      xpReward: 450,
+      coinsReward: 110,
+      gameType: 'Interactive Quiz Engine',
+      missionCode: 'TAM-0702',
+    },
+    {
+      id: 'ch-tam7-3',
+      chapterNumber: 3,
+      title: 'நாடு அதை நாடு (தேசியம் & வழக்கு)',
+      description: 'முத்துராமலிங்கத் தேவர், கப்பலோட்டிய தமிழர் வ.உ.சி மற்றும் வழக்கு இலக்கணம்.',
+      difficulty: 'Advanced',
+      xpReward: 500,
+      coinsReward: 120,
+      gameType: 'Interactive Quiz Engine',
+      missionCode: 'TAM-0703',
+    },
   ],
   'grade-7:english': [
     {
@@ -1022,6 +1111,17 @@ export const CHAPTERS_STORE = {
       coinsReward: 100,
       gameType: 'Interactive Quiz Engine',
       missionCode: 'ENG-0701',
+    },
+    {
+      id: 'ch-eng7-2',
+      chapterNumber: 2,
+      title: 'The Wind on Haunted Hill',
+      description: 'Ruskin Bond suspense narrative, modal verbs, reading comprehension, and creative writing.',
+      difficulty: 'Intermediate',
+      xpReward: 450,
+      coinsReward: 110,
+      gameType: 'Interactive Quiz Engine',
+      missionCode: 'ENG-0702',
     },
   ],
   'grade-7:mathematics': [
@@ -1036,6 +1136,17 @@ export const CHAPTERS_STORE = {
       gameType: 'Interactive Quiz Engine',
       missionCode: 'MTH-0701',
     },
+    {
+      id: 'ch-math7-2',
+      chapterNumber: 2,
+      title: 'Measurements & Circumference',
+      description: 'Area of parallelogram, rhombus, trapezium, and circular perimeter formulas.',
+      difficulty: 'Intermediate',
+      xpReward: 450,
+      coinsReward: 110,
+      gameType: 'Interactive Quiz Engine',
+      missionCode: 'MTH-0702',
+    },
   ],
   'grade-7:science': [
     {
@@ -1049,6 +1160,17 @@ export const CHAPTERS_STORE = {
       gameType: 'Interactive Quiz Engine',
       missionCode: 'SCI-0701',
     },
+    {
+      id: 'ch-sci7-2',
+      chapterNumber: 2,
+      title: 'Force and Motion',
+      description: 'Distance vs displacement, speed vs velocity, acceleration, and graphical motion representation.',
+      difficulty: 'Intermediate',
+      xpReward: 450,
+      coinsReward: 110,
+      gameType: 'Interactive Quiz Engine',
+      missionCode: 'SCI-0702',
+    },
   ],
   'grade-7:social-science': [
     {
@@ -1061,6 +1183,17 @@ export const CHAPTERS_STORE = {
       coinsReward: 100,
       gameType: 'Interactive Quiz Engine',
       missionCode: 'SOC-0701',
+    },
+    {
+      id: 'ch-soc7-2',
+      chapterNumber: 2,
+      title: 'Emergence of New Kingdoms in North India',
+      description: 'Rajput clans, Gurjara-Pratiharas, Palas, Chauhans, and Mahmud of Ghazni invasions.',
+      difficulty: 'Intermediate',
+      xpReward: 450,
+      coinsReward: 110,
+      gameType: 'Interactive Quiz Engine',
+      missionCode: 'SOC-0702',
     },
   ],
 
@@ -1077,6 +1210,28 @@ export const CHAPTERS_STORE = {
       gameType: 'Interactive Quiz Engine',
       missionCode: 'TAM-0801',
     },
+    {
+      id: 'ch-tam8-2',
+      chapterNumber: 2,
+      title: 'ஈடில்லா இயற்கை (Nature & Verbs)',
+      description: 'ஓடை கவிதை, கோணக்காத்துப் பாட்டு, நிலம் பொது மற்றும் வினைமுற்று இலக்கணம்.',
+      difficulty: 'Intermediate',
+      xpReward: 450,
+      coinsReward: 110,
+      gameType: 'Interactive Quiz Engine',
+      missionCode: 'TAM-0802',
+    },
+    {
+      id: 'ch-tam8-3',
+      chapterNumber: 3,
+      title: 'உடலை ஓம்பல் (Health & Participles)',
+      description: 'வருமுன் காப்போம், தமிழர் மருத்துவம், நலம் பெற வாழ்தல் மற்றும் எச்சம் இலக்கணம்.',
+      difficulty: 'Advanced',
+      xpReward: 500,
+      coinsReward: 120,
+      gameType: 'Interactive Quiz Engine',
+      missionCode: 'TAM-0803',
+    },
   ],
   'grade-8:english': [
     {
@@ -1089,6 +1244,17 @@ export const CHAPTERS_STORE = {
       coinsReward: 100,
       gameType: 'Interactive Quiz Engine',
       missionCode: 'ENG-0801',
+    },
+    {
+      id: 'ch-eng8-2',
+      chapterNumber: 2,
+      title: 'Hobby Turns into a Successful Career',
+      description: 'Narrative prose on transforming personal passions into enterprise, phrasal verbs, and reported speech.',
+      difficulty: 'Intermediate',
+      xpReward: 450,
+      coinsReward: 110,
+      gameType: 'Interactive Quiz Engine',
+      missionCode: 'ENG-0802',
     },
   ],
   'grade-8:mathematics': [
@@ -1103,6 +1269,17 @@ export const CHAPTERS_STORE = {
       gameType: 'Interactive Quiz Engine',
       missionCode: 'MTH-0801',
     },
+    {
+      id: 'ch-math8-2',
+      chapterNumber: 2,
+      title: 'Measurements & Geometry',
+      description: 'Combined shapes, circles, sectors, length of arc, and area calculations.',
+      difficulty: 'Intermediate',
+      xpReward: 450,
+      coinsReward: 110,
+      gameType: 'Interactive Quiz Engine',
+      missionCode: 'MTH-0802',
+    },
   ],
   'grade-8:science': [
     {
@@ -1116,6 +1293,17 @@ export const CHAPTERS_STORE = {
       gameType: 'Interactive Quiz Engine',
       missionCode: 'SCI-0801',
     },
+    {
+      id: 'ch-sci8-2',
+      chapterNumber: 2,
+      title: 'Forces and Pressure',
+      description: 'Contact and non-contact forces, friction, atmospheric pressure, and Pascal’s law.',
+      difficulty: 'Intermediate',
+      xpReward: 450,
+      coinsReward: 110,
+      gameType: 'Interactive Quiz Engine',
+      missionCode: 'SCI-0802',
+    },
   ],
   'grade-8:social-science': [
     {
@@ -1128,6 +1316,17 @@ export const CHAPTERS_STORE = {
       coinsReward: 100,
       gameType: 'Interactive Quiz Engine',
       missionCode: 'SOC-0801',
+    },
+    {
+      id: 'ch-soc8-2',
+      chapterNumber: 2,
+      title: 'From Trade to Territory',
+      description: 'Battle of Plassey, Battle of Buxar, Carnatic wars, Doctrine of Lapse, and British territorial expansion.',
+      difficulty: 'Intermediate',
+      xpReward: 450,
+      coinsReward: 110,
+      gameType: 'Interactive Quiz Engine',
+      missionCode: 'SOC-0802',
     },
   ],
 
@@ -1252,22 +1451,64 @@ export function getChaptersForStandardAndSubject(standardId, subjectId) {
 export function getChapterStatus(chapter, index, allChapters, completedRooms = [], userProgressList = []) {
   if (!chapter) return { status: 'LOCKED', progress: 0, stars: 0, isUnlocked: false };
 
+  const chapterNum = index + 1;
+
+  // Build ALL possible IDs this chapter might be identified by.
+  // The quiz engine generates roomIds like: room-sci8-1, room-tam7-2, room-math6-1
+  // so we include those patterns here to ensure a match.
+  const subjCodes = chapter.subjectId
+    ? [
+        chapter.subjectId,
+        chapter.subjectId.slice(0, 3),          // e.g. 'sci', 'tam', 'eng', 'mat', 'soc'
+        chapter.subjectId.replace('-', ''),      // e.g. 'socialscience'
+        chapter.subjectId.replace('social-science', 'soc').replace('mathematics', 'math'),
+      ]
+    : [];
+  const stdNum = chapter.standardId
+    ? String(chapter.standardId).replace(/[^0-9]/g, '')
+    : '';
+
+  const dynamicRoomIds = [];
+  subjCodes.forEach(code => {
+    if (code && stdNum) {
+      dynamicRoomIds.push(`room-${code}${stdNum}-${chapterNum}`);
+      dynamicRoomIds.push(`room-${code}-${stdNum}-${chapterNum}`);
+    }
+  });
+
   const possibleIds = [
     chapter.id,
-    `chap-${index + 1}`,
-    `chap_${index + 1}`,
-    `room${index + 1}`,
-    `room-${index + 1}`,
-    `unit${index + 1}`,
-    `unit-${index + 1}`,
-    String(index + 1),
+    `chap-${chapterNum}`,
+    `chap_${chapterNum}`,
+    `room${chapterNum}`,
+    `room-${chapterNum}`,
+    `unit${chapterNum}`,
+    `unit-${chapterNum}`,
+    String(chapterNum),
     chapter.missionCode,
+    ...dynamicRoomIds,
   ].filter(Boolean);
 
-  // 1. Check completedRooms array
-  const isLocallyCompleted = possibleIds.some(id => completedRooms.includes(id));
+  // 1. Check completedRooms array — exact match first
+  let isLocallyCompleted = possibleIds.some(id => completedRooms.includes(id));
 
-  // 2. Check backend userProgressList
+  // 2. Broad fallback: if any completedRooms entry ends with the chapter number
+  //    and contains the chapter's subjectId snippet (handles edge-case roomId formats)
+  if (!isLocallyCompleted && completedRooms.length > 0) {
+    const chIdLower = String(chapter.id || '').toLowerCase();
+    isLocallyCompleted = completedRooms.some(rid => {
+      const r = String(rid).toLowerCase();
+      // Match patterns like "room-sci8-1", "chap-1", "grade-8-science-1"
+      const endsWithNum = r.endsWith(`-${chapterNum}`) || r.endsWith(`_${chapterNum}`);
+      if (!endsWithNum) return false;
+      // Also ensure the subject or chapter id is embedded
+      if (chIdLower && r.includes(chIdLower)) return true;
+      if (subjCodes.some(sc => sc && r.includes(sc.toLowerCase()))) return true;
+      return false;
+    });
+  }
+
+  // 3. Check backend userProgressList
   let backendProgress = null;
   if (Array.isArray(userProgressList)) {
     backendProgress = userProgressList.find(p => {
@@ -1277,7 +1518,7 @@ export function getChapterStatus(chapter, index, allChapters, completedRooms = [
       return (
         possibleIds.includes(roomId) ||
         possibleIds.includes(chapterId) ||
-        roomNum === index + 1
+        roomNum === chapterNum
       );
     });
   }
@@ -1296,7 +1537,7 @@ export function getChapterStatus(chapter, index, allChapters, completedRooms = [
     };
   }
 
-  // 3. Check if previous chapter is completed
+  // 4. Check if previous chapter is completed
   let isPreviousCompleted = false;
   if (index === 0) {
     isPreviousCompleted = true; // First chapter is always unlocked

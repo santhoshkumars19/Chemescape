@@ -120,8 +120,17 @@ export function NavigationProvider({ children }) {
     setCurrentRoomRaw(roomObj);
   }, []);
 
-  // ── User-specific progress (starts empty — loaded per-user after login) ──
-  const [completedRooms, setCompletedRooms]     = useState([]);
+  // ── User-specific progress (loaded per-user from scoped localStorage on startup) ──
+  const [completedRooms, setCompletedRooms]     = useState(() => {
+    try {
+      const userRaw = localStorage.getItem('chemescape_user');
+      const u = userRaw ? JSON.parse(userRaw) : null;
+      if (u?.id) {
+        return scopedGetJSON(u.id, 'completedRooms') || [];
+      }
+    } catch {}
+    return [];
+  });
   const [xp, setXp]                             = useState(0);
   const [coins, setCoins]                       = useState(0);
   const [level, setLevel]                       = useState(1);
@@ -243,9 +252,18 @@ export function NavigationProvider({ children }) {
     removeGlobalLegacyKeys();
   }, []);
 
-  const refreshUserStats = useCallback(async (userId = null) => {
+  const refreshUserStats = useCallback(async (userIdParam = null) => {
     const token = localStorage.getItem('chemescape_token');
     if (!token) return;
+
+    let userId = userIdParam;
+    if (!userId) {
+      try {
+        const userRaw = localStorage.getItem('chemescape_user');
+        const u = userRaw ? JSON.parse(userRaw) : null;
+        userId = u?.id || null;
+      } catch {}
+    }
 
     try {
       const data = await gameService.getUserProgress();
@@ -264,8 +282,15 @@ export function NavigationProvider({ children }) {
         const backendRooms = data.completedList
           .map(p => p.roomId || p.room?.id)
           .filter(Boolean);
-        setCompletedRooms(backendRooms);
-        if (userId) scopedSetJSON(userId, 'completedRooms', backendRooms);
+
+        // MERGE backend rooms with locally persisted rooms.
+        // Never replace local rooms with a potentially-stale/empty API response
+        // (e.g. right after quiz completion while the offline store is still syncing).
+        const localRooms = userId ? (scopedGetJSON(userId, 'completedRooms') || []) : [];
+        const merged = Array.from(new Set([...localRooms, ...backendRooms]));
+
+        setCompletedRooms(merged);
+        if (userId) scopedSetJSON(userId, 'completedRooms', merged);
       }
 
       if (userId) {
@@ -283,6 +308,21 @@ export function NavigationProvider({ children }) {
       console.warn('[EduNova] Failed to refresh user stats:', err.message);
     }
   }, []);
+
+  // ── Auto-Sync User Progress on Component Mount & Refresh ──────────────────
+  useEffect(() => {
+    try {
+      const userRaw = localStorage.getItem('chemescape_user');
+      const u = userRaw ? JSON.parse(userRaw) : null;
+      if (u?.id) {
+        const local = scopedGetJSON(u.id, 'completedRooms');
+        if (Array.isArray(local) && local.length > 0) {
+          setCompletedRooms(local);
+        }
+        refreshUserStats(u.id);
+      }
+    } catch {}
+  }, [refreshUserStats]);
 
   // ─────────────────────────────────────────────────────────────────────────
   // Navigation
@@ -334,35 +374,49 @@ export function NavigationProvider({ children }) {
   const addXp    = useCallback((amount) => setXp(prev  => prev + amount), []);
   const addCoins = useCallback((amount) => setCoins(prev => prev + amount), []);
 
-  const markRoomCompleted = useCallback((roomName, chapterId = null) => {
+  const markRoomCompleted = useCallback((roomName, chapterId = null, extraContext = {}) => {
     const idsToAdd = [
       roomName,
       chapterId,
       selectedChapterId,
     ].filter(Boolean);
 
+    // Cross-reference ID aliases so getChapterStatus matches regardless of format
+    if (chapterId && typeof chapterId === 'string' && chapterId.startsWith('ch-')) {
+      idsToAdd.push(chapterId.replace('ch-', 'room-'));
+    }
+    if (roomName && typeof roomName === 'string' && roomName.startsWith('room-')) {
+      idsToAdd.push(roomName.replace('room-', 'ch-'));
+    }
+    const chNum = extraContext?.chapterNumber || 1;
+    idsToAdd.push(`chap-${chNum}`);
+    idsToAdd.push(`room-${chNum}`);
+    idsToAdd.push(String(chNum));
+
+    // Resolve the logged-in user synchronously
+    let userId = null;
+    try {
+      const userRaw = localStorage.getItem('chemescape_user');
+      const u = userRaw ? JSON.parse(userRaw) : null;
+      userId = u?.id || null;
+    } catch { /* non-fatal */ }
+
     setCompletedRooms(prev => {
       const next = [...prev];
       idsToAdd.forEach(id => {
         if (!next.includes(id)) next.push(id);
       });
-      try {
-        const userRaw = localStorage.getItem('chemescape_user');
-        const u = userRaw ? JSON.parse(userRaw) : null;
-        if (u?.id) scopedSetJSON(u.id, 'completedRooms', next);
-      } catch {
-        /* non-fatal */
+      // Persist to user-scoped localStorage SYNCHRONOUSLY
+      if (userId) {
+        try { scopedSetJSON(userId, 'completedRooms', next); } catch { /* non-fatal */ }
       }
       return next;
     });
 
-    try {
-      const userRaw = localStorage.getItem('chemescape_user');
-      const u = userRaw ? JSON.parse(userRaw) : null;
-      refreshUserStats(u?.id);
-    } catch {
-      refreshUserStats();
-    }
+    // Refresh user stats from backend with the resolved user ID
+    setTimeout(() => {
+      refreshUserStats(userId);
+    }, 100);
   }, [selectedChapterId, refreshUserStats]);
 
   return (

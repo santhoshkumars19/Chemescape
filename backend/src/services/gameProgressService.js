@@ -136,10 +136,22 @@ class GameProgressService {
             completedProgress.push({
               userId,
               roomId: prog.roomId,
+              chapterId: prog.chapterId,
               isCompleted: true,
               score: prog.highScore || prog.score || 0,
               stars: prog.starsEarned || prog.stars || 0,
             });
+            // If roomId and chapterId are different, also record chapterId so frontend matches either
+            if (prog.chapterId && prog.chapterId !== prog.roomId) {
+              completedProgress.push({
+                userId,
+                roomId: prog.chapterId,
+                chapterId: prog.chapterId,
+                isCompleted: true,
+                score: prog.highScore || prog.score || 0,
+                stars: prog.starsEarned || prog.stars || 0,
+              });
+            }
           }
         }
       }
@@ -155,6 +167,7 @@ class GameProgressService {
       badgesCount: badges.length,
       badges,
       completedList: completedProgress,
+      progress: completedProgress,
     };
   }
 

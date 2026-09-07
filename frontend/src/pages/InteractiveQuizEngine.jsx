@@ -91,6 +91,21 @@ function getCurriculumQuestionsFallback(context) {
     });
   }
 
+  // 5. Broad Fallback: match any questions for this subject so Chapter 2+ always has questions
+  if (matches.length === 0 && normSubj) {
+    matches = CURRICULUM_QUESTIONS.filter(q => {
+      const qSubj = String(q.subjectId || q.subject || '').toLowerCase().replace(/^(subj-|subject-)/, '');
+      return (
+        qSubj === normSubj ||
+        ((normSubj === 'tamil' || normSubj === 'tam') && (qSubj === 'tamil' || qSubj === 'tam')) ||
+        ((normSubj === 'english' || normSubj === 'eng') && (qSubj === 'english' || qSubj === 'eng')) ||
+        ((normSubj === 'mathematics' || normSubj === 'math') && (qSubj === 'mathematics' || qSubj === 'math')) ||
+        ((normSubj === 'science' || normSubj === 'sci') && (qSubj === 'science' || qSubj === 'sci')) ||
+        ((normSubj === 'social-science' || normSubj === 'soc' || normSubj === 'social') && (qSubj === 'social-science' || qSubj === 'soc' || qSubj === 'social'))
+      );
+    });
+  }
+
   return matches;
 }
 
@@ -482,12 +497,25 @@ export default function InteractiveQuizEngine() {
 
       const res = await gameService.completeRoom(targetRoomId, payload);
       const data = res?.data || res;
-      setCompletionData(data);
 
       const isPassed = data?.passed === true || (data?.passed !== false && correctCount >= 7);
+      setCompletionData({
+        ...data,
+        passed: isPassed,
+        completed: isPassed,
+        score: correctCount,
+        totalQuestions,
+        minimumPassScore: 7,
+        retryRequired: !isPassed,
+        nextChapterUnlocked: isPassed,
+      });
+
       if (isPassed) {
-        markRoomCompleted(targetRoomId, activeChapter?.id);
-        refreshUserStats();
+        markRoomCompleted(targetRoomId, activeChapter?.id, {
+          chapterNumber: activeChapter?.chapterNumber || 1,
+          score: correctCount,
+        });
+        refreshUserStats(user?.id);
       }
 
       apiClient.post('/reports/activity', {
@@ -512,8 +540,11 @@ export default function InteractiveQuizEngine() {
       console.warn('[QuizEngine] Completion API call returned:', err.message);
       const isPassed = correctCount >= 7;
       if (isPassed) {
-        markRoomCompleted(targetRoomId, activeChapter?.id);
-        refreshUserStats();
+        markRoomCompleted(targetRoomId, activeChapter?.id, {
+          chapterNumber: activeChapter?.chapterNumber || 1,
+          score: correctCount,
+        });
+        refreshUserStats(user?.id);
       }
       setCompletionData({
         passed: isPassed,
