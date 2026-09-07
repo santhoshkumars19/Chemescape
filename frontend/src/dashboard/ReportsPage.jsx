@@ -269,17 +269,17 @@ export default function ReportsPage() {
             </div>
             <div>
               <div className="flex items-center gap-2 flex-wrap mb-1">
-                <span className="text-[11px] font-orbitron font-extrabold px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 uppercase tracking-wider">
+                <span className="text-[11px] font-orbitron font-extrabold px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 border border-emerald-500/30 uppercase tracking-wider">
                   OFFICIAL EXCEL REPORTING
                 </span>
-                <span className="text-xs font-space text-slate-400 flex items-center gap-1">
-                  <Shield size={12} className="text-emerald-400" /> TEACHER & ADMIN RBAC VERIFIED
+                <span className="text-xs font-space text-[var(--text-muted)] flex items-center gap-1">
+                  <Shield size={12} className="text-emerald-600 dark:text-emerald-400" /> TEACHER & ADMIN RBAC VERIFIED
                 </span>
               </div>
-              <h1 className="font-orbitron font-black text-2xl sm:text-3xl text-white leading-tight">
+              <h1 className="font-orbitron font-black text-2xl sm:text-3xl text-[var(--text-main)] leading-tight">
                 User Quiz & Game Activity Reports
               </h1>
-              <p className="text-white/50 text-xs sm:text-sm font-inter">
+              <p className="text-[var(--text-muted)] text-xs sm:text-sm font-inter mt-1">
                 Permanent activity logging, accuracy tracking, multi-attempt user history, and one-click Excel (.xlsx) export.
               </p>
             </div>
@@ -300,7 +300,7 @@ export default function ReportsPage() {
             <button
               onClick={() => handleDownloadExcel(true)}
               disabled={downloading}
-              className="px-3.5 py-2.5 rounded-xl font-space text-xs transition-all duration-200 flex items-center gap-2 bg-[#0B1210] hover:bg-[#121c19] text-emerald-300 border border-emerald-500/30 cursor-pointer disabled:opacity-50"
+              className="px-3.5 py-2.5 rounded-xl font-space text-xs transition-all duration-200 flex items-center gap-2 bg-[var(--bg-card)] hover:bg-[var(--bg-secondary)] text-emerald-700 dark:text-emerald-300 border border-emerald-500/30 cursor-pointer disabled:opacity-50 shadow-sm"
               title="Download currently filtered rows as Excel"
             >
               <Download size={14} />
@@ -310,7 +310,7 @@ export default function ReportsPage() {
             <button
               onClick={() => fetchReportsData()}
               disabled={loading}
-              className="p-2.5 rounded-xl font-space text-xs transition-all duration-200 flex items-center justify-center bg-[#0B1210] hover:bg-[#121c19] text-emerald-400 border border-emerald-500/20 cursor-pointer"
+              className="p-2.5 rounded-xl font-space text-xs transition-all duration-200 flex items-center justify-center bg-[var(--bg-card)] hover:bg-[var(--bg-secondary)] text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 cursor-pointer shadow-sm"
               title="Refresh report records"
             >
               <RefreshCw size={15} className={loading ? 'animate-spin' : ''} />
@@ -356,7 +356,7 @@ export default function ReportsPage() {
           ].map((card, i) => (
             <DashCard key={card.label} className="p-4 sm:p-5" glow={`${card.color}15`} delay={i * 0.05}>
               <div className="flex items-center justify-between mb-2">
-                <span className="text-xs text-white/50 font-space tracking-wide uppercase">{card.label}</span>
+                <span className="text-xs text-[var(--text-muted)] font-space tracking-wide uppercase font-semibold">{card.label}</span>
                 <div
                   className="w-8 h-8 rounded-xl flex items-center justify-center"
                   style={{ background: `${card.color}15`, border: `1px solid ${card.color}30` }}
@@ -364,10 +364,10 @@ export default function ReportsPage() {
                   <card.icon size={16} style={{ color: card.color }} />
                 </div>
               </div>
-              <p className="font-orbitron font-black text-2xl sm:text-3xl text-white leading-none mt-1">
+              <p className="font-orbitron font-black text-2xl sm:text-3xl text-[var(--text-main)] leading-none mt-1">
                 <AnimatedCounter value={card.value} />{card.suffix}
               </p>
-              <p className="text-[11px] text-white/40 font-space mt-2">{card.subtext}</p>
+              <p className="text-[11px] text-[var(--text-muted)] font-space mt-2">{card.subtext}</p>
             </DashCard>
           ))}
         </div>
@@ -378,7 +378,7 @@ export default function ReportsPage() {
             {/* Top row: Search input + Reset button */}
             <div className="flex flex-col sm:flex-row items-center gap-3">
               <div className="relative flex-1 w-full">
-                <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-white/40" />
+                <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[var(--text-muted)]" />
                 <input
                   type="text"
                   placeholder="Search by Student Name, Registered User ID, Subject, or Chapter..."
@@ -387,12 +387,12 @@ export default function ReportsPage() {
                     setSearchTerm(e.target.value);
                     setCurrentPage(1);
                   }}
-                  className="w-full bg-[#070D0B] border border-emerald-500/20 rounded-xl pl-10 pr-4 py-2.5 text-xs sm:text-sm text-white placeholder-white/30 focus:outline-none focus:border-emerald-500/50 font-space"
+                  className="w-full bg-[var(--bg-app)] border border-[var(--border-primary)] rounded-xl pl-10 pr-4 py-2.5 text-xs sm:text-sm text-[var(--text-main)] placeholder-[var(--text-muted)] focus:outline-none focus:border-emerald-500/50 font-space"
                 />
                 {searchTerm && (
                   <button
                     onClick={() => setSearchTerm('')}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-white/40 hover:text-white bg-transparent border-0 cursor-pointer"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--text-muted)] hover:text-[var(--text-main)] bg-transparent border-0 cursor-pointer"
                   >
                     <X size={14} />
                   </button>
@@ -401,7 +401,7 @@ export default function ReportsPage() {
 
               <button
                 onClick={handleResetFilters}
-                className="w-full sm:w-auto px-4 py-2.5 rounded-xl font-space text-xs text-white/60 hover:text-white bg-white/5 hover:bg-white/10 border border-white/10 transition-colors flex items-center justify-center gap-2 cursor-pointer"
+                className="w-full sm:w-auto px-4 py-2.5 rounded-xl font-space text-xs text-[var(--text-main)] bg-[var(--bg-app)] hover:bg-[var(--bg-secondary)] border border-[var(--border-primary)] transition-colors flex items-center justify-center gap-2 cursor-pointer shadow-sm"
               >
                 <RefreshCw size={13} />
                 <span>Reset Filters</span>
@@ -409,10 +409,10 @@ export default function ReportsPage() {
             </div>
 
             {/* Bottom row: Multi-Dropdowns */}
-            <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-5 gap-3 pt-2 border-t border-emerald-500/10">
+            <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-5 gap-3 pt-2 border-t border-[var(--border-secondary)]">
               {/* Standard */}
               <div>
-                <label className="block text-[10px] font-space uppercase text-emerald-400/60 mb-1 font-semibold">
+                <label className="block text-[10px] font-space uppercase text-emerald-700 dark:text-emerald-400 mb-1 font-bold tracking-wider">
                   Standard/Class
                 </label>
                 <select
@@ -421,7 +421,7 @@ export default function ReportsPage() {
                     setSelectedStandard(e.target.value);
                     setCurrentPage(1);
                   }}
-                  className="w-full bg-[#070D0B] border border-emerald-500/20 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-emerald-500/50 font-space"
+                  className="w-full bg-[var(--bg-app)] border border-[var(--border-primary)] rounded-xl px-3 py-2 text-xs text-[var(--text-main)] focus:outline-none focus:border-emerald-500/50 font-space"
                 >
                   <option value="ALL">All Standards</option>
                   <option value="4th">4th Standard</option>
@@ -435,7 +435,7 @@ export default function ReportsPage() {
 
               {/* Subject */}
               <div>
-                <label className="block text-[10px] font-space uppercase text-emerald-400/60 mb-1 font-semibold">
+                <label className="block text-[10px] font-space uppercase text-emerald-700 dark:text-emerald-400 mb-1 font-bold tracking-wider">
                   Subject
                 </label>
                 <select
@@ -444,7 +444,7 @@ export default function ReportsPage() {
                     setSelectedSubject(e.target.value);
                     setCurrentPage(1);
                   }}
-                  className="w-full bg-[#070D0B] border border-emerald-500/20 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-emerald-500/50 font-space"
+                  className="w-full bg-[var(--bg-app)] border border-[var(--border-primary)] rounded-xl px-3 py-2 text-xs text-[var(--text-main)] focus:outline-none focus:border-emerald-500/50 font-space"
                 >
                   <option value="ALL">All Subjects</option>
                   <option value="Tamil">Tamil</option>
@@ -458,7 +458,7 @@ export default function ReportsPage() {
 
               {/* Status */}
               <div>
-                <label className="block text-[10px] font-space uppercase text-emerald-400/60 mb-1 font-semibold">
+                <label className="block text-[10px] font-space uppercase text-emerald-700 dark:text-emerald-400 mb-1 font-bold tracking-wider">
                   Status
                 </label>
                 <select
@@ -467,7 +467,7 @@ export default function ReportsPage() {
                     setSelectedStatus(e.target.value);
                     setCurrentPage(1);
                   }}
-                  className="w-full bg-[#070D0B] border border-emerald-500/20 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-emerald-500/50 font-space"
+                  className="w-full bg-[var(--bg-app)] border border-[var(--border-primary)] rounded-xl px-3 py-2 text-xs text-[var(--text-main)] focus:outline-none focus:border-emerald-500/50 font-space"
                 >
                   <option value="ALL">All Statuses</option>
                   <option value="PASSED">PASSED / COMPLETED</option>
@@ -477,7 +477,7 @@ export default function ReportsPage() {
 
               {/* Activity Type */}
               <div>
-                <label className="block text-[10px] font-space uppercase text-emerald-400/60 mb-1 font-semibold">
+                <label className="block text-[10px] font-space uppercase text-emerald-700 dark:text-emerald-400 mb-1 font-bold tracking-wider">
                   Activity Type
                 </label>
                 <select
@@ -486,7 +486,7 @@ export default function ReportsPage() {
                     setSelectedType(e.target.value);
                     setCurrentPage(1);
                   }}
-                  className="w-full bg-[#070D0B] border border-emerald-500/20 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-emerald-500/50 font-space"
+                  className="w-full bg-[var(--bg-app)] border border-[var(--border-primary)] rounded-xl px-3 py-2 text-xs text-[var(--text-main)] focus:outline-none focus:border-emerald-500/50 font-space"
                 >
                   <option value="ALL">All Activities</option>
                   <option value="Quiz">Quizzes</option>
@@ -507,7 +507,7 @@ export default function ReportsPage() {
                     setSelectedDate(e.target.value);
                     setCurrentPage(1);
                   }}
-                  className="w-full bg-[#070D0B] border border-emerald-500/20 rounded-xl px-3 py-2 text-xs text-white placeholder-white/30 focus:outline-none focus:border-emerald-500/50 font-space"
+                  className="w-full bg-[var(--bg-app)] border border-[var(--border-primary)] rounded-xl px-3 py-2 text-xs text-[var(--text-main)] placeholder-[var(--text-muted)] focus:outline-none focus:border-emerald-500/50 font-space"
                 />
               </div>
             </div>
@@ -516,18 +516,18 @@ export default function ReportsPage() {
 
         {/* ── Table Container ───────────────────────────────────────────── */}
         <DashCard className="p-0 overflow-hidden mb-6">
-          <div className="p-4 sm:p-5 border-b border-emerald-500/10 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div className="p-4 sm:p-5 border-b border-[var(--border-primary)] flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div>
-              <h3 className="font-orbitron font-bold text-base sm:text-lg text-white flex items-center gap-2">
-                <FileSpreadsheet size={18} className="text-emerald-400" />
+              <h3 className="font-orbitron font-bold text-base sm:text-lg text-[var(--text-main)] flex items-center gap-2">
+                <FileSpreadsheet size={18} className="text-emerald-500" />
                 Live Student Activity Roster
               </h3>
-              <p className="text-white/40 text-xs font-space mt-0.5">
+              <p className="text-[var(--text-muted)] text-xs font-space mt-0.5">
                 Showing {reports.length} of {totalItems} total recorded activities
               </p>
             </div>
 
-            <div className="flex items-center gap-2 text-xs font-space text-white/50">
+            <div className="flex items-center gap-2 text-xs font-space text-[var(--text-muted)]">
               <span>Per page:</span>
               <select
                 value={itemsPerPage}
@@ -535,7 +535,7 @@ export default function ReportsPage() {
                   setItemsPerPage(Number(e.target.value));
                   setCurrentPage(1);
                 }}
-                className="bg-[#0B1210] border border-emerald-500/20 rounded-lg px-2 py-1 text-white text-xs"
+                className="bg-[var(--bg-app)] border border-[var(--border-primary)] rounded-lg px-2 py-1 text-[var(--text-main)] text-xs"
               >
                 <option value={10}>10</option>
                 <option value={15}>15</option>
@@ -549,7 +549,7 @@ export default function ReportsPage() {
           <div className="overflow-x-auto w-full">
             <table className="w-full text-left border-collapse text-xs">
               <thead>
-                <tr className="bg-[#0A120F] text-emerald-400/80 uppercase font-orbitron text-[10px] tracking-wider border-b border-emerald-500/20 whitespace-nowrap">
+                <tr className="bg-emerald-500/10 dark:bg-[#0A120F] text-emerald-950 dark:text-emerald-400 font-bold uppercase font-orbitron text-[10px] tracking-wider border-b border-[var(--border-primary)] whitespace-nowrap">
                   <th className="py-3.5 px-4">#</th>
                   <th className="py-3.5 px-4">Name</th>
                   <th className="py-3.5 px-4">Registered User ID</th>
@@ -560,27 +560,27 @@ export default function ReportsPage() {
                   <th className="py-3.5 px-4 text-right">Points/Score</th>
                   <th className="py-3.5 px-4 text-center">Accuracy</th>
                   <th className="py-3.5 px-4 text-center">Total Qs</th>
-                  <th className="py-3.5 px-4 text-center text-emerald-400">Correct</th>
-                  <th className="py-3.5 px-4 text-center text-red-400">Wrong</th>
+                  <th className="py-3.5 px-4 text-center text-emerald-700 dark:text-emerald-400">Correct</th>
+                  <th className="py-3.5 px-4 text-center text-red-600 dark:text-red-400">Wrong</th>
                   <th className="py-3.5 px-4">Time Taken</th>
                   <th className="py-3.5 px-4">Date & Time</th>
                   <th className="py-3.5 px-4 text-center">Status</th>
                   <th className="py-3.5 px-4 text-center">User History</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-emerald-500/10 font-space text-white/80 whitespace-nowrap">
+              <tbody className="divide-y divide-[var(--border-primary)] font-space text-[var(--text-main)] whitespace-nowrap">
                 {loading ? (
                   <tr>
-                    <td colSpan={16} className="py-12 text-center text-white/50">
+                    <td colSpan={16} className="py-12 text-center text-[var(--text-muted)]">
                       <div className="flex flex-col items-center justify-center gap-2">
-                        <RefreshCw size={24} className="animate-spin text-emerald-400" />
+                        <RefreshCw size={24} className="animate-spin text-emerald-500" />
                         <span className="font-space text-xs">Loading activity reports...</span>
                       </div>
                     </td>
                   </tr>
                 ) : error ? (
                   <tr>
-                    <td colSpan={16} className="py-12 text-center text-red-400">
+                    <td colSpan={16} className="py-12 text-center text-red-600 dark:text-red-400">
                       <div className="flex flex-col items-center justify-center gap-2">
                         <AlertTriangle size={24} />
                         <span className="font-space text-xs">{error}</span>
@@ -589,11 +589,11 @@ export default function ReportsPage() {
                   </tr>
                 ) : reports.length === 0 ? (
                   <tr>
-                    <td colSpan={16} className="py-12 text-center text-white/40">
+                    <td colSpan={16} className="py-12 text-center text-[var(--text-muted)]">
                       <div className="flex flex-col items-center justify-center gap-2">
-                        <FileSpreadsheet size={28} className="text-white/20" />
-                        <p className="font-space text-sm font-semibold text-white">No reports available yet</p>
-                        <p className="font-space text-xs text-white/40 mt-0.5">
+                        <FileSpreadsheet size={28} className="text-[var(--text-muted)] opacity-40" />
+                        <p className="font-space text-sm font-semibold text-[var(--text-main)]">No reports available yet</p>
+                        <p className="font-space text-xs text-[var(--text-muted)] mt-0.5">
                           {searchTerm || selectedStandard !== 'ALL' || selectedSubject !== 'ALL' || selectedStatus !== 'ALL' || selectedType !== 'ALL' || selectedDate
                             ? 'No activity records match your search or filters.'
                             : 'Reports will appear automatically as registered scholars complete quizzes and challenges.'}
@@ -601,7 +601,7 @@ export default function ReportsPage() {
                         {(searchTerm || selectedStandard !== 'ALL' || selectedSubject !== 'ALL' || selectedStatus !== 'ALL' || selectedType !== 'ALL' || selectedDate) && (
                           <button
                             onClick={handleResetFilters}
-                            className="mt-2 px-3 py-1.5 rounded-lg text-xs bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 cursor-pointer"
+                            className="mt-2 px-3 py-1.5 rounded-lg text-xs bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 border border-emerald-500/30 cursor-pointer"
                           >
                             Clear Filters
                           </button>
@@ -620,8 +620,8 @@ export default function ReportsPage() {
                         key={row.id || `${row.userId}-${idx}`}
                         className="hover:bg-emerald-500/5 transition-colors group"
                       >
-                        <td className="py-3 px-4 text-white/30 text-[11px]">{rowNumber}</td>
-                        <td className="py-3 px-4 font-semibold text-white group-hover:text-emerald-300">
+                        <td className="py-3 px-4 text-[var(--text-muted)] text-[11px]">{rowNumber}</td>
+                        <td className="py-3 px-4 font-semibold text-[var(--text-main)] group-hover:text-emerald-600 dark:group-hover:text-emerald-300">
                           {row.name}
                         </td>
                         <td className="py-3 px-4">
@@ -630,54 +630,54 @@ export default function ReportsPage() {
                               setSearchTerm(row.userId);
                               setCurrentPage(1);
                             }}
-                            className="font-mono text-[11px] px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 cursor-pointer hover:bg-emerald-500/20"
+                            className="font-mono text-[11px] px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-500/20 cursor-pointer hover:bg-emerald-500/20"
                             title="Click to filter by this user ID"
                           >
                             {row.userId}
                           </span>
                         </td>
                         <td className="py-3 px-4">
-                          <span className="px-2 py-0.5 rounded-full text-[10px] bg-cyan-500/10 text-cyan-300 border border-cyan-500/20">
+                          <span className="px-2 py-0.5 rounded-full text-[10px] bg-cyan-500/10 text-cyan-700 dark:text-cyan-300 border border-cyan-500/20">
                             {row.standard}
                           </span>
                         </td>
-                        <td className="py-3 px-4 text-white/90">{row.subject}</td>
-                        <td className="py-3 px-4 text-white/70 max-w-[200px] truncate" title={row.chapter}>
+                        <td className="py-3 px-4 text-[var(--text-main)]">{row.subject}</td>
+                        <td className="py-3 px-4 text-[var(--text-muted)] max-w-[200px] truncate" title={row.chapter}>
                           {row.chapter}
                         </td>
-                        <td className="py-3 px-4 font-medium text-white max-w-[220px] truncate" title={row.gameOrQuizName}>
+                        <td className="py-3 px-4 font-medium text-[var(--text-main)] max-w-[220px] truncate" title={row.gameOrQuizName}>
                           {row.gameOrQuizName}
                         </td>
-                        <td className="py-3 px-4 text-right font-orbitron font-bold text-amber-400">
+                        <td className="py-3 px-4 text-right font-orbitron font-bold text-amber-600 dark:text-amber-400">
                           {row.points}
                         </td>
                         <td className="py-3 px-4 text-center">
                           <span
                             className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
                               accNum >= 80
-                                ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30'
+                                ? 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border border-emerald-500/30'
                                 : accNum >= 60
-                                ? 'bg-amber-500/20 text-amber-300 border border-amber-500/30'
-                                : 'bg-red-500/20 text-red-300 border border-red-500/30'
+                                ? 'bg-amber-500/15 text-amber-700 dark:text-amber-300 border border-amber-500/30'
+                                : 'bg-red-500/15 text-red-700 dark:text-red-300 border border-red-500/30'
                             }`}
                           >
                             {row.accuracy}
                           </span>
                         </td>
-                        <td className="py-3 px-4 text-center text-white/60">{row.totalQuestions}</td>
-                        <td className="py-3 px-4 text-center text-emerald-400 font-semibold">{row.correctAnswers}</td>
-                        <td className="py-3 px-4 text-center text-red-400 font-semibold">{row.wrongAnswers}</td>
-                        <td className="py-3 px-4 text-white/60 flex items-center gap-1">
-                          <Clock size={12} className="text-white/40" />
+                        <td className="py-3 px-4 text-center text-[var(--text-muted)]">{row.totalQuestions}</td>
+                        <td className="py-3 px-4 text-center text-emerald-700 dark:text-emerald-400 font-semibold">{row.correctAnswers}</td>
+                        <td className="py-3 px-4 text-center text-red-600 dark:text-red-400 font-semibold">{row.wrongAnswers}</td>
+                        <td className="py-3 px-4 text-[var(--text-muted)] flex items-center gap-1">
+                          <Clock size={12} className="text-[var(--text-muted)]" />
                           <span>{row.timeTaken}</span>
                         </td>
-                        <td className="py-3 px-4 text-white/50 text-[11px]">{row.dateTime}</td>
+                        <td className="py-3 px-4 text-[var(--text-muted)] text-[11px]">{row.dateTime}</td>
                         <td className="py-3 px-4 text-center">
                           <span
                             className={`px-2 py-0.5 rounded-full text-[10px] font-orbitron font-bold uppercase ${
                               isPassed
-                                ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30'
-                                : 'bg-red-500/20 text-red-300 border border-red-500/30'
+                                ? 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border border-emerald-500/30'
+                                : 'bg-red-500/15 text-red-700 dark:text-red-300 border border-red-500/30'
                             }`}
                           >
                             {row.status}
@@ -686,7 +686,7 @@ export default function ReportsPage() {
                         <td className="py-3 px-4 text-center">
                           <button
                             onClick={() => handleOpenUserHistory(row.userId, row.name)}
-                            className="px-2.5 py-1 rounded-lg text-[11px] font-space font-medium bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 transition-all flex items-center gap-1 mx-auto cursor-pointer"
+                            className="px-2.5 py-1 rounded-lg text-[11px] font-space font-medium bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 border border-emerald-500/30 transition-all flex items-center gap-1 mx-auto cursor-pointer"
                             title="View all past quiz and game activities for this user"
                           >
                             <Eye size={12} />
@@ -702,7 +702,7 @@ export default function ReportsPage() {
           </div>
 
           {/* Pagination bar */}
-          <div className="p-4 border-t border-emerald-500/10 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs font-space text-white/50">
+          <div className="p-4 border-t border-[var(--border-primary)] flex flex-col sm:flex-row items-center justify-between gap-3 text-xs font-space text-[var(--text-muted)]">
             <div>
               Showing {reports.length > 0 ? (currentPage - 1) * itemsPerPage + 1 : 0} to{' '}
               {Math.min(currentPage * itemsPerPage, totalItems)} of {totalItems} entries
@@ -712,18 +712,18 @@ export default function ReportsPage() {
               <button
                 onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
                 disabled={currentPage === 1 || loading}
-                className="px-3 py-1.5 rounded-lg bg-[#0B1210] border border-emerald-500/20 text-white hover:text-emerald-300 disabled:opacity-40 disabled:hover:text-white cursor-pointer flex items-center gap-1"
+                className="px-3 py-1.5 rounded-lg bg-[var(--bg-app)] border border-[var(--border-primary)] text-[var(--text-main)] hover:text-emerald-600 dark:hover:text-emerald-300 disabled:opacity-40 disabled:hover:text-[var(--text-main)] cursor-pointer flex items-center gap-1"
               >
                 <ChevronLeft size={14} />
                 <span>Previous</span>
               </button>
-              <span className="px-2 text-white font-semibold">
+              <span className="px-2 text-[var(--text-main)] font-semibold">
                 Page {currentPage} of {totalPages}
               </span>
               <button
                 onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
                 disabled={currentPage >= totalPages || loading}
-                className="px-3 py-1.5 rounded-lg bg-[#0B1210] border border-emerald-500/20 text-white hover:text-emerald-300 disabled:opacity-40 disabled:hover:text-white cursor-pointer flex items-center gap-1"
+                className="px-3 py-1.5 rounded-lg bg-[var(--bg-app)] border border-[var(--border-primary)] text-[var(--text-main)] hover:text-emerald-600 dark:hover:text-emerald-300 disabled:opacity-40 disabled:hover:text-[var(--text-main)] cursor-pointer flex items-center gap-1"
               >
                 <span>Next</span>
                 <ChevronRight size={14} />
@@ -750,29 +750,29 @@ export default function ReportsPage() {
                 initial={{ opacity: 0, scale: 0.95, y: 20 }}
                 animate={{ opacity: 1, scale: 1, y: 0 }}
                 exit={{ opacity: 0, scale: 0.95, y: 20 }}
-                className="relative z-10 w-full max-w-4xl max-h-[90vh] bg-[#070D0B] border border-emerald-500/30 rounded-2xl shadow-2xl flex flex-col overflow-hidden"
+                className="relative z-10 w-full max-w-4xl max-h-[90vh] bg-[var(--bg-card)] border border-[var(--border-primary)] rounded-2xl shadow-2xl flex flex-col overflow-hidden text-[var(--text-main)]"
               >
                 {/* Modal Header */}
-                <div className="p-5 border-b border-emerald-500/15 flex items-center justify-between bg-[#0A1310]">
+                <div className="p-5 border-b border-[var(--border-primary)] flex items-center justify-between bg-[var(--bg-secondary)]">
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 rounded-xl bg-emerald-500/20 border border-emerald-500/30 flex items-center justify-center text-xl">
                       🎓
                     </div>
                     <div>
                       <div className="flex items-center gap-2">
-                        <h2 className="font-orbitron font-bold text-lg text-white">
+                        <h2 className="font-orbitron font-bold text-lg text-[var(--text-main)]">
                           {activeUserHistory?.name || 'Student Activity History'}
                         </h2>
-                        <span className="font-mono text-xs px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+                        <span className="font-mono text-xs px-2 py-0.5 rounded bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border border-emerald-500/30">
                           ID: {activeUserHistory?.userId}
                         </span>
                         {activeUserHistory?.standard && (
-                          <span className="text-[10px] px-2 py-0.5 rounded-full bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 font-space">
+                          <span className="text-[10px] px-2 py-0.5 rounded-full bg-cyan-500/15 text-cyan-700 dark:text-cyan-300 border border-cyan-500/30 font-space">
                             {activeUserHistory.standard}
                           </span>
                         )}
                       </div>
-                      <p className="text-white/40 text-xs font-space mt-0.5">
+                      <p className="text-[var(--text-muted)] text-xs font-space mt-0.5">
                         Complete chronological record of all quiz completions, game plays, and retries.
                       </p>
                     </div>
@@ -782,7 +782,7 @@ export default function ReportsPage() {
                     <button
                       onClick={() => handleDownloadSingleUserExcel(activeUserHistory?.userId)}
                       disabled={downloadingUserExcel}
-                      className="px-3 py-1.5 rounded-lg text-xs font-orbitron font-bold bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 border border-emerald-500/40 flex items-center gap-1.5 transition-colors cursor-pointer"
+                      className="px-3 py-1.5 rounded-lg text-xs font-orbitron font-bold bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-700 dark:text-emerald-300 border border-emerald-500/40 flex items-center gap-1.5 transition-colors cursor-pointer"
                       title="Download this student's history to Excel"
                     >
                       <FileSpreadsheet size={14} />
@@ -790,7 +790,7 @@ export default function ReportsPage() {
                     </button>
                     <button
                       onClick={() => setHistoryModalOpen(false)}
-                      className="p-1.5 rounded-lg text-white/50 hover:text-white bg-white/5 hover:bg-white/10 transition-colors border-0 cursor-pointer"
+                      className="p-1.5 rounded-lg text-[var(--text-muted)] hover:text-[var(--text-main)] bg-[var(--bg-app)] hover:bg-[var(--bg-secondary)] border border-[var(--border-primary)] transition-colors cursor-pointer"
                     >
                       <X size={18} />
                     </button>
@@ -798,14 +798,14 @@ export default function ReportsPage() {
                 </div>
 
                 {/* Modal Body */}
-                <div className="p-5 overflow-y-auto flex-1 flex flex-col gap-5">
+                <div className="p-5 overflow-y-auto flex-1 flex flex-col gap-5 bg-[var(--bg-card)]">
                   {loadingHistory ? (
-                    <div className="py-16 flex flex-col items-center justify-center gap-3 text-white/50">
-                      <RefreshCw size={28} className="animate-spin text-emerald-400" />
+                    <div className="py-16 flex flex-col items-center justify-center gap-3 text-[var(--text-muted)]">
+                      <RefreshCw size={28} className="animate-spin text-emerald-500" />
                       <span className="font-space text-xs">Loading user history records...</span>
                     </div>
                   ) : !activeUserHistory || activeUserHistory.records?.length === 0 ? (
-                    <div className="py-16 text-center text-white/40">
+                    <div className="py-16 text-center text-[var(--text-muted)]">
                       <FileSpreadsheet size={32} className="mx-auto mb-2 opacity-30" />
                       <p className="font-space text-sm">No activity history found for this user.</p>
                     </div>
@@ -813,42 +813,42 @@ export default function ReportsPage() {
                     <>
                       {/* Aggregate KPI Strip */}
                       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                        <div className="p-3 rounded-xl bg-white/5 border border-white/10">
-                          <span className="text-[10px] uppercase font-space text-white/40 block">Total Activities</span>
-                          <span className="font-orbitron font-bold text-xl text-white">
+                        <div className="p-3 rounded-xl bg-[var(--bg-app)] border border-[var(--border-primary)]">
+                          <span className="text-[10px] uppercase font-space text-[var(--text-muted)] block">Total Activities</span>
+                          <span className="font-orbitron font-bold text-xl text-[var(--text-main)]">
                             {activeUserHistory.totalActivities}
                           </span>
                         </div>
                         <div className="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20">
-                          <span className="text-[10px] uppercase font-space text-emerald-400/60 block">Total Points</span>
-                          <span className="font-orbitron font-bold text-xl text-emerald-300">
+                          <span className="text-[10px] uppercase font-space text-emerald-700 dark:text-emerald-400 font-semibold block">Total Points</span>
+                          <span className="font-orbitron font-bold text-xl text-emerald-700 dark:text-emerald-300">
                             {activeUserHistory.summary?.totalPoints || 0}
                           </span>
                         </div>
                         <div className="p-3 rounded-xl bg-cyan-500/10 border border-cyan-500/20">
-                          <span className="text-[10px] uppercase font-space text-cyan-400/60 block">Avg Accuracy</span>
-                          <span className="font-orbitron font-bold text-xl text-cyan-300">
+                          <span className="text-[10px] uppercase font-space text-cyan-700 dark:text-cyan-400 font-semibold block">Avg Accuracy</span>
+                          <span className="font-orbitron font-bold text-xl text-cyan-700 dark:text-cyan-300">
                             {activeUserHistory.summary?.avgAccuracy || '0%'}
                           </span>
                         </div>
                         <div className="p-3 rounded-xl bg-amber-500/10 border border-amber-500/20">
-                          <span className="text-[10px] uppercase font-space text-amber-400/60 block">Pass / Retry</span>
-                          <span className="font-orbitron font-bold text-xl text-amber-300">
-                            {activeUserHistory.summary?.passedCount || 0} <span className="text-xs text-white/40 font-space font-normal">/ {activeUserHistory.summary?.failedCount || 0}</span>
+                          <span className="text-[10px] uppercase font-space text-amber-700 dark:text-amber-400 font-semibold block">Pass / Retry</span>
+                          <span className="font-orbitron font-bold text-xl text-amber-700 dark:text-amber-300">
+                            {activeUserHistory.summary?.passedCount || 0} <span className="text-xs text-[var(--text-muted)] font-space font-normal">/ {activeUserHistory.summary?.failedCount || 0}</span>
                           </span>
                         </div>
                       </div>
 
                       {/* Chronological Activities Table */}
-                      <div className="border border-emerald-500/15 rounded-xl overflow-hidden bg-[#0A120F]">
-                        <div className="p-3 bg-[#0B1512] border-b border-emerald-500/10">
-                          <h4 className="font-orbitron font-bold text-xs text-emerald-300 uppercase tracking-wider">
+                      <div className="border border-[var(--border-primary)] rounded-xl overflow-hidden bg-[var(--bg-card)]">
+                        <div className="p-3 bg-[var(--bg-secondary)] border-b border-[var(--border-primary)]">
+                          <h4 className="font-orbitron font-bold text-xs text-emerald-700 dark:text-emerald-300 uppercase tracking-wider">
                             Activity Timeline (Most Recent First)
                           </h4>
                         </div>
                         <div className="overflow-x-auto max-h-[350px]">
                           <table className="w-full text-left text-xs whitespace-nowrap">
-                            <thead className="bg-[#050B09] text-white/40 font-orbitron text-[9px] uppercase tracking-wider border-b border-white/5 sticky top-0">
+                            <thead className="bg-[var(--bg-secondary)] text-[var(--text-muted)] font-orbitron text-[9px] uppercase tracking-wider border-b border-[var(--border-primary)] sticky top-0">
                               <tr>
                                 <th className="py-2.5 px-3">Date & Time</th>
                                 <th className="py-2.5 px-3">Quiz / Game</th>
@@ -860,10 +860,10 @@ export default function ReportsPage() {
                                 <th className="py-2.5 px-3 text-center">Status</th>
                               </tr>
                             </thead>
-                            <tbody className="divide-y divide-white/5 font-space text-white/80">
+                            <tbody className="divide-y divide-[var(--border-primary)] font-space text-[var(--text-main)]">
                               {(!activeUserHistory.records || activeUserHistory.records.length === 0) ? (
                                 <tr>
-                                  <td colSpan={8} className="py-8 text-center text-white/40 font-space text-xs">
+                                  <td colSpan={8} className="py-8 text-center text-[var(--text-muted)] font-space text-xs">
                                     No quiz activity available
                                   </td>
                                 </tr>
@@ -871,30 +871,30 @@ export default function ReportsPage() {
                                 activeUserHistory.records.map((r, i) => {
                                 const isPassed = r.status === 'PASSED' || r.status === 'COMPLETED';
                                 return (
-                                  <tr key={r.id || i} className="hover:bg-white/5 transition-colors">
-                                    <td className="py-2 px-3 text-white/50 text-[11px]">{r.dateTime}</td>
-                                    <td className="py-2 px-3 font-medium text-white">{r.gameOrQuizName}</td>
-                                    <td className="py-2 px-3 text-white/60 text-[11px]">
+                                  <tr key={r.id || i} className="hover:bg-emerald-500/5 transition-colors">
+                                    <td className="py-2 px-3 text-[var(--text-muted)] text-[11px]">{r.dateTime}</td>
+                                    <td className="py-2 px-3 font-medium text-[var(--text-main)]">{r.gameOrQuizName}</td>
+                                    <td className="py-2 px-3 text-[var(--text-muted)] text-[11px]">
                                       {r.subject} - {r.chapter}
                                     </td>
-                                    <td className="py-2 px-3 text-right font-orbitron font-bold text-amber-400">
+                                    <td className="py-2 px-3 text-right font-orbitron font-bold text-amber-600 dark:text-amber-400">
                                       {r.points}
                                     </td>
                                     <td className="py-2 px-3 text-center">
-                                      <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-white/10 text-emerald-300">
+                                      <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-emerald-500/15 text-emerald-700 dark:text-emerald-300">
                                         {r.accuracy}
                                       </span>
                                     </td>
-                                    <td className="py-2 px-3 text-center text-white/70">
+                                    <td className="py-2 px-3 text-center text-[var(--text-main)]">
                                       {r.correctAnswers} / {r.totalQuestions}
                                     </td>
-                                    <td className="py-2 px-3 text-white/60 text-[11px]">{r.timeTaken}</td>
+                                    <td className="py-2 px-3 text-[var(--text-muted)] text-[11px]">{r.timeTaken}</td>
                                     <td className="py-2 px-3 text-center">
                                       <span
                                         className={`px-2 py-0.5 rounded-full text-[9px] font-orbitron font-bold uppercase ${
                                           isPassed
-                                            ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30'
-                                            : 'bg-red-500/20 text-red-300 border border-red-500/30'
+                                            ? 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border border-emerald-500/30'
+                                            : 'bg-red-500/15 text-red-700 dark:text-red-300 border border-red-500/30'
                                         }`}
                                       >
                                         {r.status}
@@ -912,11 +912,11 @@ export default function ReportsPage() {
                 </div>
 
                 {/* Modal Footer */}
-                <div className="p-4 border-t border-emerald-500/15 bg-[#0A1310] flex items-center justify-between text-xs font-space text-white/50">
-                  <span>Student ID: <span className="text-emerald-400 font-mono">{activeUserHistory?.userId}</span></span>
+                <div className="p-4 border-t border-[var(--border-primary)] bg-[var(--bg-secondary)] flex items-center justify-between text-xs font-space text-[var(--text-muted)]">
+                  <span>Student ID: <span className="text-emerald-600 dark:text-emerald-400 font-mono font-bold">{activeUserHistory?.userId}</span></span>
                   <button
                     onClick={() => setHistoryModalOpen(false)}
-                    className="px-4 py-2 rounded-xl bg-white/10 hover:bg-white/15 text-white transition-colors cursor-pointer border-0"
+                    className="px-4 py-2 rounded-xl bg-[var(--bg-app)] hover:bg-[var(--bg-secondary)] text-[var(--text-main)] border border-[var(--border-primary)] transition-colors cursor-pointer"
                   >
                     Close
                   </button>

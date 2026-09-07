@@ -183,10 +183,10 @@ export default function AdminDashboardPage() {
                 </span>
                 <span className="text-xs font-space text-slate-400">BUILD: v2.4.0-OBSIDIAN</span>
               </div>
-              <h1 className="font-orbitron font-black text-2xl sm:text-3xl text-white leading-tight mt-1">
+              <h1 className="font-orbitron font-black text-2xl sm:text-3xl text-[var(--text-main)] leading-tight mt-1">
                 {user?.name || 'System Administrator'}
               </h1>
-              <p className="text-white/40 text-xs sm:text-sm font-inter">
+              <p className="text-[var(--text-muted)] text-xs sm:text-sm font-inter">
                 Platform control console, role assignments, database health & game engine configs.
               </p>
             </div>
@@ -207,7 +207,7 @@ export default function AdminDashboardPage() {
                 setToast('Database schema and seeds validated!');
                 setTimeout(() => setToast(null), 3000);
               }}
-              className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-white/80 font-space font-bold text-xs cursor-pointer transition-all"
+              className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[var(--bg-card)] hover:bg-[var(--bg-secondary)] border border-[var(--border-primary)] text-[var(--text-main)] font-space font-bold text-xs cursor-pointer transition-all"
             >
               <RefreshCw size={14} />
               <span>Verify DB</span>
@@ -240,10 +240,10 @@ export default function AdminDashboardPage() {
                   <m.icon size={16} style={{ color: m.color }} />
                 </div>
               </div>
-              <p className="font-orbitron font-black text-xl text-white leading-none">
+              <p className="font-orbitron font-black text-xl text-[var(--text-main)] leading-none">
                 <AnimatedCounter value={m.value} />
               </p>
-              <p className="text-[11px] text-white/40 font-space mt-1">{m.label}</p>
+              <p className="text-[11px] text-[var(--text-muted)] font-space mt-1">{m.label}</p>
             </DashCard>
           ))}
         </div>
@@ -257,19 +257,19 @@ export default function AdminDashboardPage() {
             <DashCard className="p-5 sm:p-6" id="user-management-card">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
                 <div>
-                  <h3 className="font-orbitron font-bold text-lg text-white">User & Role Management</h3>
-                  <p className="text-white/40 text-xs font-space mt-0.5">Control permissions, assign roles & monitor account status</p>
+                  <h3 className="font-orbitron font-bold text-lg text-[var(--text-main)]">User & Role Management</h3>
+                  <p className="text-[var(--text-muted)] text-xs font-space mt-0.5">Control permissions, assign roles & monitor account status</p>
                 </div>
 
                 <div className="flex items-center gap-3">
                   <div className="relative">
-                    <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-white/40" />
+                    <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--text-muted)]" />
                     <input
                       type="text"
                       placeholder="Search user..."
                       value={searchQuery}
                       onChange={e => setSearchQuery(e.target.value)}
-                      className="pl-9 pr-4 py-2 rounded-xl bg-[#0a1628] border border-white/10 text-white placeholder-white/30 text-xs outline-none focus:border-amber-500/40 transition-all"
+                      className="pl-9 pr-4 py-2 rounded-xl bg-[var(--bg-app)] border border-[var(--border-primary)] text-[var(--text-main)] placeholder-[var(--text-muted)] text-xs outline-none focus:border-amber-500/40 transition-all"
                     />
                   </div>
                 </div>
@@ -283,8 +283,8 @@ export default function AdminDashboardPage() {
                     onClick={() => setRoleFilter(role)}
                     className={`px-3 py-1.5 rounded-lg text-xs font-space font-bold cursor-pointer transition-all border ${
                       roleFilter === role
-                        ? 'bg-amber-500/20 text-amber-300 border-amber-500/40'
-                        : 'bg-white/5 text-white/40 border-white/5 hover:text-white'
+                        ? 'bg-amber-500/20 text-amber-700 dark:text-amber-300 border-amber-500/40'
+                        : 'bg-[var(--bg-app)] text-[var(--text-muted)] border border-[var(--border-primary)] hover:text-[var(--text-main)]'
                     }`}
                   >
                     {role}
@@ -296,8 +296,8 @@ export default function AdminDashboardPage() {
               <div className="overflow-x-auto">
                 {filteredUsers.length === 0 ? (
                   <div className="py-12 px-4 text-center font-space">
-                    <Users className="mx-auto mb-3 text-emerald-400 opacity-50" size={36} />
-                    <p className="text-sm font-semibold text-white">
+                    <Users className="mx-auto mb-3 text-emerald-500 opacity-50" size={36} />
+                    <p className="text-sm font-semibold text-[var(--text-main)]">
                       {roleFilter === 'STUDENT'
                         ? 'No registered students found'
                         : roleFilter === 'TEACHER'
@@ -306,7 +306,7 @@ export default function AdminDashboardPage() {
                         ? 'No registered admins found'
                         : 'No registered users found'}
                     </p>
-                    <p className="text-xs text-white/40 mt-1">
+                    <p className="text-xs text-[var(--text-muted)] mt-1">
                       {roleFilter === 'ALL'
                         ? 'No registered accounts on the platform.'
                         : `No registered ${roleFilter.toLowerCase()}s found.`}
@@ -315,7 +315,7 @@ export default function AdminDashboardPage() {
                 ) : (
                   <table className="w-full text-left text-xs font-inter border-collapse">
                     <thead>
-                      <tr className="border-b border-white/10 text-white/40 font-space uppercase text-[10px] tracking-wider">
+                      <tr className="border-b border-[var(--border-primary)] text-[var(--text-muted)] font-space uppercase text-[10px] tracking-wider">
                         <th className="py-3 px-3">User</th>
                         <th className="py-3 px-3">Role</th>
                         <th className="py-3 px-3">Status</th>
@@ -323,17 +323,17 @@ export default function AdminDashboardPage() {
                         <th className="py-3 px-3 text-right">Actions</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-white/5">
+                    <tbody className="divide-y divide-[var(--border-primary)]">
                       {filteredUsers.map(u => (
-                        <tr key={u.id} className="hover:bg-white/[0.02] transition-colors">
+                        <tr key={u.id} className="hover:bg-emerald-500/5 transition-colors">
                           <td className="py-3.5 px-3">
                             <div className="flex items-center gap-2.5">
-                              <div className="w-8 h-8 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-sm font-bold text-amber-300">
+                              <div className="w-8 h-8 rounded-xl bg-amber-500/15 border border-amber-500/30 flex items-center justify-center text-sm font-bold text-amber-700 dark:text-amber-300">
                                 {(u.name || 'U')[0]}
                               </div>
                               <div>
-                                <p className="font-space font-bold text-white text-xs">{u.name}</p>
-                                <p className="text-[10px] text-white/40 font-inter">{u.email}</p>
+                                <p className="font-space font-bold text-[var(--text-main)] text-xs">{u.name}</p>
+                                <p className="text-[10px] text-[var(--text-muted)] font-inter">{u.email}</p>
                               </div>
                             </div>
                           </td>
@@ -343,7 +343,7 @@ export default function AdminDashboardPage() {
                             <select
                               value={u.role}
                               onChange={e => handleRoleChange(u.id, e.target.value)}
-                              className="px-2.5 py-1 rounded-lg bg-[#0a1628] border border-white/10 text-xs font-orbitron font-bold outline-none cursor-pointer text-white"
+                              className="px-2.5 py-1 rounded-lg bg-[var(--bg-app)] border border-[var(--border-primary)] text-xs font-orbitron font-bold outline-none cursor-pointer text-[var(--text-main)]"
                             >
                               <option value="STUDENT">STUDENT</option>
                               <option value="TEACHER">TEACHER</option>
@@ -354,14 +354,14 @@ export default function AdminDashboardPage() {
                           <td className="py-3.5 px-3">
                             <span className={`px-2 py-0.5 rounded-full text-[10px] font-space font-bold ${
                               u.status === 'ACTIVE'
-                                ? 'bg-emerald-500/15 text-emerald-300 border border-emerald-500/30'
-                                : 'bg-rose-500/15 text-rose-300 border border-rose-500/30'
+                                ? 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border border-emerald-500/30'
+                                : 'bg-rose-500/15 text-rose-700 dark:text-rose-300 border border-rose-500/30'
                             }`}>
                               {u.status}
                             </span>
                           </td>
 
-                          <td className="py-3.5 px-3 font-mono text-white/40 text-[11px]">
+                          <td className="py-3.5 px-3 font-mono text-[var(--text-muted)] text-[11px]">
                             {u.regDate}
                           </td>
 
@@ -370,8 +370,8 @@ export default function AdminDashboardPage() {
                               onClick={() => handleStatusToggle(u.id)}
                               className={`p-1.5 rounded-lg border transition-all cursor-pointer ${
                                 u.status === 'ACTIVE'
-                                  ? 'bg-rose-500/10 text-rose-400 border-rose-500/20 hover:bg-rose-500/20'
-                                  : 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20 hover:bg-emerald-500/20'
+                                  ? 'bg-rose-500/10 text-rose-600 dark:text-rose-400 border-rose-500/20 hover:bg-rose-500/20'
+                                  : 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20 hover:bg-emerald-500/20'
                               }`}
                               title={u.status === 'ACTIVE' ? 'Suspend Account' : 'Activate Account'}
                             >
@@ -388,22 +388,22 @@ export default function AdminDashboardPage() {
 
             {/* Game Engines Registry */}
             <DashCard className="p-5 sm:p-6">
-              <h3 className="font-orbitron font-bold text-lg text-white mb-1">Authoritative Game Engines</h3>
-              <p className="text-white/40 text-xs font-space mb-5">Registered Academic room validation services (Units 1 - 6)</p>
+              <h3 className="font-orbitron font-bold text-lg text-[var(--text-main)] mb-1">Authoritative Game Engines</h3>
+              <p className="text-[var(--text-muted)] text-xs font-space mb-5">Registered Academic room validation services (Units 1 - 6)</p>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {engines.map(eng => (
-                  <div key={eng.id} className="p-4 rounded-xl glass border border-white/10">
+                  <div key={eng.id} className="p-4 rounded-xl bg-[var(--bg-app)] border border-[var(--border-primary)]">
                     <div className="flex items-center justify-between mb-1">
-                      <span className="font-orbitron font-bold text-xs text-white">{eng.name}</span>
-                      <span className="text-[10px] font-space px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">
+                      <span className="font-orbitron font-bold text-xs text-[var(--text-main)]">{eng.name}</span>
+                      <span className="text-[10px] font-space px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border border-emerald-500/30">
                         {eng.status}
                       </span>
                     </div>
-                    <p className="text-[11px] text-white/40 font-inter mb-2">{eng.type}</p>
-                    <div className="flex items-center justify-between text-[10px] font-mono text-white/30 pt-2 border-t border-white/5">
+                    <p className="text-[11px] text-[var(--text-muted)] font-inter mb-2">{eng.type}</p>
+                    <div className="flex items-center justify-between text-[10px] font-mono text-[var(--text-muted)] pt-2 border-t border-[var(--border-primary)]">
                       <span>CODE: {eng.code}</span>
-                      <span className="text-amber-400">{eng.plays.toLocaleString()} plays</span>
+                      <span className="text-amber-600 dark:text-amber-400">{eng.plays.toLocaleString()} plays</span>
                     </div>
                   </div>
                 ))}
@@ -417,26 +417,26 @@ export default function AdminDashboardPage() {
             {/* Real-time System Audit Feed */}
             <DashCard className="p-5">
               <div className="flex items-center justify-between mb-4">
-                <h3 className="font-orbitron font-bold text-base text-white">System Audit Log</h3>
-                <Terminal size={16} className="text-amber-400" />
+                <h3 className="font-orbitron font-bold text-base text-[var(--text-main)]">System Audit Log</h3>
+                <Terminal size={16} className="text-amber-600 dark:text-amber-400" />
               </div>
 
               {auditLogs.length === 0 ? (
-                <div className="p-6 rounded-xl bg-white/5 border border-white/10 text-center font-mono text-xs text-white/40">
+                <div className="p-6 rounded-xl bg-[var(--bg-app)] border border-[var(--border-primary)] text-center font-mono text-xs text-[var(--text-muted)]">
                   No audit logs recorded yet.
                 </div>
               ) : (
                 <div className="flex flex-col gap-3 font-mono text-[11px]">
                   {auditLogs.map(log => (
-                    <div key={log.id} className="p-3 rounded-xl bg-[#0a1628] border border-white/5">
+                    <div key={log.id} className="p-3 rounded-xl bg-[var(--bg-app)] border border-[var(--border-primary)]">
                       <div className="flex items-center justify-between mb-1">
-                        <span className="text-amber-400 font-bold">{log.event}</span>
-                        <span className="text-white/30 text-[9px]">{log.time}</span>
+                        <span className="text-amber-700 dark:text-amber-400 font-bold">{log.event}</span>
+                        <span className="text-[var(--text-muted)] text-[9px]">{log.time}</span>
                       </div>
-                      <p className="text-white/60 text-[10px]">{log.user}</p>
-                      <div className="flex items-center justify-between text-[9px] text-white/30 mt-1">
+                      <p className="text-[var(--text-main)] text-[10px]">{log.user}</p>
+                      <div className="flex items-center justify-between text-[9px] text-[var(--text-muted)] mt-1">
                         <span>IP: {log.ip}</span>
-                        <span className="text-emerald-400">{log.status}</span>
+                        <span className="text-emerald-600 dark:text-emerald-400">{log.status}</span>
                       </div>
                     </div>
                   ))}
@@ -446,28 +446,28 @@ export default function AdminDashboardPage() {
 
             {/* Server Infrastructure Health */}
             <DashCard className="p-5">
-              <h3 className="font-orbitron font-bold text-base text-white mb-3">Server Node Health</h3>
+              <h3 className="font-orbitron font-bold text-base text-[var(--text-main)] mb-3">Server Node Health</h3>
               <div className="flex flex-col gap-3 text-xs font-inter">
-                <div className="flex items-center justify-between p-3 rounded-xl bg-white/5 border border-white/10">
+                <div className="flex items-center justify-between p-3 rounded-xl bg-[var(--bg-app)] border border-[var(--border-primary)]">
                   <div className="flex items-center gap-2">
-                    <Server size={16} className="text-cyan-400" />
+                    <Server size={16} className="text-cyan-600 dark:text-cyan-400" />
                     <div>
-                      <p className="font-space font-bold text-white">Express Node Server</p>
-                      <p className="text-[10px] text-white/40">Port 5000 • JWT Auth Active</p>
+                      <p className="font-space font-bold text-[var(--text-main)]">Express Node Server</p>
+                      <p className="text-[10px] text-[var(--text-muted)]">Port 5000 • JWT Auth Active</p>
                     </div>
                   </div>
-                  <span className="text-xs font-bold text-emerald-400">ONLINE</span>
+                  <span className="text-xs font-bold text-emerald-600 dark:text-emerald-400">ONLINE</span>
                 </div>
 
-                <div className="flex items-center justify-between p-3 rounded-xl bg-white/5 border border-white/10">
+                <div className="flex items-center justify-between p-3 rounded-xl bg-[var(--bg-app)] border border-[var(--border-primary)]">
                   <div className="flex items-center gap-2">
-                    <Database size={16} className="text-purple-400" />
+                    <Database size={16} className="text-purple-600 dark:text-purple-400" />
                     <div>
-                      <p className="font-space font-bold text-white">MySQL + Prisma 6.3</p>
-                      <p className="text-[10px] text-white/40">Connection Pool Healthy</p>
+                      <p className="font-space font-bold text-[var(--text-main)]">MySQL + Prisma 6.3</p>
+                      <p className="text-[10px] text-[var(--text-muted)]">Connection Pool Healthy</p>
                     </div>
                   </div>
-                  <span className="text-xs font-bold text-emerald-400">HEALTHY</span>
+                  <span className="text-xs font-bold text-emerald-600 dark:text-emerald-400">HEALTHY</span>
                 </div>
               </div>
             </DashCard>
@@ -485,45 +485,45 @@ export default function AdminDashboardPage() {
             exit={{ opacity: 0 }}
             className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm"
           >
-            <div className="w-full max-w-md p-6 rounded-2xl bg-[#0a1628] border border-amber-500/30 shadow-2xl">
+            <div className="w-full max-w-md p-6 rounded-2xl bg-[var(--bg-card)] border border-[var(--border-primary)] shadow-2xl text-[var(--text-main)]">
               <div className="flex items-center justify-between mb-4">
-                <h3 className="font-orbitron font-bold text-lg text-white">Create New Platform User</h3>
-                <button onClick={() => setAddUserModal(false)} className="text-white/40 hover:text-white cursor-pointer">
+                <h3 className="font-orbitron font-bold text-lg text-[var(--text-main)]">Create New Platform User</h3>
+                <button onClick={() => setAddUserModal(false)} className="text-[var(--text-muted)] hover:text-[var(--text-main)] cursor-pointer">
                   <X size={18} />
                 </button>
               </div>
 
               <form onSubmit={handleCreateUser} className="flex flex-col gap-4">
                 <div>
-                  <label className="block text-xs font-space text-white/60 mb-1">Full Name</label>
+                  <label className="block text-xs font-space text-[var(--text-muted)] mb-1">Full Name</label>
                   <input
                     type="text"
                     required
                     placeholder="User Name"
                     value={newUserForm.name}
                     onChange={e => setNewUserForm({ ...newUserForm, name: e.target.value })}
-                    className="w-full p-2.5 rounded-xl bg-[#040810] border border-white/10 text-white text-xs font-inter outline-none focus:border-amber-500/40"
+                    className="w-full p-2.5 rounded-xl bg-[var(--bg-app)] border border-[var(--border-primary)] text-[var(--text-main)] placeholder-[var(--text-muted)] text-xs font-inter outline-none focus:border-amber-500/40"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-space text-white/60 mb-1">Email Address</label>
+                  <label className="block text-xs font-space text-[var(--text-muted)] mb-1">Email Address</label>
                   <input
                     type="email"
                     required
                     placeholder="user@example.com"
                     value={newUserForm.email}
                     onChange={e => setNewUserForm({ ...newUserForm, email: e.target.value })}
-                    className="w-full p-2.5 rounded-xl bg-[#040810] border border-white/10 text-white text-xs font-inter outline-none focus:border-amber-500/40"
+                    className="w-full p-2.5 rounded-xl bg-[var(--bg-app)] border border-[var(--border-primary)] text-[var(--text-main)] placeholder-[var(--text-muted)] text-xs font-inter outline-none focus:border-amber-500/40"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-space text-white/60 mb-1">Assigned Role</label>
+                  <label className="block text-xs font-space text-[var(--text-muted)] mb-1">Assigned Role</label>
                   <select
                     value={newUserForm.role}
                     onChange={e => setNewUserForm({ ...newUserForm, role: e.target.value })}
-                    className="w-full p-2.5 rounded-xl bg-[#040810] border border-white/10 text-white text-xs font-orbitron font-bold outline-none cursor-pointer"
+                    className="w-full p-2.5 rounded-xl bg-[var(--bg-app)] border border-[var(--border-primary)] text-[var(--text-main)] text-xs font-orbitron font-bold outline-none cursor-pointer"
                   >
                     <option value="STUDENT">STUDENT</option>
                     <option value="TEACHER">TEACHER</option>
@@ -535,7 +535,7 @@ export default function AdminDashboardPage() {
                   <button
                     type="button"
                     onClick={() => setAddUserModal(false)}
-                    className="px-4 py-2 rounded-xl bg-white/5 text-white/60 text-xs font-space cursor-pointer"
+                    className="px-4 py-2 rounded-xl bg-[var(--bg-app)] border border-[var(--border-primary)] text-[var(--text-muted)] hover:text-[var(--text-main)] text-xs font-space cursor-pointer"
                   >
                     Cancel
                   </button>

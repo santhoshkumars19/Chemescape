@@ -338,7 +338,7 @@ export default function TeacherQuestionBankPage() {
           <div className="flex items-center gap-4">
             <button
               onClick={() => navigateTo('dashboard')}
-              className="w-10 h-10 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 flex items-center justify-center text-white/70 hover:text-white transition-all cursor-pointer flex-shrink-0"
+              className="w-10 h-10 rounded-xl bg-[var(--bg-card)] hover:bg-[var(--bg-secondary)] border border-[var(--border-primary)] flex items-center justify-center text-[var(--text-muted)] hover:text-[var(--text-main)] transition-all cursor-pointer flex-shrink-0"
               title="Back to Dashboard"
             >
               <ArrowLeft size={18} />
@@ -350,10 +350,10 @@ export default function TeacherQuestionBankPage() {
                 </span>
                 <span className="text-xs font-space text-slate-400">Curriculum Standards 4th – 11th</span>
               </div>
-              <h1 className="font-orbitron font-black text-2xl sm:text-3xl text-white leading-tight mt-1">
+              <h1 className="font-orbitron font-black text-2xl sm:text-3xl text-[var(--text-main)] leading-tight mt-1">
                 Curriculum Question Bank
               </h1>
-              <p className="text-white/50 text-xs sm:text-sm font-inter mt-0.5">
+              <p className="text-[var(--text-muted)] text-xs sm:text-sm font-inter mt-0.5">
                 Create, edit, and configure questions, options, hints & solutions across all Standards and Subjects.
               </p>
             </div>
@@ -385,11 +385,11 @@ export default function TeacherQuestionBankPage() {
                   <m.icon size={16} style={{ color: m.color }} />
                 </div>
               </div>
-              <p className="font-orbitron font-black text-xl text-white leading-none">
+              <p className="font-orbitron font-black text-xl text-[var(--text-main)] leading-none">
                 <AnimatedCounter value={m.value} />
-                <span className="text-xs text-white/50 font-space font-normal">{m.suffix}</span>
+                <span className="text-xs text-[var(--text-muted)] font-space font-normal">{m.suffix}</span>
               </p>
-              <p className="text-[11px] text-white/40 font-space mt-1">{m.label}</p>
+              <p className="text-[11px] text-[var(--text-muted)] font-space mt-1">{m.label}</p>
             </DashCard>
           ))}
         </div>
@@ -401,18 +401,18 @@ export default function TeacherQuestionBankPage() {
             {/* Top Row: Search & Action Controls */}
             <div className="flex flex-col md:flex-row items-stretch md:items-center gap-3">
               <div className="relative flex-1">
-                <Search size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-white/40" />
+                <Search size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[var(--text-muted)]" />
                 <input
                   type="text"
                   placeholder="Search by question text, option choices, hint, or chapter name..."
                   value={searchQuery}
                   onChange={e => setSearchQuery(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-[#0a1628] border border-white/10 text-white placeholder-white/30 text-xs outline-none focus:border-emerald-500/40 transition-all font-inter"
+                  className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-[var(--bg-app)] border border-[var(--border-primary)] text-[var(--text-main)] placeholder-[var(--text-muted)] text-xs outline-none focus:border-emerald-500/40 transition-all font-inter"
                 />
                 {searchQuery && (
                   <button
                     onClick={() => setSearchQuery('')}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-white/40 hover:text-white"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--text-muted)] hover:text-[var(--text-main)] cursor-pointer"
                   >
                     <X size={14} />
                   </button>
@@ -421,11 +421,11 @@ export default function TeacherQuestionBankPage() {
 
               {/* Standard Filter Dropdown */}
               <div className="flex items-center gap-2">
-                <GraduationCap size={15} className="text-emerald-400 flex-shrink-0" />
+                <GraduationCap size={15} className="text-emerald-500 flex-shrink-0" />
                 <select
                   value={selectedStandard}
                   onChange={e => setSelectedStandard(e.target.value)}
-                  className="px-3 py-2.5 rounded-xl bg-[#0a1628] border border-white/10 text-white font-space text-xs outline-none cursor-pointer hover:border-emerald-500/30 transition-all"
+                  className="px-3 py-2.5 rounded-xl bg-[var(--bg-app)] border border-[var(--border-primary)] text-[var(--text-main)] font-space text-xs outline-none cursor-pointer hover:border-emerald-500/30 transition-all"
                 >
                   {STANDARDS.map(std => (
                     <option key={std.id} value={std.id}>{std.label}</option>
@@ -435,11 +435,11 @@ export default function TeacherQuestionBankPage() {
 
               {/* Subject Filter Dropdown */}
               <div className="flex items-center gap-2">
-                <BookOpen size={15} className="text-cyan-400 flex-shrink-0" />
+                <BookOpen size={15} className="text-cyan-600 dark:text-cyan-400 flex-shrink-0" />
                 <select
                   value={selectedSubject}
                   onChange={e => setSelectedSubject(e.target.value)}
-                  className="px-3 py-2.5 rounded-xl bg-[#0a1628] border border-white/10 text-white font-space text-xs outline-none cursor-pointer hover:border-cyan-500/30 transition-all"
+                  className="px-3 py-2.5 rounded-xl bg-[var(--bg-app)] border border-[var(--border-primary)] text-[var(--text-main)] font-space text-xs outline-none cursor-pointer hover:border-cyan-500/30 transition-all"
                 >
                   {SUBJECTS.map(sub => (
                     <option key={sub.id} value={sub.id}>{sub.label}</option>
@@ -449,11 +449,11 @@ export default function TeacherQuestionBankPage() {
 
               {/* Difficulty Filter */}
               <div className="flex items-center gap-2">
-                <Filter size={15} className="text-amber-400 flex-shrink-0" />
+                <Filter size={15} className="text-amber-600 dark:text-amber-400 flex-shrink-0" />
                 <select
                   value={selectedDifficulty}
                   onChange={e => setSelectedDifficulty(e.target.value)}
-                  className="px-3 py-2.5 rounded-xl bg-[#0a1628] border border-white/10 text-white font-space text-xs outline-none cursor-pointer hover:border-amber-500/30 transition-all"
+                  className="px-3 py-2.5 rounded-xl bg-[var(--bg-app)] border border-[var(--border-primary)] text-[var(--text-main)] font-space text-xs outline-none cursor-pointer hover:border-amber-500/30 transition-all"
                 >
                   <option value="ALL">All Difficulties</option>
                   <option value="EASY">Easy</option>
@@ -465,7 +465,7 @@ export default function TeacherQuestionBankPage() {
               {(selectedStandard !== 'ALL' || selectedSubject !== 'ALL' || selectedDifficulty !== 'ALL' || searchQuery) && (
                 <button
                   onClick={resetAllFilters}
-                  className="px-3 py-2.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-xs font-space text-slate-300 hover:text-white transition-all flex items-center gap-1.5 cursor-pointer whitespace-nowrap"
+                  className="px-3 py-2.5 rounded-xl bg-[var(--bg-app)] hover:bg-[var(--bg-secondary)] border border-[var(--border-primary)] text-xs font-space text-[var(--text-muted)] hover:text-[var(--text-main)] transition-all flex items-center gap-1.5 cursor-pointer whitespace-nowrap"
                   title="Reset all filters"
                 >
                   <RefreshCw size={12} />
@@ -476,7 +476,7 @@ export default function TeacherQuestionBankPage() {
 
             {/* Bottom Row: Quick Subject Filter Pills */}
             <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none">
-              <span className="text-[11px] font-space text-white/40 uppercase tracking-wider mr-1 flex-shrink-0">
+              <span className="text-[11px] font-space text-[var(--text-muted)] uppercase tracking-wider mr-1 flex-shrink-0 font-semibold">
                 Quick Subject:
               </span>
               {SUBJECTS.map(sub => {
@@ -488,7 +488,7 @@ export default function TeacherQuestionBankPage() {
                     className={`px-3 py-1 rounded-lg text-xs font-space font-semibold transition-all whitespace-nowrap cursor-pointer ${
                       isActive
                         ? 'bg-emerald-500 text-slate-950 shadow-md shadow-emerald-500/20'
-                        : 'bg-white/5 text-white/60 hover:bg-white/10 hover:text-white border border-white/5'
+                        : 'bg-[var(--bg-app)] text-[var(--text-muted)] hover:bg-[var(--bg-secondary)] hover:text-[var(--text-main)] border border-[var(--border-primary)]'
                     }`}
                   >
                     {sub.label}
@@ -501,10 +501,10 @@ export default function TeacherQuestionBankPage() {
 
         {/* ── QUESTION LIST HEADER & COUNT ────────────────────────────────── */}
         <div className="flex items-center justify-between gap-4 mb-4">
-          <p className="text-xs font-space text-white/50">
-            Showing <span className="text-emerald-400 font-bold">{paginatedQuestions.length}</span> of <span className="text-white font-bold">{filteredQuestions.length}</span> questions
-            {selectedStandard !== 'ALL' && <span> in <span className="text-cyan-300">{selectedStandard}</span></span>}
-            {selectedSubject !== 'ALL' && <span> (<span className="text-amber-300">{selectedSubject}</span>)</span>}
+          <p className="text-xs font-space text-[var(--text-muted)]">
+            Showing <span className="text-emerald-600 dark:text-emerald-400 font-bold">{paginatedQuestions.length}</span> of <span className="text-[var(--text-main)] font-bold">{filteredQuestions.length}</span> questions
+            {selectedStandard !== 'ALL' && <span> in <span className="text-cyan-600 dark:text-cyan-300 font-semibold">{selectedStandard}</span></span>}
+            {selectedSubject !== 'ALL' && <span> (<span className="text-amber-600 dark:text-amber-300 font-semibold">{selectedSubject}</span>)</span>}
           </p>
 
           {totalPages > 1 && (
@@ -512,18 +512,18 @@ export default function TeacherQuestionBankPage() {
               <button
                 disabled={currentPage === 1}
                 onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
-                className="p-1.5 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-white/70 hover:text-white disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+                className="p-1.5 rounded-lg bg-[var(--bg-app)] hover:bg-[var(--bg-secondary)] border border-[var(--border-primary)] text-[var(--text-muted)] hover:text-[var(--text-main)] disabled:opacity-30 disabled:cursor-not-allowed transition-all cursor-pointer"
                 title="Previous Page"
               >
                 <ChevronLeft size={16} />
               </button>
-              <span className="text-xs font-space text-white/60">
-                Page <span className="text-white font-bold">{currentPage}</span> of {totalPages}
+              <span className="text-xs font-space text-[var(--text-muted)]">
+                Page <span className="text-[var(--text-main)] font-bold">{currentPage}</span> of {totalPages}
               </span>
               <button
                 disabled={currentPage === totalPages}
                 onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
-                className="p-1.5 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-white/70 hover:text-white disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+                className="p-1.5 rounded-lg bg-[var(--bg-app)] hover:bg-[var(--bg-secondary)] border border-[var(--border-primary)] text-[var(--text-muted)] hover:text-[var(--text-main)] disabled:opacity-30 disabled:cursor-not-allowed transition-all cursor-pointer"
                 title="Next Page"
               >
                 <ChevronRight size={16} />
@@ -535,14 +535,14 @@ export default function TeacherQuestionBankPage() {
         {/* ── QUESTION CARDS GRID ─────────────────────────────────────────── */}
         {paginatedQuestions.length === 0 ? (
           <DashCard className="p-12 text-center">
-            <Layers className="mx-auto mb-3 text-white/20" size={42} />
-            <h3 className="font-orbitron font-bold text-base text-white">No Questions Found</h3>
-            <p className="text-xs text-white/40 font-inter mt-1 max-w-md mx-auto">
+            <Layers className="mx-auto mb-3 text-[var(--text-muted)] opacity-40" size={42} />
+            <h3 className="font-orbitron font-bold text-base text-[var(--text-main)]">No Questions Found</h3>
+            <p className="text-xs text-[var(--text-muted)] font-inter mt-1 max-w-md mx-auto">
               No curriculum questions match your current search and filter settings. Try clearing the search or changing the selected Standard or Subject.
             </p>
             <button
               onClick={resetAllFilters}
-              className="mt-4 px-4 py-2 rounded-xl bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 text-xs font-space font-bold hover:bg-emerald-500/30 transition-all cursor-pointer"
+              className="mt-4 px-4 py-2 rounded-xl bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border border-emerald-500/30 text-xs font-space font-bold hover:bg-emerald-500/25 transition-all cursor-pointer"
             >
               Reset All Filters
             </button>
@@ -563,7 +563,7 @@ export default function TeacherQuestionBankPage() {
                     <div className="flex items-center justify-between gap-2 mb-2.5 flex-wrap">
                       <div className="flex items-center gap-2">
                         {/* Standard Badge */}
-                        <span className="px-2.5 py-0.5 rounded-full text-[10px] font-orbitron font-bold bg-white/10 text-white/80 border border-white/15 uppercase">
+                        <span className="px-2.5 py-0.5 rounded-full text-[10px] font-orbitron font-bold bg-[var(--bg-app)] text-[var(--text-main)] border border-[var(--border-primary)] uppercase">
                           {q.standard}
                         </span>
 
@@ -582,22 +582,22 @@ export default function TeacherQuestionBankPage() {
 
                       {/* Difficulty & XP Badge */}
                       <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-space font-bold ${
-                        q.difficulty === 'HARD' ? 'bg-rose-500/15 text-rose-300 border border-rose-500/30' :
-                        q.difficulty === 'MEDIUM' ? 'bg-amber-500/15 text-amber-300 border border-amber-500/30' :
-                        'bg-emerald-500/15 text-emerald-300 border border-emerald-500/30'
+                        q.difficulty === 'HARD' ? 'bg-rose-500/15 text-rose-700 dark:text-rose-300 border border-rose-500/30' :
+                        q.difficulty === 'MEDIUM' ? 'bg-amber-500/15 text-amber-700 dark:text-amber-300 border border-amber-500/30' :
+                        'bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border border-emerald-500/30'
                       }`}>
                         {q.difficulty} • {q.points} pts
                       </span>
                     </div>
 
                     {/* Chapter Title */}
-                    <div className="flex items-center gap-1.5 text-xs text-white/50 font-space mb-1.5">
-                      <Layers size={13} className="text-white/40" />
+                    <div className="flex items-center gap-1.5 text-xs text-[var(--text-muted)] font-space mb-1.5">
+                      <Layers size={13} className="text-[var(--text-muted)]" />
                       <span>{q.chapterTitle}</span>
                     </div>
 
                     {/* Question Text */}
-                    <h3 className="text-white text-sm font-inter font-medium leading-relaxed mb-3">
+                    <h3 className="text-[var(--text-main)] text-sm font-inter font-medium leading-relaxed mb-3">
                       {q.questionText}
                     </h3>
 
@@ -612,12 +612,12 @@ export default function TeacherQuestionBankPage() {
                               key={idx}
                               className={`p-2.5 rounded-xl text-xs font-space border transition-all flex items-start gap-2 ${
                                 isCorrect
-                                  ? 'bg-emerald-500/15 text-emerald-300 border-emerald-500/40 font-bold'
-                                  : 'bg-white/5 text-white/60 border-white/5'
+                                  ? 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border-emerald-500/40 font-bold'
+                                  : 'bg-[var(--bg-app)] text-[var(--text-main)] border border-[var(--border-primary)]'
                               }`}
                             >
                               <span className={`w-5 h-5 rounded-md flex items-center justify-center text-[10px] font-orbitron font-bold flex-shrink-0 ${
-                                isCorrect ? 'bg-emerald-500 text-slate-950' : 'bg-white/10 text-white/50'
+                                isCorrect ? 'bg-emerald-500 text-slate-950' : 'bg-[var(--bg-secondary)] text-[var(--text-muted)]'
                               }`}>
                                 {isCorrect ? '✓' : optKey}
                               </span>
@@ -629,20 +629,20 @@ export default function TeacherQuestionBankPage() {
                     )}
 
                     {/* Solution & Hint Details Box */}
-                    <div className="p-3 rounded-xl bg-[#0a1628] border border-white/5 mb-3 flex flex-col gap-1.5 text-xs">
-                      <div className="flex items-center gap-1.5 text-emerald-400 font-space font-bold">
+                    <div className="p-3 rounded-xl bg-[var(--bg-app)] border border-[var(--border-primary)] mb-3 flex flex-col gap-1.5 text-xs">
+                      <div className="flex items-center gap-1.5 text-emerald-600 dark:text-emerald-400 font-space font-bold">
                         <CheckCircle2 size={13} className="flex-shrink-0" />
-                        <span>Correct Answer: <span className="text-white font-normal">{q.targetAnswer || q.options?.[q.correctOptionIndex]}</span></span>
+                        <span>Correct Answer: <span className="text-[var(--text-main)] font-normal">{q.targetAnswer || q.options?.[q.correctOptionIndex]}</span></span>
                       </div>
                       {q.hint && (
-                        <div className="text-white/60 text-[11px] font-inter flex items-start gap-1.5">
-                          <span className="text-amber-400 flex-shrink-0">💡</span>
+                        <div className="text-[var(--text-muted)] text-[11px] font-inter flex items-start gap-1.5">
+                          <span className="text-amber-500 flex-shrink-0">💡</span>
                           <span>Hint: {q.hint}</span>
                         </div>
                       )}
                       {q.explanation && (
-                        <div className="text-white/50 text-[11px] font-inter flex items-start gap-1.5">
-                          <span className="text-cyan-400 flex-shrink-0">📖</span>
+                        <div className="text-[var(--text-muted)] text-[11px] font-inter flex items-start gap-1.5">
+                          <span className="text-cyan-600 dark:text-cyan-400 flex-shrink-0">📖</span>
                           <span>Solution: {q.explanation}</span>
                         </div>
                       )}
@@ -650,17 +650,17 @@ export default function TeacherQuestionBankPage() {
                   </div>
 
                   {/* Actions Row */}
-                  <div className="flex items-center justify-end gap-2 pt-3 border-t border-white/5">
+                  <div className="flex items-center justify-end gap-2 pt-3 border-t border-[var(--border-primary)]">
                     <button
                       onClick={() => handleOpenEditQuestion(q)}
-                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-300 border border-emerald-500/30 font-space text-xs font-bold cursor-pointer transition-all"
+                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-700 dark:text-emerald-300 border border-emerald-500/30 font-space text-xs font-bold cursor-pointer transition-all"
                     >
                       <Edit3 size={13} />
                       <span>Edit Question</span>
                     </button>
                     <button
                       onClick={() => handleDeleteQuestion(q.id)}
-                      className="p-1.5 rounded-lg bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/20 cursor-pointer transition-all"
+                      className="p-1.5 rounded-lg bg-rose-500/10 hover:bg-rose-500/20 text-rose-600 dark:text-rose-400 border border-rose-500/20 cursor-pointer transition-all"
                       title="Delete Question"
                     >
                       <Trash2 size={13} />
@@ -681,13 +681,13 @@ export default function TeacherQuestionBankPage() {
                 setCurrentPage(prev => Math.max(1, prev - 1));
                 window.scrollTo({ top: 200, behavior: 'smooth' });
               }}
-              className="px-3.5 py-2 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-white font-space text-xs disabled:opacity-30 disabled:cursor-not-allowed transition-all flex items-center gap-1.5 cursor-pointer"
+              className="px-3.5 py-2 rounded-xl bg-[var(--bg-app)] hover:bg-[var(--bg-secondary)] border border-[var(--border-primary)] text-[var(--text-main)] font-space text-xs disabled:opacity-30 disabled:cursor-not-allowed transition-all flex items-center gap-1.5 cursor-pointer"
             >
               <ChevronLeft size={14} />
               <span>Previous</span>
             </button>
-            <span className="text-xs font-space text-white/50">
-              Page <span className="text-emerald-400 font-bold">{currentPage}</span> of {totalPages}
+            <span className="text-xs font-space text-[var(--text-muted)]">
+              Page <span className="text-emerald-600 dark:text-emerald-400 font-bold">{currentPage}</span> of {totalPages}
             </span>
             <button
               disabled={currentPage === totalPages}
@@ -695,7 +695,7 @@ export default function TeacherQuestionBankPage() {
                 setCurrentPage(prev => Math.min(totalPages, prev + 1));
                 window.scrollTo({ top: 200, behavior: 'smooth' });
               }}
-              className="px-3.5 py-2 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-white font-space text-xs disabled:opacity-30 disabled:cursor-not-allowed transition-all flex items-center gap-1.5 cursor-pointer"
+              className="px-3.5 py-2 rounded-xl bg-[var(--bg-app)] hover:bg-[var(--bg-secondary)] border border-[var(--border-primary)] text-[var(--text-main)] font-space text-xs disabled:opacity-30 disabled:cursor-not-allowed transition-all flex items-center gap-1.5 cursor-pointer"
             >
               <span>Next</span>
               <ChevronRight size={14} />
@@ -713,24 +713,24 @@ export default function TeacherQuestionBankPage() {
             exit={{ opacity: 0 }}
             className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md overflow-y-auto"
           >
-            <div className="w-full max-w-2xl p-6 rounded-2xl bg-[#0a1628] border border-emerald-500/30 shadow-2xl my-8 max-h-[90vh] overflow-y-auto">
-              <div className="flex items-center justify-between mb-4 pb-3 border-b border-white/10">
+            <div className="w-full max-w-2xl p-6 rounded-2xl bg-[var(--bg-card)] border border-[var(--border-primary)] shadow-2xl my-8 max-h-[90vh] overflow-y-auto text-[var(--text-main)]">
+              <div className="flex items-center justify-between mb-4 pb-3 border-b border-[var(--border-primary)]">
                 <div className="flex items-center gap-2.5">
-                  <div className="w-9 h-9 rounded-xl bg-emerald-500/20 text-emerald-400 font-bold flex items-center justify-center">
+                  <div className="w-9 h-9 rounded-xl bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 font-bold flex items-center justify-center border border-emerald-500/25">
                     <Edit3 size={18} />
                   </div>
                   <div>
-                    <h3 className="font-orbitron font-bold text-lg text-white">
+                    <h3 className="font-orbitron font-bold text-lg text-[var(--text-main)]">
                       {editingQuestion ? 'Edit Curriculum Question' : 'Create New Curriculum Question'}
                     </h3>
-                    <p className="text-xs text-white/40 font-space">
+                    <p className="text-xs text-[var(--text-muted)] font-space">
                       Configure question content, options, hint and solution
                     </p>
                   </div>
                 </div>
                 <button
                   onClick={() => setQuestionModalOpen(false)}
-                  className="text-white/40 hover:text-white cursor-pointer"
+                  className="text-[var(--text-muted)] hover:text-[var(--text-main)] cursor-pointer"
                 >
                   <X size={18} />
                 </button>
@@ -740,11 +740,11 @@ export default function TeacherQuestionBankPage() {
                 {/* Standard & Subject Selectors */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-xs font-space text-white/70 mb-1">Standard / Grade</label>
+                    <label className="block text-xs font-space text-[var(--text-muted)] font-medium mb-1">Standard / Grade</label>
                     <select
                       value={questionForm.standard}
                       onChange={e => setQuestionForm({ ...questionForm, standard: e.target.value })}
-                      className="w-full p-2.5 rounded-xl bg-[#040810] border border-white/10 text-white text-xs font-space outline-none cursor-pointer focus:border-emerald-500/40"
+                      className="w-full p-2.5 rounded-xl bg-[var(--bg-app)] border border-[var(--border-primary)] text-[var(--text-main)] text-xs font-space outline-none cursor-pointer focus:border-emerald-500/40"
                     >
                       {STANDARDS.filter(s => s.id !== 'ALL').map(std => (
                         <option key={std.id} value={std.id}>{std.label}</option>
@@ -753,11 +753,11 @@ export default function TeacherQuestionBankPage() {
                   </div>
 
                   <div>
-                    <label className="block text-xs font-space text-white/70 mb-1">Subject</label>
+                    <label className="block text-xs font-space text-[var(--text-muted)] font-medium mb-1">Subject</label>
                     <select
                       value={questionForm.subject}
                       onChange={e => setQuestionForm({ ...questionForm, subject: e.target.value })}
-                      className="w-full p-2.5 rounded-xl bg-[#040810] border border-white/10 text-white text-xs font-space outline-none cursor-pointer focus:border-emerald-500/40"
+                      className="w-full p-2.5 rounded-xl bg-[var(--bg-app)] border border-[var(--border-primary)] text-[var(--text-main)] text-xs font-space outline-none cursor-pointer focus:border-emerald-500/40"
                     >
                       {SUBJECTS.filter(s => s.id !== 'ALL').map(sub => (
                         <option key={sub.id} value={sub.id}>{sub.label}</option>
@@ -769,7 +769,7 @@ export default function TeacherQuestionBankPage() {
                 {/* Chapter Title & Number */}
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                   <div>
-                    <label className="block text-xs font-space text-white/70 mb-1">Chapter No.</label>
+                    <label className="block text-xs font-space text-[var(--text-muted)] font-medium mb-1">Chapter No.</label>
                     <input
                       type="number"
                       min={1}
@@ -777,39 +777,39 @@ export default function TeacherQuestionBankPage() {
                       required
                       value={questionForm.chapterNumber}
                       onChange={e => setQuestionForm({ ...questionForm, chapterNumber: parseInt(e.target.value, 10) || 1 })}
-                      className="w-full p-2.5 rounded-xl bg-[#040810] border border-white/10 text-white text-xs font-space outline-none focus:border-emerald-500/40"
+                      className="w-full p-2.5 rounded-xl bg-[var(--bg-app)] border border-[var(--border-primary)] text-[var(--text-main)] text-xs font-space outline-none focus:border-emerald-500/40"
                     />
                   </div>
 
                   <div className="sm:col-span-2">
-                    <label className="block text-xs font-space text-white/70 mb-1">Chapter Name / Title</label>
+                    <label className="block text-xs font-space text-[var(--text-muted)] font-medium mb-1">Chapter Name / Title</label>
                     <input
                       type="text"
                       required
                       placeholder="e.g. Chapter 1: Measurements & Motion"
                       value={questionForm.chapterTitle}
                       onChange={e => setQuestionForm({ ...questionForm, chapterTitle: e.target.value })}
-                      className="w-full p-2.5 rounded-xl bg-[#040810] border border-white/10 text-white text-xs font-space outline-none focus:border-emerald-500/40"
+                      className="w-full p-2.5 rounded-xl bg-[var(--bg-app)] border border-[var(--border-primary)] text-[var(--text-main)] text-xs font-space outline-none focus:border-emerald-500/40"
                     />
                   </div>
                 </div>
 
                 {/* Question Prompt */}
                 <div>
-                  <label className="block text-xs font-space text-white/70 mb-1">Question Prompt / Statement</label>
+                  <label className="block text-xs font-space text-[var(--text-muted)] font-medium mb-1">Question Prompt / Statement</label>
                   <textarea
                     rows={3}
                     required
                     placeholder="Enter question text or problem statement..."
                     value={questionForm.questionText}
                     onChange={e => setQuestionForm({ ...questionForm, questionText: e.target.value })}
-                    className="w-full p-3 rounded-xl bg-[#040810] border border-white/10 text-white text-xs font-inter outline-none focus:border-emerald-500/40"
+                    className="w-full p-3 rounded-xl bg-[var(--bg-app)] border border-[var(--border-primary)] text-[var(--text-main)] placeholder-[var(--text-muted)] text-xs font-inter outline-none focus:border-emerald-500/40"
                   />
                 </div>
 
                 {/* Multiple Choice Options Editor */}
                 <div>
-                  <label className="block text-xs font-space text-white/70 mb-2">
+                  <label className="block text-xs font-space text-[var(--text-muted)] font-medium mb-2">
                     Answer Choices (Select radio button for Correct Answer):
                   </label>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -818,8 +818,8 @@ export default function TeacherQuestionBankPage() {
                         key={idx}
                         className={`flex items-center gap-2.5 p-2.5 rounded-xl border transition-all ${
                           questionForm.correctOptionIndex === idx
-                            ? 'bg-emerald-500/10 border-emerald-500/40'
-                            : 'bg-[#040810] border-white/10'
+                            ? 'bg-emerald-500/15 border-emerald-500/40'
+                            : 'bg-[var(--bg-app)] border-[var(--border-primary)]'
                         }`}
                       >
                         <input
@@ -831,9 +831,9 @@ export default function TeacherQuestionBankPage() {
                             correctOptionIndex: idx,
                             targetAnswer: opt
                           })}
-                          className="accent-emerald-400 cursor-pointer w-4 h-4"
+                          className="accent-emerald-500 cursor-pointer w-4 h-4"
                         />
-                        <span className="text-[11px] font-orbitron font-bold text-white/40">
+                        <span className="text-[11px] font-orbitron font-bold text-[var(--text-muted)]">
                           {String.fromCharCode(65 + idx)}:
                         </span>
                         <input
@@ -850,7 +850,7 @@ export default function TeacherQuestionBankPage() {
                               targetAnswer: idx === questionForm.correctOptionIndex ? e.target.value : questionForm.targetAnswer
                             });
                           }}
-                          className="w-full bg-transparent text-white text-xs font-space outline-none"
+                          className="w-full bg-transparent text-[var(--text-main)] placeholder-[var(--text-muted)] text-xs font-space outline-none"
                         />
                       </div>
                     ))}
@@ -860,11 +860,11 @@ export default function TeacherQuestionBankPage() {
                 {/* Difficulty, Points & Target Answer */}
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                   <div>
-                    <label className="block text-xs font-space text-white/70 mb-1">Difficulty</label>
+                    <label className="block text-xs font-space text-[var(--text-muted)] font-medium mb-1">Difficulty</label>
                     <select
                       value={questionForm.difficulty}
                       onChange={e => setQuestionForm({ ...questionForm, difficulty: e.target.value })}
-                      className="w-full p-2.5 rounded-xl bg-[#040810] border border-white/10 text-white text-xs font-space font-bold outline-none cursor-pointer focus:border-emerald-500/40"
+                      className="w-full p-2.5 rounded-xl bg-[var(--bg-app)] border border-[var(--border-primary)] text-[var(--text-main)] text-xs font-space font-bold outline-none cursor-pointer focus:border-emerald-500/40"
                     >
                       <option value="EASY">EASY</option>
                       <option value="MEDIUM">MEDIUM</option>
@@ -873,7 +873,7 @@ export default function TeacherQuestionBankPage() {
                   </div>
 
                   <div>
-                    <label className="block text-xs font-space text-white/70 mb-1">Points Reward</label>
+                    <label className="block text-xs font-space text-[var(--text-muted)] font-medium mb-1">Points Reward</label>
                     <input
                       type="number"
                       step={10}
@@ -881,52 +881,52 @@ export default function TeacherQuestionBankPage() {
                       max={500}
                       value={questionForm.points}
                       onChange={e => setQuestionForm({ ...questionForm, points: parseInt(e.target.value, 10) || 100 })}
-                      className="w-full p-2.5 rounded-xl bg-[#040810] border border-white/10 text-white text-xs font-space outline-none focus:border-emerald-500/40"
+                      className="w-full p-2.5 rounded-xl bg-[var(--bg-app)] border border-[var(--border-primary)] text-[var(--text-main)] text-xs font-space outline-none focus:border-emerald-500/40"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-xs font-space text-white/70 mb-1">Target Answer</label>
+                    <label className="block text-xs font-space text-[var(--text-muted)] font-medium mb-1">Target Answer</label>
                     <input
                       type="text"
                       readOnly
                       value={questionForm.options[questionForm.correctOptionIndex] || ''}
                       placeholder="Selected via radio"
-                      className="w-full p-2.5 rounded-xl bg-[#040810]/50 border border-white/10 text-emerald-300 text-xs font-space outline-none cursor-not-allowed"
+                      className="w-full p-2.5 rounded-xl bg-[var(--bg-secondary)] border border-[var(--border-primary)] text-emerald-600 dark:text-emerald-300 text-xs font-space outline-none cursor-not-allowed"
                     />
                   </div>
                 </div>
 
                 {/* Question Hint */}
                 <div>
-                  <label className="block text-xs font-space text-white/70 mb-1">Question Hint</label>
+                  <label className="block text-xs font-space text-[var(--text-muted)] font-medium mb-1">Question Hint</label>
                   <input
                     type="text"
                     placeholder="e.g. Remember to check the base units of the SI system..."
                     value={questionForm.hint}
                     onChange={e => setQuestionForm({ ...questionForm, hint: e.target.value })}
-                    className="w-full p-2.5 rounded-xl bg-[#040810] border border-white/10 text-white text-xs font-inter outline-none focus:border-emerald-500/40"
+                    className="w-full p-2.5 rounded-xl bg-[var(--bg-app)] border border-[var(--border-primary)] text-[var(--text-main)] placeholder-[var(--text-muted)] text-xs font-inter outline-none focus:border-emerald-500/40"
                   />
                 </div>
 
                 {/* Explanation / Solution */}
                 <div>
-                  <label className="block text-xs font-space text-white/70 mb-1">Explanation / Solution Details</label>
+                  <label className="block text-xs font-space text-[var(--text-muted)] font-medium mb-1">Explanation / Solution Details</label>
                   <input
                     type="text"
                     placeholder="Enter detailed educational explanation..."
                     value={questionForm.explanation}
                     onChange={e => setQuestionForm({ ...questionForm, explanation: e.target.value })}
-                    className="w-full p-2.5 rounded-xl bg-[#040810] border border-white/10 text-white text-xs font-inter outline-none focus:border-emerald-500/40"
+                    className="w-full p-2.5 rounded-xl bg-[var(--bg-app)] border border-[var(--border-primary)] text-[var(--text-main)] placeholder-[var(--text-muted)] text-xs font-inter outline-none focus:border-emerald-500/40"
                   />
                 </div>
 
                 {/* Modal Footer */}
-                <div className="flex justify-end gap-3 mt-4 pt-3 border-t border-white/10">
+                <div className="flex justify-end gap-3 mt-4 pt-3 border-t border-[var(--border-primary)]">
                   <button
                     type="button"
                     onClick={() => setQuestionModalOpen(false)}
-                    className="px-4 py-2.5 rounded-xl bg-white/5 hover:bg-white/10 text-white/60 text-xs font-space cursor-pointer transition-all"
+                    className="px-4 py-2.5 rounded-xl bg-[var(--bg-app)] hover:bg-[var(--bg-secondary)] border border-[var(--border-primary)] text-[var(--text-muted)] hover:text-[var(--text-main)] text-xs font-space cursor-pointer transition-all"
                   >
                     Cancel
                   </button>

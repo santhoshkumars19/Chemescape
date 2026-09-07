@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   User, Award, BookOpen, Edit3, Save, X, ArrowLeft,
@@ -19,14 +19,14 @@ function PrefToggle({ label, desc }) {
   return (
     <div className="flex items-center justify-between py-1">
       <div>
-        <p className="font-space font-semibold text-white text-xs">{label}</p>
-        <p className="text-white/40 text-[11px] font-inter mt-0.5">{desc}</p>
+        <p className="font-space font-semibold text-[var(--text-main)] text-xs">{label}</p>
+        <p className="text-[var(--text-muted)] text-[11px] font-inter mt-0.5">{desc}</p>
       </div>
       <button
         onClick={() => setOn(v => !v)}
-        className={`relative w-11 h-6 rounded-full transition-all cursor-pointer flex-shrink-0 ${on ? 'bg-purple-500' : 'bg-white/10'}`}
+        className={`relative w-11 h-6 rounded-full transition-all cursor-pointer flex-shrink-0 ${on ? 'bg-purple-500' : 'bg-[var(--bg-secondary)] border border-[var(--border-primary)]'}`}
       >
-        <div className={`w-4 h-4 rounded-full bg-white absolute top-1 transition-all ${on ? 'right-1' : 'left-1'}`} />
+        <div className={`w-4 h-4 rounded-full bg-white absolute top-0.5 transition-all shadow-sm ${on ? 'right-1' : 'left-1'}`} />
       </button>
     </div>
   );
@@ -122,7 +122,7 @@ export default function TeacherProfilePage() {
   ];
 
   return (
-    <div className="relative min-h-screen bg-[#040810] text-white overflow-x-hidden w-full pb-16">
+    <div className="relative min-h-screen bg-[var(--bg-app)] text-[var(--text-main)] transition-colors duration-200 overflow-x-hidden w-full pb-16">
       {/* Background glow */}
       <div className="fixed inset-0 pointer-events-none z-0"
         style={{ background: 'radial-gradient(ellipse 70% 50% at 50% -10%, rgba(168,85,247,0.12) 0%, transparent 60%)' }} />
@@ -136,7 +136,7 @@ export default function TeacherProfilePage() {
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.3 }}
             onClick={() => navigateTo('dashboard')}
-            className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white/5 hover:bg-purple-500/15 border border-white/10 hover:border-purple-500/40 text-white/60 hover:text-purple-300 font-space font-bold text-xs uppercase tracking-wider cursor-pointer transition-all"
+            className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[var(--bg-card)] hover:bg-[var(--bg-secondary)] border border-[var(--border-primary)] hover:border-purple-500/40 text-[var(--text-muted)] hover:text-purple-600 dark:hover:text-purple-300 font-space font-bold text-xs uppercase tracking-wider cursor-pointer transition-all shadow-sm"
           >
             <ArrowLeft size={14} />
             <span>Back to Dashboard</span>
@@ -166,7 +166,7 @@ export default function TeacherProfilePage() {
                 style={{ background: 'linear-gradient(135deg, rgba(168,85,247,0.2), rgba(0,212,255,0.15))', border: '2px solid rgba(168,85,247,0.4)', boxShadow: '0 0 30px rgba(168,85,247,0.2)' }}>
                 {profile.avatar}
               </div>
-              <div className="absolute -bottom-1.5 -right-1.5 w-7 h-7 rounded-lg bg-purple-500 flex items-center justify-center text-xs border-2 border-[#040810]">
+              <div className="absolute -bottom-1.5 -right-1.5 w-7 h-7 rounded-lg bg-purple-500 flex items-center justify-center text-xs border-2 border-[var(--bg-card)]">
                 👨‍🏫
               </div>
             </div>
@@ -176,16 +176,16 @@ export default function TeacherProfilePage() {
               <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
                 <div>
                   <div className="flex items-center gap-2 mb-1 flex-wrap">
-                    <span className="text-xs font-orbitron font-bold px-2.5 py-0.5 rounded-full bg-purple-500/20 text-purple-300 border border-purple-500/30 uppercase tracking-wider">
+                    <span className="text-xs font-orbitron font-bold px-2.5 py-0.5 rounded-full bg-purple-500/20 text-purple-700 dark:text-purple-300 border border-purple-500/30 uppercase tracking-wider">
                       TEACHER PORTAL
                     </span>
-                    <span className="text-xs font-space text-white/40">
+                    <span className="text-xs font-space text-[var(--text-muted)]">
                       {user?.id ? `ID: ${String(user.id).slice(-8).toUpperCase()}` : 'Faculty Instructor'}
                     </span>
                   </div>
-                  <h1 className="font-orbitron font-black text-2xl sm:text-3xl text-white">{profile.name}</h1>
-                  <p className="text-purple-300 text-sm font-space font-bold mt-0.5">{profile.subject} — {profile.specialization}</p>
-                  <p className="text-white/50 text-xs font-inter mt-1">{profile.qualification} · {profile.institution}</p>
+                  <h1 className="font-orbitron font-black text-2xl sm:text-3xl text-[var(--text-main)]">{profile.name}</h1>
+                  <p className="text-purple-600 dark:text-purple-300 text-sm font-space font-bold mt-0.5">{profile.subject} — {profile.specialization}</p>
+                  <p className="text-[var(--text-muted)] text-xs font-inter mt-1">{profile.qualification} · {profile.institution}</p>
                 </div>
 
                 <button
@@ -194,7 +194,7 @@ export default function TeacherProfilePage() {
                     setSelectedAvatar(profile.avatar);
                     setIsEditing(true);
                   }}
-                  className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-purple-500/20 hover:bg-purple-500/30 border border-purple-500/30 text-purple-300 font-space font-bold text-xs cursor-pointer transition-all flex-shrink-0"
+                  className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-purple-500/10 hover:bg-purple-500/20 border border-purple-500/30 text-purple-600 dark:text-purple-300 font-space font-bold text-xs cursor-pointer transition-all flex-shrink-0"
                 >
                   <Edit3 size={14} />
                   <span>Edit Profile</span>
@@ -202,15 +202,15 @@ export default function TeacherProfilePage() {
               </div>
 
               {/* Contact Row */}
-              <div className="flex flex-wrap gap-4 mt-3 text-xs font-inter text-white/50">
-                <span className="flex items-center gap-1.5"><Mail size={12} className="text-cyan-400" /> {profile.email || 'None'}</span>
-                <span className="flex items-center gap-1.5"><Phone size={12} className="text-purple-400" /> {profile.phone || 'Not set'}</span>
-                <span className="flex items-center gap-1.5"><MapPin size={12} className="text-pink-400" /> {profile.location || 'Not set'}</span>
-                <span className="flex items-center gap-1.5"><Calendar size={12} className="text-amber-400" /> Joined {profile.joined}</span>
+              <div className="flex flex-wrap gap-4 mt-3 text-xs font-inter text-[var(--text-muted)]">
+                <span className="flex items-center gap-1.5"><Mail size={12} className="text-cyan-500 dark:text-cyan-400" /> {profile.email || 'None'}</span>
+                <span className="flex items-center gap-1.5"><Phone size={12} className="text-purple-500 dark:text-purple-400" /> {profile.phone || 'Not set'}</span>
+                <span className="flex items-center gap-1.5"><MapPin size={12} className="text-pink-500 dark:text-pink-400" /> {profile.location || 'Not set'}</span>
+                <span className="flex items-center gap-1.5"><Calendar size={12} className="text-amber-500 dark:text-amber-400" /> Joined {profile.joined}</span>
               </div>
 
               {/* Bio */}
-              <p className="text-white/60 text-xs font-inter mt-3 leading-relaxed max-w-2xl">{profile.bio}</p>
+              <p className="text-[var(--text-muted)] text-xs font-inter mt-3 leading-relaxed max-w-2xl">{profile.bio}</p>
             </div>
           </div>
         </DashCard>
@@ -230,22 +230,22 @@ export default function TeacherProfilePage() {
                 style={{ background: `${m.color}15`, border: `1px solid ${m.color}30` }}>
                 <m.icon size={16} style={{ color: m.color }} />
               </div>
-              <p className="font-orbitron font-black text-xl text-white leading-none">{m.value}</p>
-              <p className="text-[11px] text-white/40 font-space mt-1">{m.label}</p>
+              <p className="font-orbitron font-black text-xl text-[var(--text-main)] leading-none">{m.value}</p>
+              <p className="text-[11px] text-[var(--text-muted)] font-space mt-1">{m.label}</p>
             </DashCard>
           ))}
         </div>
 
         {/* ── TABS ────────────────────────────────────────────────────── */}
-        <div className="flex items-center gap-2 mb-6 border-b border-white/10 pb-3">
+        <div className="flex items-center gap-2 mb-6 border-b border-[var(--border-primary)] pb-3">
           {tabs.map(tab => (
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
               className={`flex items-center gap-2 px-4 py-2 rounded-xl font-orbitron font-bold text-xs uppercase tracking-wider cursor-pointer transition-all ${
                 activeTab === tab.id
-                  ? 'bg-purple-600/20 text-purple-300 border border-purple-500/40'
-                  : 'bg-white/5 text-white/40 hover:text-white border border-white/5'
+                  ? 'bg-purple-600/15 text-purple-700 dark:text-purple-300 border border-purple-500/40 shadow-sm'
+                  : 'bg-[var(--bg-card)] text-[var(--text-muted)] hover:text-[var(--text-main)] border border-[var(--border-primary)]'
               }`}
             >
               <tab.icon size={13} />
@@ -259,8 +259,8 @@ export default function TeacherProfilePage() {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
 
             <DashCard className="p-5">
-              <h3 className="font-orbitron font-bold text-base text-white mb-4 flex items-center gap-2">
-                <GraduationCap size={16} className="text-purple-400" /> Professional Details
+              <h3 className="font-orbitron font-bold text-base text-[var(--text-main)] mb-4 flex items-center gap-2">
+                <GraduationCap size={16} className="text-purple-500 dark:text-purple-400" /> Professional Details
               </h3>
               <div className="flex flex-col gap-3 text-sm">
                 {[
@@ -273,17 +273,17 @@ export default function TeacherProfilePage() {
                   { label: 'Location', value: profile.location || 'Not specified' },
                   { label: 'Contact', value: profile.phone || 'Not specified' },
                 ].map(row => (
-                  <div key={row.label} className="flex items-start justify-between gap-4 py-2 border-b border-white/5 last:border-0">
-                    <span className="text-white/40 font-space text-xs">{row.label}</span>
-                    <span className="text-white font-inter text-xs text-right">{row.value}</span>
+                  <div key={row.label} className="flex items-start justify-between gap-4 py-2 border-b border-[var(--border-primary)]/50 last:border-0">
+                    <span className="text-[var(--text-muted)] font-space text-xs">{row.label}</span>
+                    <span className="text-[var(--text-main)] font-inter text-xs text-right font-medium">{row.value}</span>
                   </div>
                 ))}
               </div>
             </DashCard>
 
             <DashCard className="p-5">
-              <h3 className="font-orbitron font-bold text-base text-white mb-4 flex items-center gap-2">
-                <BarChart2 size={16} className="text-cyan-400" /> Teaching Performance
+              <h3 className="font-orbitron font-bold text-base text-[var(--text-main)] mb-4 flex items-center gap-2">
+                <BarChart2 size={16} className="text-cyan-500 dark:text-cyan-400" /> Teaching Performance
               </h3>
               <div className="flex flex-col gap-4">
                 {[
@@ -293,10 +293,10 @@ export default function TeacherProfilePage() {
                 ].map(item => (
                   <div key={item.label}>
                     <div className="flex justify-between text-xs font-space mb-1">
-                      <span className="text-white/60">{item.label}</span>
-                      <span className="font-orbitron font-bold text-cyan-400">{item.value}</span>
+                      <span className="text-[var(--text-muted)]">{item.label}</span>
+                      <span className="font-orbitron font-bold text-cyan-600 dark:text-cyan-400">{item.value}</span>
                     </div>
-                    <div className="h-2 rounded-full bg-white/5 overflow-hidden">
+                    <div className="h-2 rounded-full bg-[var(--bg-secondary)] border border-[var(--border-primary)] overflow-hidden">
                       <motion.div
                         className="h-full rounded-full bg-gradient-to-r from-purple-500 to-cyan-500"
                         initial={{ width: 0 }}
@@ -315,8 +315,8 @@ export default function TeacherProfilePage() {
         {activeTab === 'certifications' && (
           <DashCard className="p-8 text-center">
             <Award className="mx-auto mb-2 text-purple-400/50" size={36} />
-            <p className="text-sm font-semibold text-white">No certifications uploaded yet.</p>
-            <p className="text-xs text-white/40 mt-1 font-space">Verified teaching credentials will appear here once submitted.</p>
+            <p className="text-sm font-semibold text-[var(--text-main)]">No certifications uploaded yet.</p>
+            <p className="text-xs text-[var(--text-muted)] mt-1 font-space">Verified teaching credentials will appear here once submitted.</p>
           </DashCard>
         )}
 
@@ -324,8 +324,8 @@ export default function TeacherProfilePage() {
         {activeTab === 'activity' && (
           <DashCard className="p-8 text-center">
             <Clock className="mx-auto mb-2 text-purple-400/50" size={36} />
-            <p className="text-sm font-semibold text-white">No teaching activity logged yet.</p>
-            <p className="text-xs text-white/40 mt-1 font-space">Classroom room changes and student performance events will appear here.</p>
+            <p className="text-sm font-semibold text-[var(--text-main)]">No teaching activity logged yet.</p>
+            <p className="text-xs text-[var(--text-muted)] mt-1 font-space">Classroom room changes and student performance events will appear here.</p>
           </DashCard>
         )}
 
@@ -336,8 +336,8 @@ export default function TeacherProfilePage() {
 
             {/* Notification preferences */}
             <DashCard className="p-5">
-              <h3 className="font-orbitron font-bold text-base text-white mb-4 flex items-center gap-2">
-                <Settings size={16} className="text-purple-400" /> Preferences
+              <h3 className="font-orbitron font-bold text-base text-[var(--text-main)] mb-4 flex items-center gap-2">
+                <Settings size={16} className="text-purple-500 dark:text-purple-400" /> Preferences
               </h3>
               <div className="flex flex-col gap-4">
                 {[
@@ -361,25 +361,25 @@ export default function TeacherProfilePage() {
             initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
             className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md overflow-y-auto"
           >
-            <div className="w-full max-w-xl p-6 rounded-2xl bg-[#0a1628] border border-purple-500/30 shadow-2xl my-8 max-h-[90vh] overflow-y-auto">
-              <div className="flex items-center justify-between mb-4 pb-3 border-b border-white/10">
+            <div className="w-full max-w-xl p-6 rounded-2xl bg-[var(--bg-card)] border border-[var(--border-primary)] shadow-2xl my-8 max-h-[90vh] overflow-y-auto">
+              <div className="flex items-center justify-between mb-4 pb-3 border-b border-[var(--border-primary)]">
                 <div className="flex items-center gap-2.5">
                   <div className="w-9 h-9 rounded-xl bg-purple-500/20 flex items-center justify-center">
-                    <Edit3 size={16} className="text-purple-300" />
+                    <Edit3 size={16} className="text-purple-600 dark:text-purple-300" />
                   </div>
                   <div>
-                    <h3 className="font-orbitron font-bold text-base text-white">Edit Teacher Profile</h3>
-                    <p className="text-xs text-white/40 font-space">Update your professional information</p>
+                    <h3 className="font-orbitron font-bold text-base text-[var(--text-main)]">Edit Teacher Profile</h3>
+                    <p className="text-xs text-[var(--text-muted)] font-space">Update your professional information</p>
                   </div>
                 </div>
-                <button onClick={() => setIsEditing(false)} className="text-white/40 hover:text-white cursor-pointer">
+                <button onClick={() => setIsEditing(false)} className="text-[var(--text-muted)] hover:text-[var(--text-main)] cursor-pointer">
                   <X size={18} />
                 </button>
               </div>
 
               {/* Avatar Picker */}
               <div className="mb-4">
-                <label className="block text-xs font-space text-white/70 mb-2">Choose Avatar</label>
+                <label className="block text-xs font-space text-[var(--text-main)] font-semibold mb-2">Choose Avatar</label>
                 <div className="flex gap-3 flex-wrap">
                   {AVATARS.map(av => (
                     <button
@@ -387,8 +387,8 @@ export default function TeacherProfilePage() {
                       onClick={() => setSelectedAvatar(av)}
                       className={`w-12 h-12 rounded-xl text-2xl flex items-center justify-center border-2 cursor-pointer transition-all ${
                         selectedAvatar === av
-                          ? 'border-purple-400 bg-purple-500/20 scale-110'
-                          : 'border-white/10 bg-white/5 hover:border-white/30'
+                          ? 'border-purple-500 bg-purple-500/20 scale-110 shadow-sm'
+                          : 'border-[var(--border-primary)] bg-[var(--bg-secondary)] hover:border-purple-400'
                       }`}
                     >
                       {av}
@@ -408,32 +408,32 @@ export default function TeacherProfilePage() {
                   { label: 'Location', key: 'location', placeholder: 'City, State' },
                 ].map(field => (
                   <div key={field.key} className={field.key === 'specialization' ? 'sm:col-span-2' : ''}>
-                    <label className="block text-xs font-space text-white/70 mb-1">{field.label}</label>
+                    <label className="block text-xs font-space text-[var(--text-main)] font-semibold mb-1">{field.label}</label>
                     <input
                       type="text"
                       value={editForm[field.key]}
                       onChange={e => setEditForm({ ...editForm, [field.key]: e.target.value })}
                       placeholder={field.placeholder}
-                      className="w-full p-2.5 rounded-xl bg-[#040810] border border-white/10 text-white text-xs font-inter outline-none focus:border-purple-500/40"
+                      className="w-full p-2.5 rounded-xl bg-[var(--bg-app)] border border-[var(--border-primary)] text-[var(--text-main)] placeholder-[var(--text-muted)]/50 text-xs font-inter outline-none focus:border-purple-500/40"
                     />
                   </div>
                 ))}
 
                 <div className="sm:col-span-2">
-                  <label className="block text-xs font-space text-white/70 mb-1">Bio</label>
+                  <label className="block text-xs font-space text-[var(--text-main)] font-semibold mb-1">Bio</label>
                   <textarea
                     rows={3}
                     value={editForm.bio}
                     onChange={e => setEditForm({ ...editForm, bio: e.target.value })}
                     placeholder="Short professional bio..."
-                    className="w-full p-3 rounded-xl bg-[#040810] border border-white/10 text-white text-xs font-inter outline-none focus:border-purple-500/40"
+                    className="w-full p-3 rounded-xl bg-[var(--bg-app)] border border-[var(--border-primary)] text-[var(--text-main)] placeholder-[var(--text-muted)]/50 text-xs font-inter outline-none focus:border-purple-500/40"
                   />
                 </div>
               </div>
 
-              <div className="flex justify-end gap-3 mt-5 pt-4 border-t border-white/10">
+              <div className="flex justify-end gap-3 mt-5 pt-4 border-t border-[var(--border-primary)]">
                 <button onClick={() => setIsEditing(false)}
-                  className="px-4 py-2.5 rounded-xl bg-white/5 text-white/60 text-xs font-space cursor-pointer">
+                  className="px-4 py-2.5 rounded-xl bg-[var(--bg-secondary)] hover:bg-[var(--bg-app)] border border-[var(--border-primary)] text-[var(--text-muted)] hover:text-[var(--text-main)] text-xs font-space cursor-pointer transition-colors">
                   Cancel
                 </button>
                 <button onClick={handleSaveProfile}

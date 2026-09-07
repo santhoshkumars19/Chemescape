@@ -212,7 +212,7 @@ export default function TeacherDashboardPage() {
             </button>
             <button
               onClick={() => navigateTo('teacher-questions')}
-              className="px-4 py-2.5 rounded-xl font-orbitron font-bold text-xs bg-[#0B1512] hover:bg-[#12221c] text-emerald-300 border border-emerald-500/30 flex items-center gap-2 cursor-pointer transition-all"
+              className="px-4 py-2.5 rounded-xl font-orbitron font-bold text-xs bg-[var(--bg-card)] hover:bg-[var(--bg-secondary)] text-emerald-700 dark:text-emerald-300 border border-emerald-500/30 flex items-center gap-2 cursor-pointer transition-all"
             >
               <FileText size={16} />
               <span>Question Bank</span>
@@ -237,10 +237,10 @@ export default function TeacherDashboardPage() {
                   <m.icon size={16} style={{ color: m.color }} />
                 </div>
               </div>
-              <p className="font-orbitron font-black text-xl text-white leading-none">
+              <p className="font-orbitron font-black text-xl text-[var(--text-main)] leading-none">
                 <AnimatedCounter value={m.value} />{m.suffix}
               </p>
-              <p className="text-[11px] text-white/40 font-space mt-1">{m.label}</p>
+              <p className="text-[11px] text-[var(--text-muted)] font-space mt-1">{m.label}</p>
             </DashCard>
           ))}
         </div>
@@ -255,19 +255,19 @@ export default function TeacherDashboardPage() {
             <DashCard className="p-5 sm:p-6" id="student-roster-card">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
                 <div>
-                  <h3 className="font-orbitron font-bold text-lg text-white">Student Roster & Escape Progress</h3>
-                  <p className="text-white/40 text-xs font-space mt-0.5">Real-time room completions & performance grades</p>
+                  <h3 className="font-orbitron font-bold text-lg text-[var(--text-main)]">Student Roster & Escape Progress</h3>
+                  <p className="text-[var(--text-muted)] text-xs font-space mt-0.5">Real-time room completions & performance grades</p>
                 </div>
 
                 <div className="flex items-center gap-3">
                   <div className="relative">
-                    <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-white/40" />
+                    <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--text-muted)]" />
                     <input
                       type="text"
                       placeholder="Search student..."
                       value={searchTerm}
                       onChange={e => setSearchTerm(e.target.value)}
-                      className="pl-9 pr-4 py-2 rounded-xl bg-[#0a1628] border border-white/10 text-white placeholder-white/30 text-xs outline-none focus:border-cyan-500/40 transition-all"
+                      className="pl-9 pr-4 py-2 rounded-xl bg-[var(--bg-app)] border border-[var(--border-primary)] text-[var(--text-main)] placeholder-[var(--text-muted)] text-xs outline-none focus:border-cyan-500/40 transition-all"
                     />
                   </div>
                 </div>
@@ -277,14 +277,14 @@ export default function TeacherDashboardPage() {
               <div className="overflow-x-auto">
                 {filteredStudents.length === 0 ? (
                   <div className="py-12 px-4 text-center font-space">
-                    <Users className="mx-auto mb-3 text-emerald-400 opacity-50" size={36} />
-                    <p className="text-sm font-semibold text-white">No registered students found</p>
-                    <p className="text-xs text-white/40 mt-1">Enrolled students will appear here once they register on EduNova.</p>
+                    <Users className="mx-auto mb-3 text-emerald-500 opacity-50" size={36} />
+                    <p className="text-sm font-semibold text-[var(--text-main)]">No registered students found</p>
+                    <p className="text-xs text-[var(--text-muted)] mt-1">Enrolled students will appear here once they register on EduNova.</p>
                   </div>
                 ) : (
                   <table className="w-full text-left text-xs font-inter border-collapse">
                   <thead>
-                    <tr className="border-b border-white/10 text-white/40 font-space uppercase text-[10px] tracking-wider">
+                    <tr className="border-b border-[var(--border-primary)] text-[var(--text-muted)] font-space uppercase text-[10px] tracking-wider">
                       <th className="py-3 px-3">Student</th>
                       <th className="py-3 px-3">Level & XP</th>
                       <th className="py-3 px-3">Completed Units</th>
@@ -293,23 +293,23 @@ export default function TeacherDashboardPage() {
                       <th className="py-3 px-3 text-right">Action</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-white/5">
+                  <tbody className="divide-y divide-[var(--border-primary)]">
                     {filteredStudents.map(student => (
-                      <tr key={student.id} className="hover:bg-white/[0.02] transition-colors">
+                      <tr key={student.id} className="hover:bg-emerald-500/5 transition-colors">
                         <td className="py-3.5 px-3">
                           <div className="flex items-center gap-2.5">
-                            <div className="w-8 h-8 rounded-xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center text-sm font-bold text-purple-300">
+                            <div className="w-8 h-8 rounded-xl bg-purple-500/15 border border-purple-500/30 flex items-center justify-center text-sm font-bold text-purple-600 dark:text-purple-300">
                               {student.name[0]}
                             </div>
                             <div>
-                              <p className="font-space font-bold text-white text-xs">{student.name}</p>
-                              <p className="text-[10px] text-white/40 font-inter">{student.email}</p>
+                              <p className="font-space font-bold text-[var(--text-main)] text-xs">{student.name}</p>
+                              <p className="text-[10px] text-[var(--text-muted)] font-inter">{student.email}</p>
                             </div>
                           </div>
                         </td>
                         <td className="py-3.5 px-3 font-space">
-                          <span className="text-cyan-400 font-bold">Lvl {student.level}</span>
-                          <span className="text-white/40 text-[10px] block">{student.xp.toLocaleString()} XP</span>
+                          <span className="text-cyan-600 dark:text-cyan-400 font-bold">Lvl {student.level}</span>
+                          <span className="text-[var(--text-muted)] text-[10px] block">{student.xp.toLocaleString()} XP</span>
                         </td>
                         <td className="py-3.5 px-3">
                           <div className="flex items-center gap-1 flex-wrap">
@@ -318,8 +318,8 @@ export default function TeacherDashboardPage() {
                                 key={u}
                                 className={`w-5 h-5 rounded-md flex items-center justify-center text-[10px] font-orbitron font-bold ${
                                   student.completedUnits.includes(u)
-                                    ? 'bg-cyan-500/20 text-cyan-400 border border-cyan-500/40'
-                                    : 'bg-white/5 text-white/20 border border-white/5'
+                                    ? 'bg-cyan-500/20 text-cyan-600 dark:text-cyan-400 border border-cyan-500/40'
+                                    : 'bg-[var(--bg-app)] text-[var(--text-muted)] opacity-50 border border-[var(--border-primary)]'
                                 }`}
                                 title={`Unit ${u}`}
                               >
@@ -328,14 +328,14 @@ export default function TeacherDashboardPage() {
                             ))}
                           </div>
                         </td>
-                        <td className="py-3.5 px-3 font-orbitron font-bold text-emerald-400">
+                        <td className="py-3.5 px-3 font-orbitron font-bold text-emerald-600 dark:text-emerald-400">
                           {student.avgScore}
                         </td>
                         <td className="py-3.5 px-3">
                           <span className={`px-2 py-0.5 rounded-full text-[10px] font-space font-bold ${
-                            student.status === 'TOP_PERFORMER' ? 'bg-amber-500/15 text-amber-300 border border-amber-500/30' :
-                            student.status === 'ON_TRACK' ? 'bg-emerald-500/15 text-emerald-300 border border-emerald-500/30' :
-                            'bg-orange-500/15 text-orange-300 border border-orange-500/30'
+                            student.status === 'TOP_PERFORMER' ? 'bg-amber-500/15 text-amber-700 dark:text-amber-300 border border-amber-500/30' :
+                            student.status === 'ON_TRACK' ? 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border border-emerald-500/30' :
+                            'bg-orange-500/15 text-orange-700 dark:text-orange-300 border border-orange-500/30'
                           }`}>
                             {student.status.replace('_', ' ')}
                           </span>
@@ -343,7 +343,7 @@ export default function TeacherDashboardPage() {
                         <td className="py-3.5 px-3 text-right">
                           <button
                             onClick={() => setSelectedStudent(student)}
-                            className="p-1.5 rounded-lg bg-white/5 hover:bg-cyan-500/20 text-white/50 hover:text-cyan-400 border border-white/10 hover:border-cyan-500/30 transition-all cursor-pointer"
+                            className="p-1.5 rounded-lg bg-[var(--bg-app)] hover:bg-cyan-500/15 text-[var(--text-muted)] hover:text-cyan-600 dark:hover:text-cyan-400 border border-[var(--border-primary)] hover:border-cyan-500/30 transition-all cursor-pointer"
                             title="View Detailed Student Report"
                           >
                             <Eye size={14} />
@@ -359,8 +359,8 @@ export default function TeacherDashboardPage() {
 
             {/* Escape Room Controls & Lock Management */}
             <DashCard className="p-5 sm:p-6">
-              <h3 className="font-orbitron font-bold text-lg text-white mb-1">Escape Room Class Controls</h3>
-              <p className="text-white/40 text-xs font-space mb-5">Toggle room availability and instant lock status for students</p>
+              <h3 className="font-orbitron font-bold text-lg text-[var(--text-main)] mb-1">Escape Room Class Controls</h3>
+              <p className="text-[var(--text-muted)] text-xs font-space mb-5">Toggle room availability and instant lock status for students</p>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {unitStats.map(unit => {
@@ -368,17 +368,17 @@ export default function TeacherDashboardPage() {
                   return (
                     <div
                       key={unit.id}
-                      className="p-4 rounded-xl glass border border-white/10 flex items-center justify-between gap-4"
+                      className="p-4 rounded-xl bg-[var(--bg-app)] border border-[var(--border-primary)] flex items-center justify-between gap-4"
                     >
                       <div>
                         <div className="flex items-center gap-2 mb-1">
-                          <span className="font-orbitron font-bold text-xs text-white">{unit.name}</span>
+                          <span className="font-orbitron font-bold text-xs text-[var(--text-main)]">{unit.name}</span>
                         </div>
-                        <p className="text-[11px] text-white/40 font-inter">{unit.topic}</p>
+                        <p className="text-[11px] text-[var(--text-muted)] font-inter">{unit.topic}</p>
                         <div className="flex items-center gap-3 mt-2 text-[10px] font-space">
-                          <span className="text-emerald-400 font-bold">{unit.passRate}% Pass Rate</span>
-                          <span className="text-white/30">•</span>
-                          <span className="text-white/40">Avg Time: {unit.avgTime}</span>
+                          <span className="text-emerald-600 dark:text-emerald-400 font-bold">{unit.passRate}% Pass Rate</span>
+                          <span className="text-[var(--text-muted)]">•</span>
+                          <span className="text-[var(--text-muted)]">Avg Time: {unit.avgTime}</span>
                         </div>
                       </div>
 
@@ -386,8 +386,8 @@ export default function TeacherDashboardPage() {
                         onClick={() => toggleRoomLock(unit.id)}
                         className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl font-space font-bold text-xs border cursor-pointer transition-all flex-shrink-0 ${
                           isUnlocked
-                            ? 'bg-emerald-500/15 text-emerald-400 border-emerald-500/30 hover:bg-emerald-500/25'
-                            : 'bg-rose-500/15 text-rose-400 border-rose-500/30 hover:bg-rose-500/25'
+                            ? 'bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border-emerald-500/30 hover:bg-emerald-500/25'
+                            : 'bg-rose-500/15 text-rose-600 dark:text-rose-400 border-rose-500/30 hover:bg-rose-500/25'
                         }`}
                       >
                         {isUnlocked ? <Unlock size={14} /> : <Lock size={14} />}
@@ -406,7 +406,7 @@ export default function TeacherDashboardPage() {
             {/* Unit Performance Breakdown */}
             <DashCard className="p-5">
               <div className="flex items-center justify-between mb-4">
-                <h3 className="font-orbitron font-bold text-base text-white">Unit Completion Stats</h3>
+                <h3 className="font-orbitron font-bold text-base text-[var(--text-main)]">Unit Completion Stats</h3>
                 <BarChart2 size={16} className="text-purple-400" />
               </div>
 
@@ -414,10 +414,10 @@ export default function TeacherDashboardPage() {
                 {unitStats.map(unit => (
                   <div key={unit.id}>
                     <div className="flex justify-between text-xs font-space mb-1">
-                      <span className="text-white/70">{unit.name.split(':')[0]}</span>
-                      <span className="font-orbitron font-bold text-cyan-400">{unit.passRate}%</span>
+                      <span className="text-[var(--text-main)]">{unit.name.split(':')[0]}</span>
+                      <span className="font-orbitron font-bold text-cyan-600 dark:text-cyan-400">{unit.passRate}%</span>
                     </div>
-                    <div className="h-2 rounded-full bg-white/5 overflow-hidden">
+                    <div className="h-2 rounded-full bg-[var(--bg-secondary)] overflow-hidden">
                       <div
                         className="h-full rounded-full bg-gradient-to-r from-cyan-500 to-purple-600"
                         style={{ width: `${unit.passRate}%` }}
@@ -431,25 +431,25 @@ export default function TeacherDashboardPage() {
             {/* Class Announcements Widget */}
             <DashCard className="p-5">
               <div className="flex items-center justify-between mb-3">
-                <h3 className="font-orbitron font-bold text-base text-white">Class Announcements</h3>
+                <h3 className="font-orbitron font-bold text-base text-[var(--text-main)]">Class Announcements</h3>
                 <button
                   onClick={() => setAnnouncementModal(true)}
-                  className="px-2.5 py-1 rounded-lg bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 font-orbitron text-[10px] font-bold flex items-center gap-1 border border-emerald-500/30 cursor-pointer"
+                  className="px-2.5 py-1 rounded-lg bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-700 dark:text-emerald-300 font-orbitron text-[10px] font-bold flex items-center gap-1 border border-emerald-500/30 cursor-pointer"
                 >
                   <Plus size={12} /> Post
                 </button>
               </div>
               {announcements.length === 0 ? (
-                <div className="p-4 rounded-xl bg-white/5 border border-white/10 text-center">
-                  <p className="text-xs text-white/40 font-space">No class announcements posted yet.</p>
+                <div className="p-4 rounded-xl bg-[var(--bg-app)] border border-[var(--border-primary)] text-center">
+                  <p className="text-xs text-[var(--text-muted)] font-space">No class announcements posted yet.</p>
                 </div>
               ) : (
                 <div className="flex flex-col gap-3 text-xs font-inter">
                   {announcements.map((ann, idx) => (
                     <div key={idx} className="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20">
-                      <p className="font-space font-bold text-emerald-300 mb-0.5">{ann.title}</p>
-                      <p className="text-white/60 text-[11px]">{ann.text}</p>
-                      <span className="text-[9px] text-white/30 font-mono mt-1 block">{ann.date}</span>
+                      <p className="font-space font-bold text-emerald-700 dark:text-emerald-300 mb-0.5">{ann.title}</p>
+                      <p className="text-[var(--text-main)] text-[11px]">{ann.text}</p>
+                      <span className="text-[9px] text-[var(--text-muted)] font-mono mt-1 block">{ann.date}</span>
                     </div>
                   ))}
                 </div>
@@ -468,10 +468,10 @@ export default function TeacherDashboardPage() {
             exit={{ opacity: 0 }}
             className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm"
           >
-            <div className="w-full max-w-lg p-6 rounded-2xl bg-[#0a1628] border border-emerald-500/30 shadow-2xl">
+            <div className="w-full max-w-lg p-6 rounded-2xl bg-[var(--bg-card)] border border-[var(--border-primary)] shadow-2xl text-[var(--text-main)]">
               <div className="flex items-center justify-between mb-4">
-                <h3 className="font-orbitron font-bold text-lg text-white">Broadcast Class Announcement</h3>
-                <button onClick={() => setAnnouncementModal(false)} className="text-white/40 hover:text-white cursor-pointer">
+                <h3 className="font-orbitron font-bold text-lg text-[var(--text-main)]">Broadcast Class Announcement</h3>
+                <button onClick={() => setAnnouncementModal(false)} className="text-[var(--text-muted)] hover:text-[var(--text-main)] cursor-pointer">
                   <X size={18} />
                 </button>
               </div>
@@ -481,7 +481,7 @@ export default function TeacherDashboardPage() {
                 placeholder="Announcement Title..."
                 value={announcementTitle}
                 onChange={e => setAnnouncementTitle(e.target.value)}
-                className="w-full p-3 rounded-xl bg-[#040810] border border-white/10 text-white placeholder-white/30 text-xs font-space outline-none focus:border-emerald-500/40 mb-3"
+                className="w-full p-3 rounded-xl bg-[var(--bg-app)] border border-[var(--border-primary)] text-[var(--text-main)] placeholder-[var(--text-muted)] text-xs font-space outline-none focus:border-emerald-500/40 mb-3"
               />
 
               <textarea
@@ -489,13 +489,13 @@ export default function TeacherDashboardPage() {
                 placeholder="Write message to students..."
                 value={announcementText}
                 onChange={e => setAnnouncementText(e.target.value)}
-                className="w-full p-3 rounded-xl bg-[#040810] border border-white/10 text-white placeholder-white/30 text-xs font-inter outline-none focus:border-emerald-500/40 mb-4"
+                className="w-full p-3 rounded-xl bg-[var(--bg-app)] border border-[var(--border-primary)] text-[var(--text-main)] placeholder-[var(--text-muted)] text-xs font-inter outline-none focus:border-emerald-500/40 mb-4"
               />
 
               <div className="flex justify-end gap-3">
                 <button
                   onClick={() => setAnnouncementModal(false)}
-                  className="px-4 py-2 rounded-xl bg-white/5 text-white/60 text-xs font-space cursor-pointer"
+                  className="px-4 py-2 rounded-xl bg-[var(--bg-app)] border border-[var(--border-primary)] text-[var(--text-muted)] hover:text-[var(--text-main)] text-xs font-space cursor-pointer"
                 >
                   Cancel
                 </button>
@@ -536,45 +536,45 @@ export default function TeacherDashboardPage() {
             exit={{ opacity: 0 }}
             className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm"
           >
-            <div className="w-full max-w-md p-6 rounded-2xl bg-[#0a1628] border border-cyan-500/30 shadow-2xl">
+            <div className="w-full max-w-md p-6 rounded-2xl bg-[var(--bg-card)] border border-[var(--border-primary)] shadow-2xl text-[var(--text-main)]">
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-cyan-500/20 text-cyan-400 font-bold flex items-center justify-center text-lg">
+                  <div className="w-10 h-10 rounded-xl bg-cyan-500/15 text-cyan-600 dark:text-cyan-400 font-bold flex items-center justify-center text-lg border border-cyan-500/20">
                     {selectedStudent.name[0]}
                   </div>
                   <div>
-                    <h3 className="font-space font-bold text-base text-white">{selectedStudent.name}</h3>
-                    <p className="text-xs text-white/40 font-inter">{selectedStudent.email}</p>
+                    <h3 className="font-space font-bold text-base text-[var(--text-main)]">{selectedStudent.name}</h3>
+                    <p className="text-xs text-[var(--text-muted)] font-inter">{selectedStudent.email}</p>
                   </div>
                 </div>
-                <button onClick={() => setSelectedStudent(null)} className="text-white/40 hover:text-white cursor-pointer">
+                <button onClick={() => setSelectedStudent(null)} className="text-[var(--text-muted)] hover:text-[var(--text-main)] cursor-pointer">
                   <X size={18} />
                 </button>
               </div>
 
               <div className="grid grid-cols-2 gap-3 mb-4 text-xs font-space">
-                <div className="p-3 rounded-xl bg-white/5 border border-white/10">
-                  <span className="text-white/40 text-[10px] block">Level & XP</span>
-                  <span className="text-cyan-400 font-bold text-sm">Lvl {selectedStudent.level}</span>
-                  <span className="text-white/60 text-[10px] block">{selectedStudent.xp} Total XP</span>
+                <div className="p-3 rounded-xl bg-[var(--bg-app)] border border-[var(--border-primary)]">
+                  <span className="text-[var(--text-muted)] text-[10px] block">Level & XP</span>
+                  <span className="text-cyan-600 dark:text-cyan-400 font-bold text-sm">Lvl {selectedStudent.level}</span>
+                  <span className="text-[var(--text-muted)] text-[10px] block">{selectedStudent.xp} Total XP</span>
                 </div>
-                <div className="p-3 rounded-xl bg-white/5 border border-white/10">
-                  <span className="text-white/40 text-[10px] block">Average Accuracy</span>
-                  <span className="text-emerald-400 font-bold text-sm">{selectedStudent.avgScore}</span>
-                  <span className="text-white/60 text-[10px] block">6 Units Attempted</span>
+                <div className="p-3 rounded-xl bg-[var(--bg-app)] border border-[var(--border-primary)]">
+                  <span className="text-[var(--text-muted)] text-[10px] block">Average Accuracy</span>
+                  <span className="text-emerald-600 dark:text-emerald-400 font-bold text-sm">{selectedStudent.avgScore}</span>
+                  <span className="text-[var(--text-muted)] text-[10px] block">6 Units Attempted</span>
                 </div>
               </div>
 
               <div className="mb-4">
-                <p className="text-xs font-space font-bold text-white/70 mb-2">Completed Escape Units:</p>
+                <p className="text-xs font-space font-bold text-[var(--text-main)] mb-2">Completed Escape Units:</p>
                 <div className="grid grid-cols-3 gap-2">
                   {[1, 2, 3, 4, 5, 6].map(u => (
                     <div
                       key={u}
                       className={`p-2 rounded-lg text-center text-xs font-space font-bold border ${
                         selectedStudent.completedUnits.includes(u)
-                          ? 'bg-cyan-500/15 text-cyan-300 border-cyan-500/30'
-                          : 'bg-white/5 text-white/20 border-white/5'
+                          ? 'bg-cyan-500/15 text-cyan-600 dark:text-cyan-300 border-cyan-500/30'
+                          : 'bg-[var(--bg-app)] text-[var(--text-muted)] opacity-50 border border-[var(--border-primary)]'
                       }`}
                     >
                       Unit {u} {selectedStudent.completedUnits.includes(u) ? '✓' : '🔒'}
@@ -585,7 +585,7 @@ export default function TeacherDashboardPage() {
 
               <button
                 onClick={() => setSelectedStudent(null)}
-                className="w-full py-2.5 rounded-xl bg-white/10 hover:bg-white/15 text-white font-space text-xs font-bold cursor-pointer transition-all"
+                className="w-full py-2.5 rounded-xl bg-[var(--bg-app)] hover:bg-[var(--bg-secondary)] text-[var(--text-main)] border border-[var(--border-primary)] font-space text-xs font-bold cursor-pointer transition-all"
               >
                 Close Report
               </button>
